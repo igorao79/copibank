@@ -235,7 +235,7 @@ class _CardsScreenState extends State<CardsScreen> with TickerProviderStateMixin
             Text(
               subtitle,
               style: BankingTypography.caption.copyWith(
-                color: isDark ? BankingColors.neutral400 : BankingColors.neutral500,
+                color: isDark ? BankingColors.neutral200 : BankingColors.neutral500,
               ),
               textAlign: TextAlign.center,
             ),
@@ -256,7 +256,7 @@ class _CardsScreenState extends State<CardsScreen> with TickerProviderStateMixin
           Text(
             label,
             style: BankingTypography.bodyRegular.copyWith(
-              color: isDark ? BankingColors.neutral300 : BankingColors.neutral600,
+              color: isDark ? BankingColors.neutral100 : BankingColors.neutral600,
             ),
           ),
           Text(

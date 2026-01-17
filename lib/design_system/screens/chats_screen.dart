@@ -42,6 +42,7 @@ class _ChatsScreenState extends State<ChatsScreen> with TickerProviderStateMixin
 
   @override
   Widget build(BuildContext context) {
+    final appState = context.watch<AppState>();
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final localizations = AppLocalizations.of(context)!;
 
@@ -105,7 +106,7 @@ class _ChatsScreenState extends State<ChatsScreen> with TickerProviderStateMixin
               Text(
                 localizations.messagesDescription,
                 style: BankingTypography.bodyRegular.copyWith(
-                  color: isDark ? BankingColors.neutral400 : BankingColors.neutral500,
+                  color: isDark ? BankingColors.neutral200 : BankingColors.neutral500,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -141,7 +142,7 @@ class _ChatsScreenState extends State<ChatsScreen> with TickerProviderStateMixin
           ),
         ),
       ),
-        bottomNavigationBar: _buildBottomNavigation(localizations),
+        bottomNavigationBar: _buildBottomNavigation(appState, localizations),
       ),
     );
   }
@@ -190,7 +191,7 @@ class _ChatsScreenState extends State<ChatsScreen> with TickerProviderStateMixin
             Text(
               time,
               style: BankingTypography.caption.copyWith(
-                color: isDark ? BankingColors.neutral400 : BankingColors.neutral500,
+                color: isDark ? BankingColors.neutral200 : BankingColors.neutral500,
               ),
             ),
           ],
@@ -201,7 +202,7 @@ class _ChatsScreenState extends State<ChatsScreen> with TickerProviderStateMixin
             Text(
               subtitle,
               style: BankingTypography.caption.copyWith(
-                color: isDark ? BankingColors.neutral400 : BankingColors.neutral500,
+                color: isDark ? BankingColors.neutral200 : BankingColors.neutral500,
               ),
             ),
             const SizedBox(height: BankingTokens.space4),
@@ -236,7 +237,7 @@ class _ChatsScreenState extends State<ChatsScreen> with TickerProviderStateMixin
               Icon(
                 Icons.arrow_forward_ios,
                 size: 16,
-                color: isDark ? BankingColors.neutral400 : BankingColors.neutral500,
+                color: isDark ? BankingColors.neutral200 : BankingColors.neutral500,
               ),
           ],
         ),
@@ -249,30 +250,83 @@ class _ChatsScreenState extends State<ChatsScreen> with TickerProviderStateMixin
   }
 
 
-  Widget _buildBottomNavigation(AppLocalizations localizations) {
-    final appState = context.watch<AppState>();
+  Widget _buildBottomNavigation(AppState appState, AppLocalizations localizations) {
+    final items = <BottomNavigationBarItem>[
+      BottomNavigationBarItem(
+        icon: Icon(Icons.account_balance),
+        label: localizations.myBank,
+      ),
+    ];
+
+    // Добавляем историю только если есть карты
+    if (appState.accounts.isNotEmpty) {
+      items.add(BottomNavigationBarItem(
+        icon: Icon(Icons.history),
+        label: localizations.history,
+      ));
+    }
+
+    items.addAll([
+      BottomNavigationBarItem(
+        icon: Icon(Icons.chat),
+        label: localizations.chats,
+      ),
+      BottomNavigationBarItem(
+        icon: Icon(Icons.add_circle),
+        label: localizations.apply,
+      ),
+    ]);
+
+    // Вычисляем currentIndex для BottomNavigationBar
+    int currentNavIndex;
+    final hasHistory = appState.accounts.isNotEmpty;
+    if (hasHistory) {
+      currentNavIndex = appState.selectedTabIndex;
+    } else {
+      switch (appState.selectedTabIndex) {
+        case 0:
+          currentNavIndex = 0; // Мой банк
+          break;
+        case 2:
+          currentNavIndex = 1; // Чаты
+          break;
+        case 3:
+          currentNavIndex = 2; // Оформить
+          break;
+        default:
+          currentNavIndex = 0;
+      }
+    }
+
     return BottomNavigationBar(
-      currentIndex: appState.selectedTabIndex,
-      onTap: (index) => appState.setSelectedTabIndex(index),
-      items: [
-        BottomNavigationBarItem(
-          icon: Icon(Icons.account_balance),
-          label: localizations.myBank,
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.history),
-          label: localizations.history,
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.chat),
-          label: localizations.chats,
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.add_circle),
-          label: localizations.apply,
-        ),
-      ],
+      currentIndex: currentNavIndex,
+      onTap: (index) => _onBottomNavigationTap(index, appState),
+      items: items,
     );
+  }
+
+  void _onBottomNavigationTap(int index, AppState appState) {
+    final hasHistory = appState.accounts.isNotEmpty;
+    // Корректируем индекс для соответствия main.dart логике
+    int correctedIndex;
+    if (hasHistory) {
+      correctedIndex = index;
+    } else {
+      switch (index) {
+        case 0:
+          correctedIndex = 0; // Мой банк
+          break;
+        case 1:
+          correctedIndex = 2; // Чаты
+          break;
+        case 2:
+          correctedIndex = 3; // Оформить
+          break;
+        default:
+          correctedIndex = 0;
+      }
+    }
+    appState.setSelectedTabIndex(correctedIndex);
   }
 
   void _onChatTap(String chatType) {

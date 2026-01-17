@@ -121,7 +121,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> with TickerProv
       appBar: AppBar(
         title: Text(
           localizations.transactions,
-          style: BankingTypography.heading3,
+          style: Theme.of(context).textTheme.headlineSmall,
         ),
       ),
       body: FadeTransition(
@@ -134,7 +134,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> with TickerProv
               // Search and Filter Section
               Text(
                 'Все транзакции',
-                style: BankingTypography.heading3,
+                style: Theme.of(context).textTheme.headlineSmall,
               ),
               const SizedBox(height: BankingTokens.space16),
 
@@ -152,10 +152,10 @@ class _TransactionsScreenState extends State<TransactionsScreen> with TickerProv
                     border: InputBorder.none,
                     icon: Icon(
                       Icons.search,
-                      color: isDark ? BankingColors.neutral400 : BankingColors.neutral500,
+                      color: isDark ? BankingColors.neutral200 : BankingColors.neutral500,
                     ),
                   ),
-                  style: BankingTypography.bodyRegular.copyWith(
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                     color: isDark ? BankingColors.neutral100 : BankingColors.neutral900,
                   ),
                 ),
@@ -181,10 +181,10 @@ class _TransactionsScreenState extends State<TransactionsScreen> with TickerProv
                           border: InputBorder.none,
                           icon: Icon(
                             Icons.search,
-                            color: isDark ? BankingColors.neutral400 : BankingColors.neutral500,
+                            color: isDark ? BankingColors.neutral200 : BankingColors.neutral500,
                           ),
                         ),
-                        style: BankingTypography.bodyRegular.copyWith(
+                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                           color: isDark ? BankingColors.neutral100 : BankingColors.neutral900,
                         ),
                       ),
@@ -240,12 +240,12 @@ class _TransactionsScreenState extends State<TransactionsScreen> with TickerProv
                 children: [
                   Text(
                     'Транзакции (${_filteredTransactions.length})',
-                    style: BankingTypography.heading4,
+                    style: Theme.of(context).textTheme.titleLarge,
                   ),
                   if (_selectedDateRange != null)
                     Text(
                       '${_formatDate(_selectedDateRange!.start)} - ${_formatDate(_selectedDateRange!.end)}',
-                      style: BankingTypography.caption.copyWith(
+                      style: Theme.of(context).textTheme.labelSmall!.copyWith(
                         color: BankingColors.primary500,
                       ),
                     ),
@@ -319,7 +319,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> with TickerProv
           ),
         ),
       ),
-        bottomNavigationBar: _buildBottomNavigation(localizations),
+        bottomNavigationBar: _buildBottomNavigation(appState, localizations),
       ),
     );
   }
@@ -430,12 +430,12 @@ class _TransactionsScreenState extends State<TransactionsScreen> with TickerProv
                     Expanded(
                       child: Text(
                         entry.key,
-                        style: BankingTypography.bodySmall,
+                        style: Theme.of(context).textTheme.bodySmall,
                       ),
                     ),
                     Text(
                       '${entry.value.toStringAsFixed(0)} ₽ (${percentage.toStringAsFixed(1)}%)',
-                      style: BankingTypography.bodySmall.semiBold,
+                      style: Theme.of(context).textTheme.bodySmall!.copyWith(fontWeight: FontWeight.w600),
                     ),
                   ],
                 ),
@@ -495,7 +495,9 @@ class _TransactionsScreenState extends State<TransactionsScreen> with TickerProv
                 ? amount.toInt().toString()
                 : '${amount.toStringAsFixed(0)} ₽',
             style: BankingTypography.amountMedium.copyWith(
-              color: isDark ? BankingColors.neutral100 : BankingColors.neutral900,
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? BankingColors.neutral0
+                  : BankingColors.neutral900,
             ),
           ),
           if (subtitle != null) ...[
@@ -503,7 +505,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> with TickerProv
             Text(
               subtitle,
               style: BankingTypography.caption.copyWith(
-                color: isDark ? BankingColors.neutral400 : BankingColors.neutral500,
+                color: isDark ? BankingColors.neutral200 : BankingColors.neutral500,
               ),
             ),
           ],
@@ -512,30 +514,83 @@ class _TransactionsScreenState extends State<TransactionsScreen> with TickerProv
     );
   }
 
-  Widget _buildBottomNavigation(AppLocalizations localizations) {
-    final appState = context.watch<AppState>();
+  Widget _buildBottomNavigation(AppState appState, AppLocalizations localizations) {
+    final items = <BottomNavigationBarItem>[
+      BottomNavigationBarItem(
+        icon: Icon(Icons.account_balance),
+        label: localizations.myBank,
+      ),
+    ];
+
+    // Добавляем историю только если есть карты
+    if (appState.accounts.isNotEmpty) {
+      items.add(BottomNavigationBarItem(
+        icon: Icon(Icons.history),
+        label: localizations.history,
+      ));
+    }
+
+    items.addAll([
+      BottomNavigationBarItem(
+        icon: Icon(Icons.chat),
+        label: localizations.chats,
+      ),
+      BottomNavigationBarItem(
+        icon: Icon(Icons.add_circle),
+        label: localizations.apply,
+      ),
+    ]);
+
+    // Вычисляем currentIndex для BottomNavigationBar
+    int currentNavIndex;
+    final hasHistory = appState.accounts.isNotEmpty;
+    if (hasHistory) {
+      currentNavIndex = appState.selectedTabIndex;
+    } else {
+      switch (appState.selectedTabIndex) {
+        case 0:
+          currentNavIndex = 0; // Мой банк
+          break;
+        case 2:
+          currentNavIndex = 1; // Чаты
+          break;
+        case 3:
+          currentNavIndex = 2; // Оформить
+          break;
+        default:
+          currentNavIndex = 0;
+      }
+    }
+
     return BottomNavigationBar(
-      currentIndex: appState.selectedTabIndex,
-      onTap: (index) => appState.setSelectedTabIndex(index),
-      items: [
-        BottomNavigationBarItem(
-          icon: Icon(Icons.account_balance),
-          label: localizations.myBank,
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.history),
-          label: localizations.history,
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.chat),
-          label: localizations.chats,
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.add_circle),
-          label: localizations.apply,
-        ),
-      ],
+      currentIndex: currentNavIndex,
+      onTap: (index) => _onBottomNavigationTap(index, appState),
+      items: items,
     );
+  }
+
+  void _onBottomNavigationTap(int index, AppState appState) {
+    final hasHistory = appState.accounts.isNotEmpty;
+    // Корректируем индекс для соответствия main.dart логике
+    int correctedIndex;
+    if (hasHistory) {
+      correctedIndex = index;
+    } else {
+      switch (index) {
+        case 0:
+          correctedIndex = 0; // Мой банк
+          break;
+        case 1:
+          correctedIndex = 2; // Чаты
+          break;
+        case 2:
+          correctedIndex = 3; // Оформить
+          break;
+        default:
+          correctedIndex = 0;
+      }
+    }
+    appState.setSelectedTabIndex(correctedIndex);
   }
 
   void _onTransactionTap(Transaction transaction) {

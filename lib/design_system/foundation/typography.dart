@@ -55,7 +55,7 @@ class BankingTypography {
     fontWeight: fontWeightBold,
     height: lineHeightTight,
     letterSpacing: letterSpacingTight,
-    color: BankingColors.neutral900,
+    fontFamily: 'Iciel',
   );
 
   static TextStyle get displayMedium => const TextStyle(
@@ -63,7 +63,7 @@ class BankingTypography {
     fontWeight: fontWeightBold,
     height: lineHeightTight,
     letterSpacing: letterSpacingTight,
-    color: BankingColors.neutral900,
+    fontFamily: 'Iciel',
   );
 
   static TextStyle get displaySmall => const TextStyle(
@@ -71,7 +71,7 @@ class BankingTypography {
     fontWeight: fontWeightBold,
     height: lineHeightTight,
     letterSpacing: letterSpacingTight,
-    color: BankingColors.neutral900,
+    fontFamily: 'Iciel',
   );
 
   // ===========================================================================
@@ -83,7 +83,7 @@ class BankingTypography {
     fontWeight: fontWeightSemiBold,
     height: lineHeightTight,
     letterSpacing: letterSpacingTight,
-    color: BankingColors.neutral900,
+    fontFamily: 'Iciel',
   );
 
   static TextStyle get heading2 => const TextStyle(
@@ -91,7 +91,7 @@ class BankingTypography {
     fontWeight: fontWeightSemiBold,
     height: lineHeightTight,
     letterSpacing: letterSpacingTight,
-    color: BankingColors.neutral900,
+    fontFamily: 'Iciel',
   );
 
   static TextStyle get heading3 => const TextStyle(
@@ -99,7 +99,7 @@ class BankingTypography {
     fontWeight: fontWeightSemiBold,
     height: lineHeightTight,
     letterSpacing: letterSpacingNormal,
-    color: BankingColors.neutral900,
+    fontFamily: 'Iciel',
   );
 
   static TextStyle get heading4 => const TextStyle(
@@ -107,7 +107,7 @@ class BankingTypography {
     fontWeight: fontWeightSemiBold,
     height: lineHeightTight,
     letterSpacing: letterSpacingNormal,
-    color: BankingColors.neutral900,
+    fontFamily: 'Iciel',
   );
 
   // ===========================================================================
@@ -119,7 +119,7 @@ class BankingTypography {
     fontWeight: fontWeightRegular,
     height: lineHeightRelaxed,
     letterSpacing: letterSpacingNormal,
-    color: BankingColors.neutral700,
+    fontFamily: 'Berlin',
   );
 
   static TextStyle get bodyRegular => const TextStyle(
@@ -127,7 +127,7 @@ class BankingTypography {
     fontWeight: fontWeightRegular,
     height: lineHeightRelaxed,
     letterSpacing: letterSpacingNormal,
-    color: BankingColors.neutral700,
+    fontFamily: 'Berlin',
   );
 
   static TextStyle get bodySmall => const TextStyle(
@@ -135,7 +135,7 @@ class BankingTypography {
     fontWeight: fontWeightRegular,
     height: lineHeightRelaxed,
     letterSpacing: letterSpacingNormal,
-    color: BankingColors.neutral600,
+    fontFamily: 'Berlin',
   );
 
   // ===========================================================================
@@ -147,7 +147,7 @@ class BankingTypography {
     fontWeight: fontWeightRegular,
     height: lineHeightNormal,
     letterSpacing: letterSpacingWide,
-    color: BankingColors.neutral500,
+    fontFamily: 'Berlin',
   );
 
   static TextStyle get overline => const TextStyle(
@@ -176,7 +176,6 @@ class BankingTypography {
     fontWeight: fontWeightSemiBold,
     height: lineHeightTight,
     letterSpacing: letterSpacingTight,
-    color: BankingColors.neutral900,
   );
 
   static TextStyle get amountSmall => const TextStyle(
@@ -184,7 +183,6 @@ class BankingTypography {
     fontWeight: fontWeightMedium,
     height: lineHeightTight,
     letterSpacing: letterSpacingTight,
-    color: BankingColors.neutral700,
   );
 
   static TextStyle get label => const TextStyle(
@@ -192,7 +190,6 @@ class BankingTypography {
     fontWeight: fontWeightMedium,
     height: lineHeightNormal,
     letterSpacing: letterSpacingWide,
-    color: BankingColors.neutral600,
   );
 
   static TextStyle get button => const TextStyle(
@@ -200,7 +197,6 @@ class BankingTypography {
     fontWeight: fontWeightSemiBold,
     height: lineHeightNormal,
     letterSpacing: letterSpacingNormal,
-    color: BankingColors.neutral0,
   );
 
   static TextStyle get buttonSmall => const TextStyle(

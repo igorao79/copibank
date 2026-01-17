@@ -84,6 +84,21 @@ flutter:
   # the material Icons class.
   uses-material-design: true
 
+  assets:
+    - assets/lottie/
+    - assets/lottie/success.json
+    - assets/svg/background_light.svg
+    - assets/svg/background_dark.svg
+    - assets/svg/app-bank.svg
+
+  fonts:
+    - family: Iciel
+      fonts:
+        - asset: assets/fonts/iciel-crocante.otf
+    - family: Berlin
+      fonts:
+        - asset: assets/fonts/BerlinSansFBCyrillic-Regular.ttf
+
   # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg
@@ -114,20 +129,3 @@ flutter:
   #
 # For details regarding fonts from package dependencies,
 # see https://flutter.dev/to/font-from-package
-
-# Assets
-assets:
-  - assets/lottie/
-  - assets/svg/background_light.svg
-  - assets/svg/background_dark.svg
-
-# Fonts
-fonts:
-  - family: Iciel
-    fonts:
-      - asset: assets/fonts/iciel-regular.ttf
-        weight: 400
-  - family: Berlin
-    fonts:
-      - asset: assets/fonts/berlin-regular.ttf
-        weight: 400

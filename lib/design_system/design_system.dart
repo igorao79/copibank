@@ -34,6 +34,7 @@ export 'themes/banking_theme.dart';
 export 'utils/app_state.dart';
 
 // Screens
+export 'screens/apply_screen.dart';
 export 'screens/dashboard_screen.dart';
 export 'screens/transactions_screen.dart';
 export 'screens/chats_screen.dart';

@@ -130,7 +130,7 @@ class _NotificationsChatScreenState extends State<NotificationsChatScreen> with 
           Text(
             'Здесь будут появляться важные сообщения от банка',
             style: BankingTypography.bodyRegular.copyWith(
-              color: isDark ? BankingColors.neutral400 : BankingColors.neutral500,
+              color: isDark ? BankingColors.neutral200 : BankingColors.neutral500,
             ),
             textAlign: TextAlign.center,
           ),
@@ -252,14 +252,14 @@ class _NotificationsChatScreenState extends State<NotificationsChatScreen> with 
               Text(
                 notification['message'] as String,
                 style: BankingTypography.bodySmall.copyWith(
-                  color: isDark ? BankingColors.neutral300 : BankingColors.neutral600,
+                  color: isDark ? BankingColors.neutral100 : BankingColors.neutral600,
                 ),
               ),
               const SizedBox(height: BankingTokens.space8),
               Text(
                 _formatTimestamp(notification['timestamp'] as DateTime),
                 style: BankingTypography.caption.copyWith(
-                  color: isDark ? BankingColors.neutral500 : BankingColors.neutral400,
+                  color: isDark ? BankingColors.neutral200 : BankingColors.neutral400,
                   fontSize: 10,
                 ),
               ),
@@ -303,7 +303,7 @@ class _NotificationsChatScreenState extends State<NotificationsChatScreen> with 
                 height: 4,
                 margin: const EdgeInsets.symmetric(vertical: BankingTokens.space12),
                 decoration: BoxDecoration(
-                  color: isDark ? BankingColors.neutral600 : BankingColors.neutral300,
+                  color: isDark ? BankingColors.neutral200 : BankingColors.neutral300,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -326,7 +326,7 @@ class _NotificationsChatScreenState extends State<NotificationsChatScreen> with 
                       Text(
                         _formatTimestamp(notification['timestamp'] as DateTime),
                         style: BankingTypography.caption.copyWith(
-                          color: isDark ? BankingColors.neutral500 : BankingColors.neutral400,
+                          color: isDark ? BankingColors.neutral200 : BankingColors.neutral400,
                         ),
                       ),
                     ],
@@ -395,7 +395,7 @@ class _NotificationsChatScreenState extends State<NotificationsChatScreen> with 
                 height: 4,
                 margin: const EdgeInsets.symmetric(vertical: BankingTokens.space12),
                 decoration: BoxDecoration(
-                  color: isDark ? BankingColors.neutral600 : BankingColors.neutral300,
+                  color: isDark ? BankingColors.neutral200 : BankingColors.neutral300,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),

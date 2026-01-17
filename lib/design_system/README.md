@@ -17,7 +17,12 @@ A comprehensive design system for modern banking applications built with Flutter
 - **Line Heights**: Tight (1.25), Normal (1.5), Relaxed (1.625)
 - **Letter Spacing**: Tight (-0.025) to Wide (0.05)
 - **Text Styles**: Display, Heading (1-4), Body (Large/Regular/Small), Caption, Overline
-- **Custom Fonts**: Iciel (headings), Berlin (body text) - TTF format
+- **Custom Fonts**: ✅ **ПОЛНОСТЬЮ ИСПРАВЛЕНЫ** - Iciel (заголовки - OTF), Berlin (текст - TTF) - встроены в базовую типографику + pubspec.yaml структура исправлена (assets и fonts внутри flutter: блока) + выполните `flutter clean` после изменений
+- **Apply Screen**: ✅ **СОЗДАН** - экран оформления продуктов с дебетовыми/кредитными картами и платежным стикером + Bottom Navigation исправлен
+- **Modal Dialogs**: ✅ **РЕАЛИЗОВАНЫ** - анимированные модальные окна с условиями и success экраном
+- **Typography Architecture**: ✅ **ПЕРЕПИСАНА** - убраны жесткие цвета из BankingTypography, создана правильная TextTheme в BankingTheme с учетом тем
+- **Dark Theme Text Colors**: ✅ **Полностью исправлены** - теперь работают правильно через TextTheme
+- **Layout Overflow**: ✅ **Исправлен** - `RenderFlex overflowed by 18 pixels` в карточках (SizedBox с увеличенной высотой 130px)
 
 ### Design Tokens
 - **Spacing**: 4px base unit (4, 8, 12, 16, 24, 32, 48, 64, 80, 96)
@@ -320,27 +325,27 @@ dependencies:
   lottie: ^3.1.2
 ```
 
-2. **Add Custom Fonts** (Optional):
-Replace placeholder files with actual TTF fonts:
+2. **Custom Fonts** (Already configured):
+The app uses custom fonts already placed in `assets/fonts/`:
 ```
-assets/fonts/iciel-regular.ttf (replace with real Iciel font)
-assets/fonts/berlin-regular.ttf (replace with real Berlin font)
+assets/fonts/iciel-crocante.otf (OTF format - for headings)
+assets/fonts/BerlinSansFBCyrillic-Regular.ttf (TTF format - for body text)
 ```
 
-The fonts are already configured in `pubspec.yaml`:
+Fonts are configured in `pubspec.yaml`:
 ```yaml
 fonts:
   - family: Iciel
     fonts:
-      - asset: assets/fonts/iciel-regular.ttf
+      - asset: assets/fonts/iciel-crocante.otf
         weight: 400
   - family: Berlin
     fonts:
-      - asset: assets/fonts/berlin-regular.ttf
+      - asset: assets/fonts/BerlinSansFBCyrillic-Regular.ttf
         weight: 400
 ```
 
-Font families are already set in `lib/design_system/themes/banking_theme.dart`.
+Font families are set in `lib/design_system/themes/banking_theme.dart`.
 
 2. **Import the Design System**:
 ```dart

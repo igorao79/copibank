@@ -59,9 +59,31 @@ class BankingTheme {
       surfaceTint: BankingColors.primary400,
     ),
 
-    // Typography
-    textTheme: _buildTextTheme(Brightness.light),
-    primaryTextTheme: _buildTextTheme(Brightness.light),
+    // Typography - Light Theme TextTheme
+    textTheme: TextTheme(
+      // Display styles
+      displayLarge: BankingTypography.displayLarge.copyWith(color: BankingColors.neutral900),
+      displayMedium: BankingTypography.displayMedium.copyWith(color: BankingColors.neutral900),
+      displaySmall: BankingTypography.displaySmall.copyWith(color: BankingColors.neutral900),
+
+      // Headings
+      headlineLarge: BankingTypography.heading1.copyWith(color: BankingColors.neutral900),
+      headlineMedium: BankingTypography.heading2.copyWith(color: BankingColors.neutral900),
+      headlineSmall: BankingTypography.heading3.copyWith(color: BankingColors.neutral900),
+      titleLarge: BankingTypography.heading4.copyWith(color: BankingColors.neutral900),
+
+      // Body text
+      titleMedium: BankingTypography.bodyLarge.copyWith(color: BankingColors.neutral700),
+      titleSmall: BankingTypography.bodyRegular.copyWith(color: BankingColors.neutral700),
+      bodyLarge: BankingTypography.bodyLarge.copyWith(color: BankingColors.neutral700),
+      bodyMedium: BankingTypography.bodyRegular.copyWith(color: BankingColors.neutral700),
+      bodySmall: BankingTypography.bodySmall.copyWith(color: BankingColors.neutral600),
+
+      // Utility
+      labelSmall: BankingTypography.caption.copyWith(color: BankingColors.neutral500),
+      labelMedium: BankingTypography.label.copyWith(color: BankingColors.neutral600),
+      labelLarge: BankingTypography.button.copyWith(color: BankingColors.neutral0),
+    ),
 
     // Component Themes
     appBarTheme: _buildAppBarTheme(Brightness.light),
@@ -137,9 +159,31 @@ class BankingTheme {
       surfaceTint: BankingColors.primary500,
     ),
 
-    // Typography
-    textTheme: _buildTextTheme(Brightness.dark),
-    primaryTextTheme: _buildTextTheme(Brightness.dark),
+    // Typography - Dark Theme TextTheme
+    textTheme: TextTheme(
+      // Display styles
+      displayLarge: BankingTypography.displayLarge.copyWith(color: BankingColors.neutral0),
+      displayMedium: BankingTypography.displayMedium.copyWith(color: BankingColors.neutral0),
+      displaySmall: BankingTypography.displaySmall.copyWith(color: BankingColors.neutral0),
+
+      // Headings
+      headlineLarge: BankingTypography.heading1.copyWith(color: BankingColors.neutral0),
+      headlineMedium: BankingTypography.heading2.copyWith(color: BankingColors.neutral0),
+      headlineSmall: BankingTypography.heading3.copyWith(color: BankingColors.neutral0),
+      titleLarge: BankingTypography.heading4.copyWith(color: BankingColors.neutral0),
+
+      // Body text
+      titleMedium: BankingTypography.bodyLarge.copyWith(color: BankingColors.neutral100),
+      titleSmall: BankingTypography.bodyRegular.copyWith(color: BankingColors.neutral100),
+      bodyLarge: BankingTypography.bodyLarge.copyWith(color: BankingColors.neutral100),
+      bodyMedium: BankingTypography.bodyRegular.copyWith(color: BankingColors.neutral100),
+      bodySmall: BankingTypography.bodySmall.copyWith(color: BankingColors.neutral200),
+
+      // Utility
+      labelSmall: BankingTypography.caption.copyWith(color: BankingColors.neutral200),
+      labelMedium: BankingTypography.label.copyWith(color: BankingColors.neutral200),
+      labelLarge: BankingTypography.button.copyWith(color: BankingColors.neutral0),
+    ),
 
     // Component Themes
     appBarTheme: _buildAppBarTheme(Brightness.dark),
@@ -171,77 +215,6 @@ class BankingTheme {
   // THEME BUILDING HELPERS
   // ===========================================================================
 
-  static TextTheme _buildTextTheme(Brightness brightness) {
-    final isDark = brightness == Brightness.dark;
-
-    return TextTheme(
-      // Headings - Iciel font
-      displayLarge: BankingTypography.displayLarge.copyWith(
-        color: isDark ? BankingColors.neutral50 : BankingColors.neutral900,
-        fontFamily: 'Iciel',
-      ),
-      displayMedium: BankingTypography.displayMedium.copyWith(
-        color: isDark ? BankingColors.neutral50 : BankingColors.neutral900,
-        fontFamily: 'Iciel',
-      ),
-      displaySmall: BankingTypography.displaySmall.copyWith(
-        color: isDark ? BankingColors.neutral50 : BankingColors.neutral900,
-        fontFamily: 'Iciel',
-      ),
-      headlineLarge: BankingTypography.heading1.copyWith(
-        color: isDark ? BankingColors.neutral50 : BankingColors.neutral900,
-        fontFamily: 'Iciel',
-      ),
-      headlineMedium: BankingTypography.heading2.copyWith(
-        color: isDark ? BankingColors.neutral50 : BankingColors.neutral900,
-        fontFamily: 'Iciel',
-      ),
-      headlineSmall: BankingTypography.heading3.copyWith(
-        color: isDark ? BankingColors.neutral50 : BankingColors.neutral900,
-        fontFamily: 'Iciel',
-      ),
-      titleLarge: BankingTypography.heading4.copyWith(
-        color: isDark ? BankingColors.neutral50 : BankingColors.neutral900,
-        fontFamily: 'Iciel',
-      ),
-
-      // Body text - Berlin font
-      titleMedium: BankingTypography.bodyLarge.copyWith(
-        color: isDark ? BankingColors.neutral200 : BankingColors.neutral700,
-        fontFamily: 'Berlin',
-      ),
-      titleSmall: BankingTypography.bodyRegular.copyWith(
-        color: isDark ? BankingColors.neutral200 : BankingColors.neutral700,
-        fontFamily: 'Berlin',
-      ),
-      bodyLarge: BankingTypography.bodyLarge.copyWith(
-        color: isDark ? BankingColors.neutral200 : BankingColors.neutral700,
-        fontFamily: 'Berlin',
-      ),
-      bodyMedium: BankingTypography.bodyRegular.copyWith(
-        color: isDark ? BankingColors.neutral200 : BankingColors.neutral700,
-        fontFamily: 'Berlin',
-      ),
-      bodySmall: BankingTypography.bodySmall.copyWith(
-        color: isDark ? BankingColors.neutral300 : BankingColors.neutral600,
-        fontFamily: 'Berlin',
-      ),
-
-      // Buttons and labels - Berlin font
-      labelLarge: BankingTypography.button.copyWith(
-        color: BankingColors.neutral0,
-        fontFamily: 'Berlin',
-      ),
-      labelMedium: BankingTypography.buttonSmall.copyWith(
-        color: BankingColors.neutral0,
-        fontFamily: 'Berlin',
-      ),
-      labelSmall: BankingTypography.caption.copyWith(
-        color: isDark ? BankingColors.neutral400 : BankingColors.neutral500,
-        fontFamily: 'Berlin',
-      ),
-    );
-  }
 
   static AppBarTheme _buildAppBarTheme(Brightness brightness) {
     final isDark = brightness == Brightness.dark;

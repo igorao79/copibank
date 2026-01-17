@@ -140,9 +140,11 @@ class BankingCard extends StatelessWidget {
   Widget _buildAccountCard(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
+    return SizedBox(
+      height: 130, // Увеличенная высота для предотвращения overflow с длинными суммами
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -164,7 +166,7 @@ class BankingCard extends StatelessWidget {
               Text(
                 subtitle!,
                 style: BankingTypography.caption.copyWith(
-                  color: isDark ? BankingColors.neutral300 : BankingColors.neutral600,
+                  color: isDark ? BankingColors.neutral100 : BankingColors.neutral600,
                 ),
               ),
             ],
@@ -189,8 +191,9 @@ class BankingCard extends StatelessWidget {
           ),
         ],
       ],
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildTransactionCard(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -230,7 +233,7 @@ class BankingCard extends StatelessWidget {
                 Text(
                   subtitle!,
                   style: BankingTypography.caption.copyWith(
-                    color: isDark ? BankingColors.neutral400 : BankingColors.neutral500,
+                    color: isDark ? BankingColors.neutral200 : BankingColors.neutral500,
                   ),
                 ),
               ],
@@ -305,7 +308,7 @@ class BankingCard extends StatelessWidget {
           Text(
             title!,
             style: BankingTypography.bodySmall.copyWith(
-              color: isDark ? BankingColors.neutral400 : BankingColors.neutral500,
+              color: isDark ? BankingColors.neutral200 : BankingColors.neutral500,
             ),
           ),
           const SizedBox(height: BankingTokens.space4),

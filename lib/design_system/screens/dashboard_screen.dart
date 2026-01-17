@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:provider/provider.dart';
+import 'package:lottie/lottie.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../components/cards.dart';
+import '../components/buttons.dart';
 import '../components/fintech.dart';
 import '../components/svg_background.dart';
 import '../foundation/colors.dart';
@@ -64,7 +67,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
       appBar: AppBar(
         title: Text(
           localizations.dashboard,
-          style: BankingTypography.heading3,
+          style: Theme.of(context).textTheme.headlineSmall,
         ),
         actions: [
           AnimatedBuilder(
@@ -110,36 +113,41 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
           ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: AnimationConfiguration.toStaggeredList(
+                children: AnimationConfiguration.toStaggeredList(
                 duration: BankingTokens.durationNormal,
                 childAnimationBuilder: (widget) => SlideAnimation(
                   verticalOffset: 50.0,
                   child: FadeInAnimation(child: widget),
                 ),
-                children: [
-                // Balance Section
-                _buildBalanceSection(appState, localizations),
+                children: appState.accounts.isEmpty
+                  ? [
+                      // Для пользователей без карт
+                      _buildWelcomeSection(localizations),
+                    ]
+                  : [
+                      // Balance Section
+                      _buildBalanceSection(appState, localizations),
 
-                  const SizedBox(height: BankingTokens.space32),
+                      const SizedBox(height: BankingTokens.space32),
 
-                // Quick Actions
-                _buildQuickActions(appState, localizations),
+                      // Quick Actions
+                      _buildQuickActions(appState, localizations),
 
-                  const SizedBox(height: BankingTokens.space32),
+                      const SizedBox(height: BankingTokens.space32),
 
-                // Chart Section
-                _buildChartSection(localizations),
+                      // Chart Section
+                      _buildChartSection(localizations),
 
-                  const SizedBox(height: BankingTokens.space32),
+                      const SizedBox(height: BankingTokens.space32),
 
-                // Recent Transactions
-                _buildRecentTransactions(appState, localizations),
-                ],
+                      // Recent Transactions
+                      _buildRecentTransactions(appState, localizations),
+                    ],
               ),
             ),
           ),
         ),
-        bottomNavigationBar: _buildBottomNavigation(localizations),
+        bottomNavigationBar: _buildBottomNavigation(appState, localizations),
       ),
     );
   }
@@ -150,11 +158,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
       children: [
         Text(
           localizations.totalBalance,
-          style: BankingTypography.bodyRegular.copyWith(
-            color: Theme.of(context).brightness == Brightness.dark
-                ? BankingColors.neutral400
-                : BankingColors.neutral500,
-          ),
+          style: Theme.of(context).textTheme.titleSmall,
         ),
         const SizedBox(height: BankingTokens.space8),
         TweenAnimationBuilder<double>(
@@ -166,36 +170,14 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
               duration: BankingTokens.durationFast,
               child: Text(
                 '\$${value.toStringAsFixed(2)}',
-                style: BankingTypography.amountLarge,
+                style: BankingTypography.amountLarge.copyWith(
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? BankingColors.neutral0
+                      : BankingColors.neutral900,
+                ),
               ),
             );
           },
-        ),
-        const SizedBox(height: BankingTokens.space16),
-        // Account Cards
-        SizedBox(
-          height: BankingTokens.accountCardHeight,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemCount: appState.accounts.length,
-            itemBuilder: (context, index) {
-              final account = appState.accounts[index];
-              return Container(
-                width: 280,
-                margin: EdgeInsets.only(
-                  right: index < appState.accounts.length - 1 ? BankingTokens.space16 : 0,
-                ),
-                child: BankingCards.gradientAccount(
-                  title: account.name,
-                  amount: account.formattedBalance,
-                  subtitle: account.type,
-                  gradientStart: account.color,
-                  gradientEnd: account.color.withOpacity(0.7),
-                  onTap: () => _onAccountTap(account),
-                ),
-              );
-            },
-          ),
         ),
       ],
     );
@@ -207,7 +189,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
       children: [
         Text(
           localizations.quickActions,
-          style: BankingTypography.heading4,
+          style: Theme.of(context).textTheme.titleLarge,
         ),
         const SizedBox(height: BankingTokens.space16),
         Row(
@@ -220,6 +202,53 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
             onTap: () => _onQuickActionTap(action.id),
           );
         }).toList(),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildWelcomeSection(AppLocalizations localizations) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        // App Bank SVG
+        SizedBox(
+          height: 200,
+          width: 200,
+          child: SvgPicture.asset(
+            'svg/app-bank.svg',
+            fit: BoxFit.contain,
+          ),
+        ),
+        const SizedBox(height: BankingTokens.space32),
+
+        // Welcome Text
+        Text(
+          'Станьте нашим клиентом',
+          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: BankingTokens.space16),
+
+        Text(
+          'Откройте для себя все возможности современного банкинга',
+          style: Theme.of(context).textTheme.bodyLarge,
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: BankingTokens.space32),
+
+        // Apply Button
+        Center(
+          child: SizedBox(
+            width: 200, // Fixed width for the button
+            child: BankingButtons.primary(
+              text: 'Оформить карту',
+              onPressed: () => _navigateToApply(),
+              fullWidth: false,
+            ),
+          ),
         ),
       ],
     );
@@ -245,13 +274,13 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
           children: [
             Text(
               localizations.weeklySpending,
-              style: BankingTypography.heading4,
+              style: Theme.of(context).textTheme.titleLarge,
             ),
             TextButton(
               onPressed: () => _onViewAllCharts(),
               child: Text(
                 localizations.viewAll,
-                style: BankingTypography.bodySmall.copyWith(
+                style: Theme.of(context).textTheme.bodySmall!.copyWith(
                   color: BankingColors.primary500,
                 ),
               ),
@@ -287,13 +316,13 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
           children: [
             Text(
               localizations.recentTransactions,
-              style: BankingTypography.heading4,
+              style: Theme.of(context).textTheme.titleLarge,
             ),
             TextButton(
               onPressed: () => _onViewAllTransactions(),
               child: Text(
                 localizations.viewAll,
-                style: BankingTypography.bodySmall.copyWith(
+                style: Theme.of(context).textTheme.bodySmall!.copyWith(
                   color: BankingColors.primary500,
                 ),
               ),
@@ -320,29 +349,58 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
     );
   }
 
-  Widget _buildBottomNavigation(AppLocalizations localizations) {
-    final appState = context.watch<AppState>();
+  Widget _buildBottomNavigation(AppState appState, AppLocalizations localizations) {
+    final items = <BottomNavigationBarItem>[
+      BottomNavigationBarItem(
+        icon: Icon(Icons.account_balance),
+        label: localizations.myBank,
+      ),
+    ];
+
+    // Добавляем историю только если есть карты
+    if (appState.accounts.isNotEmpty) {
+      items.add(BottomNavigationBarItem(
+        icon: Icon(Icons.history),
+        label: localizations.history,
+      ));
+    }
+
+    items.addAll([
+      BottomNavigationBarItem(
+        icon: Icon(Icons.chat),
+        label: localizations.chats,
+      ),
+      BottomNavigationBarItem(
+        icon: Icon(Icons.add_circle),
+        label: localizations.apply,
+      ),
+    ]);
+
+    // Вычисляем currentIndex для BottomNavigationBar
+    int currentNavIndex;
+    final hasHistory = appState.accounts.isNotEmpty;
+    if (hasHistory) {
+      currentNavIndex = appState.selectedTabIndex;
+    } else {
+      switch (appState.selectedTabIndex) {
+        case 0:
+          currentNavIndex = 0; // Мой банк
+          break;
+        case 2:
+          currentNavIndex = 1; // Чаты
+          break;
+        case 3:
+          currentNavIndex = 2; // Оформить
+          break;
+        default:
+          currentNavIndex = 0;
+      }
+    }
+
     return BottomNavigationBar(
-      currentIndex: appState.selectedTabIndex,
-      onTap: (index) => _onBottomNavigationTap(index, appState),
-      items: [
-        BottomNavigationBarItem(
-          icon: Icon(Icons.account_balance),
-          label: localizations.myBank,
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.history),
-          label: localizations.history,
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.chat),
-          label: localizations.chats,
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.add_circle),
-          label: localizations.apply,
-        ),
-      ],
+      currentIndex: currentNavIndex,
+      onTap: (index) => _onBottomNavigationTap(index, appState, hasHistory: hasHistory),
+      items: items,
     );
   }
 
@@ -415,20 +473,39 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
     print('Открыть экран настроек');
   }
 
-  void _onBottomNavigationTap(int index, AppState appState) {
-    appState.setSelectedTabIndex(index);
+  void _navigateToApply() {
+    final appState = context.read<AppState>();
+    final hasHistory = appState.accounts.isNotEmpty;
+    // Индекс вкладки "Оформить" зависит от наличия вкладки "История"
+    final applyIndex = hasHistory ? 3 : 2;
+    appState.setSelectedTabIndex(applyIndex);
   }
 
-  void _onAccountTap(Account account) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Открыт счёт "${account.name}"'),
-        duration: const Duration(seconds: 1),
-      ),
-    );
-    // TODO: Navigate to account details screen
-    print('Открыть детали счёта: ${account.name}');
+  void _onBottomNavigationTap(int index, AppState appState, {bool hasHistory = true}) {
+    // Корректируем индекс для соответствия main.dart логике
+    int correctedIndex;
+    if (hasHistory) {
+      // С историей: [0:Мой банк, 1:История, 2:Чаты, 3:Оформить]
+      correctedIndex = index;
+    } else {
+      // Без истории: [0:Мой банк, 1:Чаты->2, 2:Оформить->3]
+      switch (index) {
+        case 0:
+          correctedIndex = 0; // Мой банк
+          break;
+        case 1:
+          correctedIndex = 2; // Чаты
+          break;
+        case 2:
+          correctedIndex = 3; // Оформить
+          break;
+        default:
+          correctedIndex = 0;
+      }
+    }
+    appState.setSelectedTabIndex(correctedIndex);
   }
+
 
   void _onTransactionTap(Transaction transaction) {
     ScaffoldMessenger.of(context).showSnackBar(

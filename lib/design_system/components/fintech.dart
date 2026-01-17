@@ -94,7 +94,7 @@ class BankingLineChart extends StatelessWidget {
                           return Text(
                             data[value.toInt()].label,
                             style: BankingTypography.caption.copyWith(
-                              color: isDark ? BankingColors.neutral400 : BankingColors.neutral500,
+                              color: isDark ? BankingColors.neutral200 : BankingColors.neutral500,
                             ),
                           );
                         }
@@ -111,7 +111,7 @@ class BankingLineChart extends StatelessWidget {
                         return Text(
                           value.toStringAsFixed(0),
                           style: BankingTypography.caption.copyWith(
-                            color: isDark ? BankingColors.neutral400 : BankingColors.neutral500,
+                            color: isDark ? BankingColors.neutral200 : BankingColors.neutral500,
                           ),
                         );
                       },
@@ -507,7 +507,7 @@ class _NumpadButton extends StatelessWidget {
                 size: BankingTokens.iconSizeLarge,
                 color: isSpecial
                     ? BankingColors.primary500
-                    : (isDark ? BankingColors.neutral300 : BankingColors.neutral600),
+                    : (isDark ? BankingColors.neutral100 : BankingColors.neutral600),
               )
             : Text(
                 label!,
@@ -594,10 +594,10 @@ class _BankingPinInputState extends State<BankingPinInput> {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: index < _currentIndex
-                    ? BankingColors.primary500
-                    : (Theme.of(context).brightness == Brightness.dark
-                        ? BankingColors.neutral600
-                        : BankingColors.neutral300),
+                        ? BankingColors.primary500
+                        : (Theme.of(context).brightness == Brightness.dark
+                            ? BankingColors.neutral200
+                            : BankingColors.neutral300),
               ),
             );
           }),

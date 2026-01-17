@@ -45,6 +45,11 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
+  void addAccount(Account account) {
+    _accounts.add(account);
+    notifyListeners();
+  }
+
   // Recent transactions
   final List<Transaction> _transactions = [
     Transaction(
@@ -105,12 +110,6 @@ class AppState extends ChangeNotifier {
       color: const Color(0xFF0077FF),
     ),
     QuickAction(
-      id: 'pay',
-      title: 'Pay Bills',
-      icon: Icons.receipt,
-      color: const Color(0xFF00B29B),
-    ),
-    QuickAction(
       id: 'topup',
       title: 'Top Up',
       icon: Icons.add_circle,
@@ -126,39 +125,11 @@ class AppState extends ChangeNotifier {
 
   List<QuickAction> get quickActions => _quickActions;
 
-  // Accounts
-  final List<Account> _accounts = [
-    Account(
-      id: '1',
-      name: 'Main Account',
-      type: 'Checking',
-      balance: 15420.75,
-      currency: 'USD',
-      color: const Color(0xFF0077FF),
-      isPrimary: true,
-    ),
-    Account(
-      id: '2',
-      name: 'Savings',
-      type: 'Savings',
-      balance: 25000.00,
-      currency: 'USD',
-      color: const Color(0xFF00B29B),
-      isPrimary: false,
-    ),
-    Account(
-      id: '3',
-      name: 'Credit Card',
-      type: 'Credit',
-      balance: -1250.30,
-      currency: 'USD',
-      color: const Color(0xFFF44336),
-      isPrimary: false,
-    ),
-  ];
+  // Accounts - starts empty, will be populated by user actions
+  final List<Account> _accounts = [];
 
   List<Account> get accounts => _accounts;
-  Account get primaryAccount => _accounts.firstWhere((account) => account.isPrimary);
+  Account? get primaryAccount => _accounts.isEmpty ? null : _accounts.firstWhere((account) => account.isPrimary, orElse: () => _accounts.first);
 }
 
 /// Transaction Model

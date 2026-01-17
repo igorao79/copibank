@@ -23,26 +23,8 @@ class BankingApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => AppState()),
       ],
-        child: Consumer<AppState>(
+      child: Consumer<AppState>(
         builder: (context, appState, child) {
-          Widget currentScreen;
-          switch (appState.selectedTabIndex) {
-            case 0:
-              currentScreen = const DashboardScreen(); // Мой банк
-              break;
-            case 1:
-              currentScreen = const TransactionsScreen(); // История
-              break;
-            case 2:
-              currentScreen = const ChatsScreen(); // Чаты
-              break;
-            case 3:
-              currentScreen = const CardsScreen(); // Оформить
-              break;
-            default:
-              currentScreen = const DashboardScreen();
-          }
-
           return MaterialApp(
             title: AppLocalizations(const Locale('ru')).appTitle,
             theme: BankingTheme.light,
@@ -59,11 +41,41 @@ class BankingApp extends StatelessWidget {
               Locale('en', ''),
               Locale('ru', ''),
             ],
-            home: currentScreen,
+            home: const BankingAppHome(),
             debugShowCheckedModeBanner: false,
           );
         },
       ),
+    );
+  }
+}
+
+class BankingAppHome extends StatelessWidget {
+  const BankingAppHome({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<AppState>(
+      builder: (context, appState, child) {
+        Widget currentScreen;
+        switch (appState.selectedTabIndex) {
+          case 0:
+            currentScreen = const DashboardScreen(); // Мой банк
+            break;
+          case 1:
+            currentScreen = const TransactionsScreen(); // История
+            break;
+          case 2:
+            currentScreen = const ChatsScreen(); // Чаты
+            break;
+          case 3:
+            currentScreen = const ApplyScreen(); // Оформить
+            break;
+          default:
+            currentScreen = const DashboardScreen();
+        }
+        return currentScreen;
+      },
     );
   }
 }

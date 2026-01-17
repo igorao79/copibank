@@ -164,7 +164,7 @@ class _SupportChatScreenState extends State<SupportChatScreen> with TickerProvid
                     _formatTime(message['timestamp'] as DateTime),
                     style: BankingTypography.caption.copyWith(
                       color: isBot
-                          ? (isDark ? BankingColors.neutral400 : BankingColors.neutral500)
+                          ? (isDark ? BankingColors.neutral200 : BankingColors.neutral500)
                           : BankingColors.neutral200,
                       fontSize: 10,
                     ),
@@ -279,7 +279,7 @@ class _SupportChatScreenState extends State<SupportChatScreen> with TickerProvid
                   hintText: 'Введите сообщение...',
                   border: InputBorder.none,
                   hintStyle: BankingTypography.bodyRegular.copyWith(
-                    color: isDark ? BankingColors.neutral500 : BankingColors.neutral400,
+                    color: isDark ? BankingColors.neutral200 : BankingColors.neutral400,
                   ),
                 ),
                 style: BankingTypography.bodyRegular.copyWith(
@@ -391,7 +391,7 @@ class _SupportChatScreenState extends State<SupportChatScreen> with TickerProvid
                 height: 4,
                 margin: const EdgeInsets.symmetric(vertical: BankingTokens.space12),
                 decoration: BoxDecoration(
-                  color: isDark ? BankingColors.neutral600 : BankingColors.neutral300,
+                  color: isDark ? BankingColors.neutral200 : BankingColors.neutral300,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),

@@ -132,7 +132,7 @@ class _BankingInputState extends State<BankingInput> {
                   : _focusNode.hasFocus
                       ? BankingColors.primary500
                       : isDark
-                          ? BankingColors.neutral300
+                          ? BankingColors.neutral100
                           : BankingColors.neutral600,
             ),
           ),
@@ -180,10 +180,10 @@ class _BankingInputState extends State<BankingInput> {
             focusedErrorBorder: _buildBorder(isDark, true, true),
             disabledBorder: _buildBorder(isDark, false, false, disabled: true),
             hintStyle: BankingTypography.bodySmall.copyWith(
-              color: isDark ? BankingColors.neutral500 : BankingColors.neutral400,
+              color: isDark ? BankingColors.neutral200 : BankingColors.neutral400,
             ),
             helperStyle: BankingTypography.caption.copyWith(
-              color: isDark ? BankingColors.neutral400 : BankingColors.neutral500,
+              color: isDark ? BankingColors.neutral200 : BankingColors.neutral500,
             ),
             errorStyle: BankingTypography.caption.error,
             labelStyle: BankingTypography.label,
@@ -216,7 +216,7 @@ class _BankingInputState extends State<BankingInput> {
     return BankingTypography.bodyRegular.copyWith(
       color: widget.enabled
           ? (isDark ? BankingColors.neutral100 : BankingColors.neutral900)
-          : (isDark ? BankingColors.neutral500 : BankingColors.neutral400),
+          : (isDark ? BankingColors.neutral300 : BankingColors.neutral400),
     );
   }
 
@@ -239,7 +239,7 @@ class _BankingInputState extends State<BankingInput> {
         return Icon(
           BankingIcons.search,
           color: Theme.of(context).brightness == Brightness.dark
-              ? BankingColors.neutral400
+              ? BankingColors.neutral200
               : BankingColors.neutral500,
           size: BankingTokens.iconSizeMedium,
         );
@@ -247,7 +247,7 @@ class _BankingInputState extends State<BankingInput> {
         return Icon(
           BankingIcons.dollar,
           color: Theme.of(context).brightness == Brightness.dark
-              ? BankingColors.neutral400
+              ? BankingColors.neutral200
               : BankingColors.neutral500,
           size: BankingTokens.iconSizeMedium,
         );
