@@ -59,6 +59,9 @@ dependencies:
   flutter_staggered_animations: ^1.1.1
   lottie: ^3.1.2
 
+  # SVG support
+  flutter_svg: ^2.0.9
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -115,3 +118,16 @@ flutter:
 # Assets
 assets:
   - assets/lottie/
+  - assets/svg/background_light.svg
+  - assets/svg/background_dark.svg
+
+# Fonts
+fonts:
+  - family: Iciel
+    fonts:
+      - asset: assets/fonts/iciel-regular.ttf
+        weight: 400
+  - family: Berlin
+    fonts:
+      - asset: assets/fonts/berlin-regular.ttf
+        weight: 400

@@ -1,0 +1,449 @@
+import 'package:flutter/material.dart';
+import '../foundation/colors.dart';
+import '../foundation/typography.dart';
+import '../foundation/tokens.dart';
+import '../components/svg_background.dart';
+
+class SupportChatScreen extends StatefulWidget {
+  const SupportChatScreen({super.key});
+
+  @override
+  State<SupportChatScreen> createState() => _SupportChatScreenState();
+}
+
+class _SupportChatScreenState extends State<SupportChatScreen> with TickerProviderStateMixin {
+  final TextEditingController _messageController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
+  late AnimationController _fadeController;
+  late Animation<double> _fadeAnimation;
+
+  List<Map<String, dynamic>> _messages = [
+    {
+      'text': 'Здравствуйте! Я робот-помощник банка. Чем могу помочь?',
+      'isBot': true,
+      'timestamp': DateTime.now(),
+      'type': 'text',
+    }
+  ];
+
+  List<Map<String, String>> _quickQuestions = [
+    {'question': 'Как пополнить счет?', 'answer': 'Вы можете пополнить счет через:\n• Банкомат\n• Перевод с другой карты\n• Через мобильное приложение\n• В отделении банка'},
+    {'question': 'Как заблокировать карту?', 'answer': 'Заблокировать карту можно:\n• В мобильном приложении (Карты → Выбрать карту → Заблокировать)\n• По телефону горячей линии\n• В отделении банка'},
+    {'question': 'Как изменить ПИН-код?', 'answer': 'Изменить ПИН-код можно:\n• В банкомате\n• Через мобильное приложение\n• В отделении банка с паспортом'},
+    {'question': 'Почему платеж не прошел?', 'answer': 'Возможные причины:\n• Недостаточно средств\n• Превышен лимит\n• Технические проблемы\n• Неправильные реквизиты\n\nПроверьте статус платежа в истории операций'},
+    {'question': 'Как подключить уведомления?', 'answer': 'Включить уведомления:\n• Откройте приложение\n• Перейдите в Настройки\n• Выберите "Уведомления"\n• Разрешите push-уведомления'},
+    {'question': 'Безопасность аккаунта', 'answer': 'Рекомендации по безопасности:\n• Используйте сложный пароль\n• Не сообщайте данные третьим лицам\n• Регулярно меняйте пароль\n• Включайте двухфакторную аутентификацию'},
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _fadeController = AnimationController(
+      duration: BankingTokens.durationNormal,
+      vsync: this,
+    );
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _fadeController, curve: Curves.easeInOut),
+    );
+    _fadeController.forward();
+  }
+
+  @override
+  void dispose() {
+    _fadeController.dispose();
+    _messageController.dispose();
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+
+    return SvgBackground(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        extendBody: true,
+        appBar: AppBar(
+          title: Text(
+            'Тех поддержка',
+            style: BankingTypography.heading3,
+          ),
+          actions: [
+            IconButton(
+              icon: Icon(Icons.more_vert),
+              onPressed: _showChatMenu,
+            ),
+          ],
+        ),
+        body: SafeArea(
+          child: FadeTransition(
+            opacity: _fadeAnimation,
+            child: Column(
+              children: [
+                // Chat messages
+                Expanded(
+                  child: ListView.builder(
+                    controller: _scrollController,
+                    padding: const EdgeInsets.all(BankingTokens.screenHorizontalPadding),
+                    itemCount: _messages.length,
+                    itemBuilder: (context, index) {
+                      final message = _messages[index];
+                      return _buildMessageBubble(message);
+                    },
+                  ),
+                ),
+
+                // Quick questions (only show if bot's last message)
+                if (_messages.isNotEmpty && _messages.last['isBot'] == true && _messages.last['showQuestions'] != false)
+                  _buildQuickQuestions(),
+
+                // Message input
+                _buildMessageInput(),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMessageBubble(Map<String, dynamic> message) {
+    final isBot = message['isBot'] as bool;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: BankingTokens.space12),
+      child: Row(
+        mainAxisAlignment: isBot ? MainAxisAlignment.start : MainAxisAlignment.end,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (isBot) ...[
+            Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: BankingColors.primary500,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.smart_toy,
+                color: BankingColors.neutral0,
+                size: 16,
+              ),
+            ),
+            const SizedBox(width: BankingTokens.space8),
+          ],
+
+          Flexible(
+            child: Container(
+              padding: const EdgeInsets.all(BankingTokens.space12),
+              decoration: BoxDecoration(
+                color: isBot
+                    ? (isDark ? BankingColors.neutral800 : BankingColors.neutral100)
+                    : BankingColors.primary500,
+                borderRadius: BorderRadius.only(
+                  topLeft: const Radius.circular(BankingTokens.borderRadiusMedium),
+                  topRight: const Radius.circular(BankingTokens.borderRadiusMedium),
+                  bottomLeft: isBot ? Radius.zero : const Radius.circular(BankingTokens.borderRadiusMedium),
+                  bottomRight: isBot ? const Radius.circular(BankingTokens.borderRadiusMedium) : Radius.zero,
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    message['text'] as String,
+                    style: BankingTypography.bodyRegular.copyWith(
+                      color: isBot
+                          ? (isDark ? BankingColors.neutral100 : BankingColors.neutral900)
+                          : BankingColors.neutral0,
+                    ),
+                  ),
+                  const SizedBox(height: BankingTokens.space4),
+                  Text(
+                    _formatTime(message['timestamp'] as DateTime),
+                    style: BankingTypography.caption.copyWith(
+                      color: isBot
+                          ? (isDark ? BankingColors.neutral400 : BankingColors.neutral500)
+                          : BankingColors.neutral200,
+                      fontSize: 10,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          if (!isBot) ...[
+            const SizedBox(width: BankingTokens.space8),
+            Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: BankingColors.primary400,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.person,
+                color: BankingColors.neutral0,
+                size: 16,
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildQuickQuestions() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: BankingTokens.screenHorizontalPadding),
+      child: GridView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2, // 2 столбца
+          childAspectRatio: 3.5, // Соотношение сторон для овальных кнопок
+          crossAxisSpacing: BankingTokens.space8,
+          mainAxisSpacing: BankingTokens.space8,
+        ),
+        itemCount: _quickQuestions.length,
+        itemBuilder: (context, index) {
+          final question = _quickQuestions[index];
+          return _buildQuickQuestionButton(question);
+        },
+      ),
+    );
+  }
+
+  Widget _buildQuickQuestionButton(Map<String, String> question) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return SizedBox(
+      height: 48, // Фиксированная высота для овальных кнопок
+      child: ElevatedButton(
+        onPressed: () => _onQuestionTap(question),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: isDark ? BankingColors.neutral800 : BankingColors.neutral0,
+          foregroundColor: isDark ? BankingColors.neutral100 : BankingColors.neutral900,
+          elevation: 1,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(BankingTokens.borderRadiusFull), // Полностью овальные
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: BankingTokens.space16, vertical: BankingTokens.space8),
+          minimumSize: Size.zero, // Убираем минимальный размер
+        ),
+        child: Text(
+          question['question']!,
+          style: BankingTypography.caption.copyWith(
+            fontSize: 12, // Маленький шрифт
+            height: 1.2,
+          ),
+          textAlign: TextAlign.center,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMessageInput() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Container(
+      padding: const EdgeInsets.all(BankingTokens.screenHorizontalPadding),
+      decoration: BoxDecoration(
+        color: isDark ? BankingColors.neutral900 : BankingColors.neutral0,
+        border: Border(
+          top: BorderSide(
+            color: isDark ? BankingColors.neutral700 : BankingColors.neutral200,
+            width: 1,
+          ),
+        ),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: BankingTokens.space16,
+                vertical: BankingTokens.space8,
+              ),
+              decoration: BoxDecoration(
+                color: isDark ? BankingColors.neutral800 : BankingColors.neutral100,
+                borderRadius: BorderRadius.circular(BankingTokens.borderRadiusLarge),
+              ),
+              child: TextField(
+                controller: _messageController,
+                decoration: InputDecoration(
+                  hintText: 'Введите сообщение...',
+                  border: InputBorder.none,
+                  hintStyle: BankingTypography.bodyRegular.copyWith(
+                    color: isDark ? BankingColors.neutral500 : BankingColors.neutral400,
+                  ),
+                ),
+                style: BankingTypography.bodyRegular.copyWith(
+                  color: isDark ? BankingColors.neutral100 : BankingColors.neutral900,
+                ),
+                maxLines: 3,
+                minLines: 1,
+              ),
+            ),
+          ),
+          const SizedBox(width: BankingTokens.space12),
+          Container(
+            decoration: BoxDecoration(
+              color: BankingColors.primary500,
+              shape: BoxShape.circle,
+            ),
+            child: IconButton(
+              icon: Icon(
+                Icons.send,
+                color: BankingColors.neutral0,
+              ),
+              onPressed: _sendMessage,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _onQuestionTap(Map<String, String> question) {
+    // Add user message
+    setState(() {
+      _messages.add({
+        'text': question['question']!,
+        'isBot': false,
+        'timestamp': DateTime.now(),
+        'type': 'text',
+      });
+
+      // Add bot response
+      Future.delayed(const Duration(milliseconds: 1000), () {
+        setState(() {
+          _messages.add({
+            'text': question['answer']!,
+            'isBot': true,
+            'timestamp': DateTime.now(),
+            'type': 'text',
+            'showQuestions': true,
+          });
+          _scrollToBottom();
+        });
+      });
+    });
+
+    _scrollToBottom();
+  }
+
+  void _sendMessage() {
+    final text = _messageController.text.trim();
+    if (text.isEmpty) return;
+
+    setState(() {
+      _messages.add({
+        'text': text,
+        'isBot': false,
+        'timestamp': DateTime.now(),
+        'type': 'text',
+      });
+
+      _messageController.clear();
+
+      // Bot response
+      Future.delayed(const Duration(milliseconds: 1500), () {
+        setState(() {
+          _messages.add({
+            'text': 'Спасибо за ваше сообщение. Наш специалист свяжется с вами в ближайшее время.',
+            'isBot': true,
+            'timestamp': DateTime.now(),
+            'type': 'text',
+            'showQuestions': false,
+          });
+          _scrollToBottom();
+        });
+      });
+    });
+
+    _scrollToBottom();
+  }
+
+  void _showChatMenu() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+        return Container(
+          decoration: BoxDecoration(
+            color: isDark ? BankingColors.neutral800 : BankingColors.neutral0,
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(BankingTokens.borderRadiusLarge),
+              topRight: Radius.circular(BankingTokens.borderRadiusLarge),
+            ),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 40,
+                height: 4,
+                margin: const EdgeInsets.symmetric(vertical: BankingTokens.space12),
+                decoration: BoxDecoration(
+                  color: isDark ? BankingColors.neutral600 : BankingColors.neutral300,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              ListTile(
+                leading: Icon(Icons.refresh, color: BankingColors.primary500),
+                title: Text('Начать новый чат', style: BankingTypography.bodyRegular),
+                onTap: () {
+                  Navigator.pop(context);
+                  _startNewChat();
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.history, color: BankingColors.primary500),
+                title: Text('История чатов', style: BankingTypography.bodyRegular),
+                onTap: () {
+                  Navigator.pop(context);
+                  // TODO: Show chat history
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _startNewChat() {
+    setState(() {
+      _messages = [
+        {
+          'text': 'Здравствуйте! Я робот-помощник банка. Чем могу помочь?',
+          'isBot': true,
+          'timestamp': DateTime.now(),
+          'type': 'text',
+        }
+      ];
+    });
+  }
+
+  void _scrollToBottom() {
+    Future.delayed(const Duration(milliseconds: 100), () {
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      }
+    });
+  }
+
+  String _formatTime(DateTime time) {
+    return '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
+  }
+}

@@ -289,3 +289,4 @@ extension BankingTokenExtension on num {
   /// Convert number to border radius
   double get radius => BankingTokens.getBorderRadius(toString());
 }
+

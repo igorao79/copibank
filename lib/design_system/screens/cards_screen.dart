@@ -5,6 +5,7 @@ import '../foundation/typography.dart';
 import '../foundation/tokens.dart';
 import '../components/cards.dart';
 import '../components/buttons.dart';
+import '../components/svg_background.dart';
 import '../utils/app_state.dart';
 import '../../l10n/app_localizations.dart';
 
@@ -44,8 +45,9 @@ class _CardsScreenState extends State<CardsScreen> with TickerProviderStateMixin
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final localizations = AppLocalizations.of(context)!;
 
-    return Scaffold(
-      backgroundColor: isDark ? BankingColors.neutral950 : BankingColors.neutral25,
+    return SvgBackground(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
       appBar: AppBar(
         title: Text(
           localizations.cards,
@@ -183,7 +185,8 @@ class _CardsScreenState extends State<CardsScreen> with TickerProviderStateMixin
           ),
         ),
       ),
-      bottomNavigationBar: _buildBottomNavigation(localizations),
+        bottomNavigationBar: _buildBottomNavigation(localizations),
+      ),
     );
   }
 

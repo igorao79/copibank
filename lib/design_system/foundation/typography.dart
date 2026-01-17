@@ -369,3 +369,4 @@ extension BankingTextStyle on TextStyle {
   /// Apply info color
   TextStyle get info => copyWith(color: BankingColors.info500);
 }
+

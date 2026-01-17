@@ -17,6 +17,7 @@ A comprehensive design system for modern banking applications built with Flutter
 - **Line Heights**: Tight (1.25), Normal (1.5), Relaxed (1.625)
 - **Letter Spacing**: Tight (-0.025) to Wide (0.05)
 - **Text Styles**: Display, Heading (1-4), Body (Large/Regular/Small), Caption, Overline
+- **Custom Fonts**: Iciel (headings), Berlin (body text) - TTF format
 
 ### Design Tokens
 - **Spacing**: 4px base unit (4, 8, 12, 16, 24, 32, 48, 64, 80, 96)
@@ -186,6 +187,20 @@ MaterialApp(
 - Clean centered layout with proper spacing
 - No quick actions (removed for cleaner design)
 
+### Support Chat (Тех поддержка)
+- AI-powered robot assistant with compact oval question buttons in grid layout
+- Popular questions: payments, card blocking, PIN change, notifications, security
+- Real-time chat interface with message bubbles and timestamps
+- Support specialist escalation for complex issues
+- Quick actions menu for chat management
+
+### Notifications Chat (Уведомления)
+- Interactive notification center with detailed views
+- Mark as read/unread functionality
+- Swipe-to-delete notifications
+- Categorized notifications: success, warning, info, promotions
+- Notification history and management
+
 ### Cards (Оформить)
 - Card management interface
 - Card action buttons (block, PIN change, NFC)
@@ -193,10 +208,16 @@ MaterialApp(
 - Add new card functionality
 
 ## 🎨 **Color Scheme**
-- **Light Theme**: White background with light blue accents
-- **Dark Theme**: Dark blue background with darker blue accents
+- **Light Theme**: White background with light blue accents + SVG gradient background
+- **Dark Theme**: Dark blue background with darker blue accents + SVG gradient background
 - **Primary Colors**: Blue spectrum (50-900 shades)
 - **Semantic Colors**: Success, Warning, Error states
+
+## 🎭 **Visual Design**
+- **SVG Backgrounds**: Adaptive gradient wave backgrounds that change with theme (light blue waves / dark blue waves)
+- **Material Design 3**: Modern UI components with proper theming
+- **Responsive Layout**: Optimized for different screen sizes
+- **Smooth Animations**: Staggered animations and micro-interactions
 
 ## 🧭 **Navigation**
 Bottom navigation bar with 4 tabs:
@@ -295,7 +316,31 @@ dependencies:
   intl: ^0.19.0
   font_awesome_flutter: ^10.7.0
   flutter_staggered_animations: ^1.1.1
+  flutter_svg: ^2.0.9
+  lottie: ^3.1.2
 ```
+
+2. **Add Custom Fonts** (Optional):
+Replace placeholder files with actual TTF fonts:
+```
+assets/fonts/iciel-regular.ttf (replace with real Iciel font)
+assets/fonts/berlin-regular.ttf (replace with real Berlin font)
+```
+
+The fonts are already configured in `pubspec.yaml`:
+```yaml
+fonts:
+  - family: Iciel
+    fonts:
+      - asset: assets/fonts/iciel-regular.ttf
+        weight: 400
+  - family: Berlin
+    fonts:
+      - asset: assets/fonts/berlin-regular.ttf
+        weight: 400
+```
+
+Font families are already set in `lib/design_system/themes/banking_theme.dart`.
 
 2. **Import the Design System**:
 ```dart
@@ -379,6 +424,15 @@ The design system is built to be flexible while maintaining consistency:
 - Animations use hardware acceleration where possible
 - Large lists use efficient scrolling techniques
 - Theme changes are optimized to minimize rebuilds
+
+## 📝 **Recent Updates**
+- ✅ Fixed black text issue in dark theme - proper color inheritance
+- ✅ Added custom font support (Iciel for headings, Berlin for body text)
+- ✅ Implemented adaptive SVG backgrounds for all screens
+- ✅ Enhanced transaction analytics with comprehensive expense breakdown
+- ✅ Added real-time search functionality with instant filtering
+- ✅ Fixed layout overflow issues with proper SafeArea usage
+- ✅ Improved color scheme with blue gradients and proper contrast
 
 ---
 

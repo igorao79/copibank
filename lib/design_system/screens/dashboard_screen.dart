@@ -3,6 +3,7 @@ import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:provider/provider.dart';
 import '../components/cards.dart';
 import '../components/fintech.dart';
+import '../components/svg_background.dart';
 import '../foundation/colors.dart';
 import '../foundation/typography.dart';
 import '../foundation/tokens.dart';
@@ -57,8 +58,9 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final localizations = AppLocalizations.of(context)!;
 
-    return Scaffold(
-      backgroundColor: isDark ? BankingColors.neutral950 : BankingColors.neutral25,
+    return SvgBackground(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
       appBar: AppBar(
         title: Text(
           localizations.dashboard,
@@ -136,8 +138,9 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
               ),
             ),
           ),
+        ),
+        bottomNavigationBar: _buildBottomNavigation(localizations),
       ),
-      bottomNavigationBar: _buildBottomNavigation(localizations),
     );
   }
 

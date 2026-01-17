@@ -175,50 +175,70 @@ class BankingTheme {
     final isDark = brightness == Brightness.dark;
 
     return TextTheme(
+      // Headings - Iciel font
       displayLarge: BankingTypography.displayLarge.copyWith(
-        color: isDark ? BankingColors.neutral0 : BankingColors.neutral900,
+        color: isDark ? BankingColors.neutral50 : BankingColors.neutral900,
+        fontFamily: 'Iciel',
       ),
       displayMedium: BankingTypography.displayMedium.copyWith(
-        color: isDark ? BankingColors.neutral0 : BankingColors.neutral900,
+        color: isDark ? BankingColors.neutral50 : BankingColors.neutral900,
+        fontFamily: 'Iciel',
       ),
       displaySmall: BankingTypography.displaySmall.copyWith(
-        color: isDark ? BankingColors.neutral0 : BankingColors.neutral900,
+        color: isDark ? BankingColors.neutral50 : BankingColors.neutral900,
+        fontFamily: 'Iciel',
       ),
       headlineLarge: BankingTypography.heading1.copyWith(
-        color: isDark ? BankingColors.neutral0 : BankingColors.neutral900,
+        color: isDark ? BankingColors.neutral50 : BankingColors.neutral900,
+        fontFamily: 'Iciel',
       ),
       headlineMedium: BankingTypography.heading2.copyWith(
-        color: isDark ? BankingColors.neutral0 : BankingColors.neutral900,
+        color: isDark ? BankingColors.neutral50 : BankingColors.neutral900,
+        fontFamily: 'Iciel',
       ),
       headlineSmall: BankingTypography.heading3.copyWith(
-        color: isDark ? BankingColors.neutral0 : BankingColors.neutral900,
+        color: isDark ? BankingColors.neutral50 : BankingColors.neutral900,
+        fontFamily: 'Iciel',
       ),
       titleLarge: BankingTypography.heading4.copyWith(
-        color: isDark ? BankingColors.neutral0 : BankingColors.neutral900,
+        color: isDark ? BankingColors.neutral50 : BankingColors.neutral900,
+        fontFamily: 'Iciel',
       ),
+
+      // Body text - Berlin font
       titleMedium: BankingTypography.bodyLarge.copyWith(
-        color: isDark ? BankingColors.neutral100 : BankingColors.neutral700,
+        color: isDark ? BankingColors.neutral200 : BankingColors.neutral700,
+        fontFamily: 'Berlin',
       ),
       titleSmall: BankingTypography.bodyRegular.copyWith(
-        color: isDark ? BankingColors.neutral100 : BankingColors.neutral700,
+        color: isDark ? BankingColors.neutral200 : BankingColors.neutral700,
+        fontFamily: 'Berlin',
       ),
       bodyLarge: BankingTypography.bodyLarge.copyWith(
-        color: isDark ? BankingColors.neutral100 : BankingColors.neutral700,
+        color: isDark ? BankingColors.neutral200 : BankingColors.neutral700,
+        fontFamily: 'Berlin',
       ),
       bodyMedium: BankingTypography.bodyRegular.copyWith(
-        color: isDark ? BankingColors.neutral100 : BankingColors.neutral700,
+        color: isDark ? BankingColors.neutral200 : BankingColors.neutral700,
+        fontFamily: 'Berlin',
       ),
       bodySmall: BankingTypography.bodySmall.copyWith(
-        color: isDark ? BankingColors.neutral200 : BankingColors.neutral600,
+        color: isDark ? BankingColors.neutral300 : BankingColors.neutral600,
+        fontFamily: 'Berlin',
       ),
+
+      // Buttons and labels - Berlin font
       labelLarge: BankingTypography.button.copyWith(
         color: BankingColors.neutral0,
+        fontFamily: 'Berlin',
       ),
       labelMedium: BankingTypography.buttonSmall.copyWith(
         color: BankingColors.neutral0,
+        fontFamily: 'Berlin',
       ),
       labelSmall: BankingTypography.caption.copyWith(
         color: isDark ? BankingColors.neutral400 : BankingColors.neutral500,
+        fontFamily: 'Berlin',
       ),
     );
   }

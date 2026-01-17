@@ -25,6 +25,7 @@ export 'components/buttons.dart';
 export 'components/inputs.dart';
 export 'components/cards.dart';
 export 'components/fintech.dart';
+export 'components/svg_background.dart';
 
 // Themes
 export 'themes/banking_theme.dart';
@@ -37,3 +38,5 @@ export 'screens/dashboard_screen.dart';
 export 'screens/transactions_screen.dart';
 export 'screens/chats_screen.dart';
 export 'screens/cards_screen.dart';
+export 'screens/support_chat_screen.dart';
+export 'screens/notifications_chat_screen.dart';

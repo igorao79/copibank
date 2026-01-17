@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:fl_chart/fl_chart.dart';
 import '../foundation/colors.dart';
 import '../foundation/typography.dart';
 import '../foundation/tokens.dart';
 import '../components/cards.dart';
+import '../components/svg_background.dart';
 import '../utils/app_state.dart';
 import '../../l10n/app_localizations.dart';
 
@@ -115,8 +115,9 @@ class _TransactionsScreenState extends State<TransactionsScreen> with TickerProv
       _filteredTransactions = appState.transactions;
     }
 
-    return Scaffold(
-      backgroundColor: isDark ? BankingColors.neutral950 : BankingColors.neutral25,
+    return SvgBackground(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
       appBar: AppBar(
         title: Text(
           localizations.transactions,
@@ -318,7 +319,8 @@ class _TransactionsScreenState extends State<TransactionsScreen> with TickerProv
           ),
         ),
       ),
-      bottomNavigationBar: _buildBottomNavigation(localizations),
+        bottomNavigationBar: _buildBottomNavigation(localizations),
+      ),
     );
   }
 

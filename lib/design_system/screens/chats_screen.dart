@@ -4,7 +4,10 @@ import 'package:provider/provider.dart';
 import '../foundation/colors.dart';
 import '../foundation/typography.dart';
 import '../foundation/tokens.dart';
+import '../components/svg_background.dart';
 import '../utils/app_state.dart';
+import 'support_chat_screen.dart';
+import 'notifications_chat_screen.dart';
 import '../../l10n/app_localizations.dart';
 
 class ChatsScreen extends StatefulWidget {
@@ -42,9 +45,10 @@ class _ChatsScreenState extends State<ChatsScreen> with TickerProviderStateMixin
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final localizations = AppLocalizations.of(context)!;
 
-    return Scaffold(
-      backgroundColor: isDark ? BankingColors.neutral950 : BankingColors.neutral25,
-      extendBody: true,
+    return SvgBackground(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        extendBody: true,
       appBar: AppBar(
         title: Text(
           localizations.chats,
@@ -117,6 +121,7 @@ class _ChatsScreenState extends State<ChatsScreen> with TickerProviderStateMixin
                 time: '15:30',
                 unreadCount: 3,
                 onTap: () => _onChatTap('notifications'),
+                showArrow: true,
               ),
 
               _buildChatItem(
@@ -127,6 +132,7 @@ class _ChatsScreenState extends State<ChatsScreen> with TickerProviderStateMixin
                 time: '12:45',
                 unreadCount: 1,
                 onTap: () => _onChatTap('support'),
+                showArrow: true,
               ),
 
               const SizedBox(height: BankingTokens.space32),
@@ -135,7 +141,8 @@ class _ChatsScreenState extends State<ChatsScreen> with TickerProviderStateMixin
           ),
         ),
       ),
-      bottomNavigationBar: _buildBottomNavigation(localizations),
+        bottomNavigationBar: _buildBottomNavigation(localizations),
+      ),
     );
   }
 
@@ -147,6 +154,7 @@ class _ChatsScreenState extends State<ChatsScreen> with TickerProviderStateMixin
     required String time,
     required int unreadCount,
     required VoidCallback onTap,
+    bool showArrow = false,
   }) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -205,8 +213,12 @@ class _ChatsScreenState extends State<ChatsScreen> with TickerProviderStateMixin
             ),
           ],
         ),
-        trailing: unreadCount > 0
-            ? Container(
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (unreadCount > 0)
+              Container(
+                margin: const EdgeInsets.only(right: BankingTokens.space8),
                 padding: const EdgeInsets.all(BankingTokens.space4),
                 decoration: BoxDecoration(
                   color: BankingColors.primary500,
@@ -219,8 +231,15 @@ class _ChatsScreenState extends State<ChatsScreen> with TickerProviderStateMixin
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-              )
-            : null,
+              ),
+            if (showArrow)
+              Icon(
+                Icons.arrow_forward_ios,
+                size: 16,
+                color: isDark ? BankingColors.neutral400 : BankingColors.neutral500,
+              ),
+          ],
+        ),
         onTap: onTap,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(BankingTokens.borderRadiusMedium),
@@ -257,21 +276,20 @@ class _ChatsScreenState extends State<ChatsScreen> with TickerProviderStateMixin
   }
 
   void _onChatTap(String chatType) {
-    String chatName;
     switch (chatType) {
       case 'notifications':
-        chatName = 'Уведомления';
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const NotificationsChatScreen()),
+        );
         break;
       case 'support':
-        chatName = 'Тех поддержка';
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const SupportChatScreen()),
+        );
         break;
-      default:
-        chatName = chatType;
     }
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Открыт чат: $chatName')),
-    );
   }
 
   void _onSearch() {
