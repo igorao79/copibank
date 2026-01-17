@@ -41,3 +41,4 @@ export 'screens/chats_screen.dart';
 export 'screens/cards_screen.dart';
 export 'screens/support_chat_screen.dart';
 export 'screens/notifications_chat_screen.dart';
+export 'screens/onboarding_screen.dart';

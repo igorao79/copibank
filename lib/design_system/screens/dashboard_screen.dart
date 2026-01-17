@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:provider/provider.dart';
-import 'package:lottie/lottie.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../components/cards.dart';
 import '../components/buttons.dart';
@@ -475,10 +474,8 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
 
   void _navigateToApply() {
     final appState = context.read<AppState>();
-    final hasHistory = appState.accounts.isNotEmpty;
-    // Индекс вкладки "Оформить" зависит от наличия вкладки "История"
-    final applyIndex = hasHistory ? 3 : 2;
-    appState.setSelectedTabIndex(applyIndex);
+    // "Оформить" всегда имеет индекс 3 в main.dart
+    appState.setSelectedTabIndex(3);
   }
 
   void _onBottomNavigationTap(int index, AppState appState, {bool hasHistory = true}) {

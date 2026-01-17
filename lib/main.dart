@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'design_system/design_system.dart';
 import 'l10n/app_localizations.dart';
 import 'design_system/themes/banking_theme.dart';
@@ -50,11 +51,47 @@ class BankingApp extends StatelessWidget {
   }
 }
 
-class BankingAppHome extends StatelessWidget {
+class BankingAppHome extends StatefulWidget {
   const BankingAppHome({super.key});
 
   @override
+  State<BankingAppHome> createState() => _BankingAppHomeState();
+}
+
+class _BankingAppHomeState extends State<BankingAppHome> {
+  bool? _isOnboardingCompleted;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkOnboardingStatus();
+  }
+
+  Future<void> _checkOnboardingStatus() async {
+    final prefs = await SharedPreferences.getInstance();
+    final isCompleted = prefs.getBool('onboarding_completed') ?? false;
+    setState(() {
+      _isOnboardingCompleted = isCompleted;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    // Показываем загрузку пока проверяем статус onboarding
+    if (_isOnboardingCompleted == null) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
+    // Если onboarding не завершен, показываем экран onboarding
+    if (!_isOnboardingCompleted!) {
+      return const OnboardingScreen();
+    }
+
+    // Если onboarding завершен, показываем основной экран приложения
     return Consumer<AppState>(
       builder: (context, appState, child) {
         Widget currentScreen;
