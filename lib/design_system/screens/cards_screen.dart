@@ -95,12 +95,14 @@ class _CardsScreenState extends State<CardsScreen> with TickerProviderStateMixin
             onPressed: () => appState.toggleTheme(),
             tooltip: 'Переключить тему',
           ),
-          Container(
-            margin: const EdgeInsets.only(right: 8),
-            child: Badge(
-              label: appState.unreadNotificationsCount > 0
-                  ? Text(appState.unreadNotificationsCount.toString())
-                  : null,
+          Badge(
+            label: appState.unreadNotificationsCount > 0
+                ? Text(
+                    appState.unreadNotificationsCount.toString(),
+                    style: const TextStyle(fontSize: 9),
+                  )
+                : null,
+            smallSize: 14,
               child: PopupMenuButton<String>(
                 icon: Icon(
                   isDark ? BankingIcons.notification : BankingIcons.notificationFilled,
@@ -196,7 +198,6 @@ class _CardsScreenState extends State<CardsScreen> with TickerProviderStateMixin
                   ),
               ];
             },
-          ),
         ),
         ),
         IconButton(

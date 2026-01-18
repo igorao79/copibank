@@ -7,6 +7,7 @@ import '../foundation/tokens.dart';
 import '../foundation/icons.dart';
 import '../components/svg_background.dart';
 import '../utils/app_state.dart';
+import '../utils/assets_constants.dart';
 import 'support_chat_screen.dart';
 import 'notifications_chat_screen.dart';
 import 'profile_screen.dart';
@@ -59,13 +60,15 @@ class _ChatsScreenState extends State<ChatsScreen> with TickerProviderStateMixin
             children: [
               Icon(
                 Icons.account_circle,
-                color: isDark ? BankingColors.neutral200 : BankingColors.neutral700,
+                color: BankingColors.primary500,
                 size: 28,
               ),
               const SizedBox(width: 8),
               Text(
                 appState.userName,
-                style: BankingTypography.heading3,
+                style: BankingTypography.heading3.copyWith(
+                  color: BankingColors.primary500,
+                ),
               ),
             ],
           ),
@@ -74,7 +77,7 @@ class _ChatsScreenState extends State<ChatsScreen> with TickerProviderStateMixin
             IconButton(
               icon: Icon(
                 isDark ? Icons.light_mode : Icons.dark_mode,
-                color: isDark ? BankingColors.neutral200 : BankingColors.neutral700,
+                color: BankingColors.primary500,
               ),
               onPressed: () => appState.toggleTheme(),
               tooltip: 'Переключить тему',
@@ -82,13 +85,17 @@ class _ChatsScreenState extends State<ChatsScreen> with TickerProviderStateMixin
             Container(
               margin: const EdgeInsets.only(right: 8),
               child: Badge(
-                label: appState.unreadNotificationsCount > 0
-                    ? Text(appState.unreadNotificationsCount.toString())
-                    : null,
+              label: appState.unreadNotificationsCount > 0
+                  ? Text(
+                      appState.unreadNotificationsCount.toString(),
+                      style: const TextStyle(fontSize: 9),
+                    )
+                  : null,
+              smallSize: 14,
               child: PopupMenuButton<String>(
                 icon: Icon(
                   isDark ? BankingIcons.notification : BankingIcons.notificationFilled,
-                  color: isDark ? BankingColors.neutral200 : BankingColors.neutral700,
+                  color: BankingColors.primary500,
                 ),
                 onSelected: (value) {
                   if (value == 'view_all') {
@@ -180,8 +187,8 @@ class _ChatsScreenState extends State<ChatsScreen> with TickerProviderStateMixin
                   ),
               ];
             },
+            ),
           ),
-        ),
         ),
         ],
         ),
@@ -205,7 +212,7 @@ class _ChatsScreenState extends State<ChatsScreen> with TickerProviderStateMixin
                 height: 120,
                 width: 120,
                 child: Lottie.asset(
-                  'lottie/mail.json',
+                  LottieAssets.mail,
                   fit: BoxFit.contain,
                   repeat: true,
                   animate: true,

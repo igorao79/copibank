@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import '../utils/assets_constants.dart';
 
 /// SVG Background Widget
 /// Displays themed SVG background that adapts to light/dark theme
@@ -18,9 +19,7 @@ class SvgBackground extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final backgroundPath = isDark
-        ? 'svg/background_dark.svg'
-        : 'svg/background_light.svg';
+    final backgroundPath = isDark ? SvgAssets.backgroundDark : SvgAssets.backgroundLight;
 
     return Stack(
       children: [

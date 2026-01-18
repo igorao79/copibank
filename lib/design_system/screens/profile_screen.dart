@@ -70,13 +70,15 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
             children: [
               Icon(
                 Icons.account_circle,
-                color: isDark ? BankingColors.neutral200 : BankingColors.neutral700,
+                color: BankingColors.primary500,
                 size: 28,
               ),
               const SizedBox(width: 8),
               Text(
                 appState.userName,
-                style: Theme.of(context).textTheme.headlineSmall,
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  color: BankingColors.primary500,
+                ),
               ),
             ],
           ),
@@ -86,21 +88,20 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
             IconButton(
               icon: Icon(
                 isDark ? Icons.light_mode : Icons.dark_mode,
-                color: isDark ? BankingColors.neutral200 : BankingColors.neutral700,
+                color: BankingColors.primary500,
               ),
               onPressed: () => appState.toggleTheme(),
               tooltip: 'Переключить тему',
             ),
             Container(
               margin: const EdgeInsets.only(right: 8),
-              child: Badge(
-                label: appState.unreadNotificationsCount > 0
-                    ? Text(appState.unreadNotificationsCount.toString())
-                    : null,
-                child: PopupMenuButton<String>(
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  PopupMenuButton<String>(
                 icon: Icon(
                   isDark ? BankingIcons.notification : BankingIcons.notificationFilled,
-                  color: isDark ? BankingColors.neutral200 : BankingColors.neutral700,
+                  color: BankingColors.primary500,
                 ),
               onSelected: (value) {
                 if (value == 'view_all') {
@@ -192,10 +193,37 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
                     ),
                 ];
               },
+                  ),
+                  if (appState.unreadNotificationsCount > 0)
+                    Positioned(
+                      right: -2, // ← Точная позиция справа от иконки
+                      top: -2,   // ← Точная позиция сверху от иконки
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: const BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.circle,
+                        ),
+                        constraints: const BoxConstraints(
+                          minWidth: 16,
+                          minHeight: 16,
+                        ),
+                        child: Center(
+                          child: Text(
+                            appState.unreadNotificationsCount.toString(),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
             ),
-        ),
-        ),
-        ],
+          ],
         ),
         body: FadeTransition(
           opacity: _fadeAnimation,
@@ -337,7 +365,6 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
             ),
           ),
         ),
-        bottomNavigationBar: _buildBottomNavigation(appState, localizations),
       ),
     );
   }
@@ -781,12 +808,16 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
             child: Text(AppLocalizations.of(context)?.cancel ?? 'Отмена'),
           ),
           TextButton(
-            onPressed: () {
-              // TODO: Logout logic
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(AppLocalizations.of(context)?.loggedOut ?? 'Вы вышли из аккаунта')),
-              );
+            onPressed: () async {
+              // Logout logic - сбросить onboarding и вернуть к начальному экрану
+              final prefs = await SharedPreferences.getInstance();
+              await prefs.setBool('onboarding_completed', false);
+
+              if (mounted) {
+                Navigator.pop(context); // Закрыть диалог
+                // Вернуться к главному экрану приложения (который проверит onboarding)
+                Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
+              }
             },
             child: Text(AppLocalizations.of(context)?.logout ?? 'Выйти'),
             style: TextButton.styleFrom(

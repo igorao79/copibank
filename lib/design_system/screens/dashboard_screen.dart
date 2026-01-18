@@ -82,13 +82,15 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
             children: [
               Icon(
                 Icons.account_circle,
-                color: isDark ? BankingColors.neutral200 : BankingColors.neutral700,
+                color: BankingColors.primary500,
                 size: 28,
               ),
               const SizedBox(width: 8),
               Text(
                 appState.userName,
-                style: Theme.of(context).textTheme.headlineSmall,
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  color: BankingColors.primary500,
+                ),
               ),
             ],
           ),
@@ -102,7 +104,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                 child: IconButton(
                   icon: Icon(
                     isDark ? Icons.light_mode : Icons.dark_mode,
-                    color: isDark ? BankingColors.neutral200 : BankingColors.neutral700,
+                    color: BankingColors.primary500,
                   ),
                   onPressed: () => _toggleTheme(context),
                   tooltip: _getThemeTooltip(appState.themeMode, localizations),
@@ -111,15 +113,19 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
             },
           ),
           Container(
-            margin: const EdgeInsets.only(right: 4),
+            margin: const EdgeInsets.only(right: 8),
             child: Badge(
-              label: appState.unreadNotificationsCount > 0
-                  ? Text(appState.unreadNotificationsCount.toString())
-                  : null,
+            label: appState.unreadNotificationsCount > 0
+                ? Text(
+                    appState.unreadNotificationsCount.toString(),
+                    style: const TextStyle(fontSize: 9),
+                  )
+                : null,
+            smallSize: 14,
               child: PopupMenuButton<String>(
               icon: Icon(
                 isDark ? BankingIcons.notification : BankingIcons.notificationFilled,
-                color: isDark ? BankingColors.neutral200 : BankingColors.neutral700,
+                color: BankingColors.primary500,
               ),
               onSelected: (value) {
                 if (value == 'view_all') {
@@ -211,8 +217,8 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                   ),
               ];
             },
+            ),
           ),
-        ),
         ),
         ],
         ),

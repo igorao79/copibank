@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:provider/provider.dart';
 import '../utils/app_state.dart';
+import '../foundation/colors.dart';
 
 class ChangePinScreen extends StatefulWidget {
   const ChangePinScreen({super.key});
@@ -20,6 +21,8 @@ class _ChangePinScreenState extends State<ChangePinScreen> {
   String _confirmPin = '';
   int _step = 0; // 0 - текущий PIN, 1 - новый PIN, 2 - подтверждение
   String? _errorMessage;
+
+  bool get isDark => Theme.of(context).brightness == Brightness.dark;
 
   @override
   void dispose() {
@@ -133,12 +136,12 @@ class _ChangePinScreenState extends State<ChangePinScreen> {
             borderRadius: BorderRadius.circular(12),
             fieldHeight: 60,
             fieldWidth: 50,
-            activeFillColor: Colors.white,
-            inactiveFillColor: Colors.grey[100],
-            selectedFillColor: Colors.white,
-            activeColor: Theme.of(context).primaryColor,
-            inactiveColor: Colors.grey[300],
-            selectedColor: Theme.of(context).primaryColor,
+            activeFillColor: isDark ? BankingColors.neutral800 : BankingColors.neutral0,
+            inactiveFillColor: isDark ? BankingColors.neutral700 : BankingColors.neutral50,
+            selectedFillColor: isDark ? BankingColors.neutral800 : BankingColors.neutral0,
+            activeColor: BankingColors.primary500,
+            inactiveColor: isDark ? BankingColors.neutral600 : BankingColors.neutral300,
+            selectedColor: BankingColors.primary500,
             borderWidth: 2,
           ),
           cursorColor: Theme.of(context).primaryColor,
@@ -153,10 +156,14 @@ class _ChangePinScreenState extends State<ChangePinScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
+      backgroundColor: isDark ? BankingColors.neutral900 : BankingColors.neutral0,
       appBar: AppBar(
         title: const Text('Изменить PIN-код'),
         elevation: 0,
+        backgroundColor: isDark ? BankingColors.neutral900 : BankingColors.neutral0,
+        foregroundColor: isDark ? BankingColors.neutral0 : BankingColors.neutral900,
       ),
       body: SafeArea(
         child: Padding(

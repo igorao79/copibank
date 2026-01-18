@@ -6,6 +6,7 @@ import '../foundation/colors.dart';
 import '../foundation/tokens.dart';
 import '../components/buttons.dart';
 import '../components/inputs.dart';
+import '../utils/assets_constants.dart';
 import '../../l10n/app_localizations.dart';
 
 class OnboardingScreen extends StatefulWidget {
@@ -121,14 +122,12 @@ class _OnboardingScreenState extends State<OnboardingScreen>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                const SizedBox(height: BankingTokens.space48),
-
                 // Анимация приветствия
                 SizedBox(
                   height: 200,
                   width: 200,
                   child: Lottie.asset(
-                    'lottie/hello.json',
+                    LottieAssets.hello,
                     controller: _animationController,
                     onLoaded: (composition) {
                       _animationController

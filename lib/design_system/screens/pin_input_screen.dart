@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:provider/provider.dart';
 import '../utils/app_state.dart';
+import '../foundation/colors.dart';
+import '../foundation/tokens.dart';
 
 class PinInputScreen extends StatefulWidget {
   final bool isSetupMode; // true для установки PIN, false для входа
@@ -82,8 +84,9 @@ class _PinInputScreenState extends State<PinInputScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: isDark ? BankingColors.neutral900 : BankingColors.neutral0,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(24.0),
@@ -107,6 +110,7 @@ class _PinInputScreenState extends State<PinInputScreen> {
                     : 'Введите PIN-код',
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                       fontWeight: FontWeight.bold,
+                      color: isDark ? BankingColors.neutral0 : BankingColors.neutral900,
                     ),
                 textAlign: TextAlign.center,
               ),
@@ -120,7 +124,7 @@ class _PinInputScreenState extends State<PinInputScreen> {
                         : 'Придумайте 4-значный PIN-код для защиты аккаунта')
                     : 'Введите ваш PIN-код для входа',
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: Colors.grey[600],
+                      color: isDark ? BankingColors.neutral300 : BankingColors.neutral600,
                     ),
                 textAlign: TextAlign.center,
               ),
@@ -139,12 +143,12 @@ class _PinInputScreenState extends State<PinInputScreen> {
                   borderRadius: BorderRadius.circular(12),
                   fieldHeight: 60,
                   fieldWidth: 50,
-                  activeFillColor: Colors.white,
-                  inactiveFillColor: Colors.grey[100],
-                  selectedFillColor: Colors.white,
-                  activeColor: Theme.of(context).primaryColor,
-                  inactiveColor: Colors.grey[300],
-                  selectedColor: Theme.of(context).primaryColor,
+                  activeFillColor: isDark ? BankingColors.neutral800 : BankingColors.neutral0,
+                  inactiveFillColor: isDark ? BankingColors.neutral700 : BankingColors.neutral50,
+                  selectedFillColor: isDark ? BankingColors.neutral800 : BankingColors.neutral0,
+                  activeColor: BankingColors.primary500,
+                  inactiveColor: isDark ? BankingColors.neutral600 : BankingColors.neutral300,
+                  selectedColor: BankingColors.primary500,
                   borderWidth: 2,
                 ),
                 cursorColor: Theme.of(context).primaryColor,
@@ -168,25 +172,6 @@ class _PinInputScreenState extends State<PinInputScreen> {
               ],
 
               const SizedBox(height: 48),
-
-              // Кнопка "Пропустить" только в режиме установки
-              if (widget.isSetupMode && !_isConfirming) ...[
-                TextButton(
-                  onPressed: () async {
-                    await context.read<AppState>().setPinCode(''); // Устанавливаем пустой PIN
-                    if (mounted) {
-                      Navigator.of(context).pop(true);
-                    }
-                  },
-                  child: Text(
-                    'Пропустить',
-                    style: TextStyle(
-                      color: Colors.grey[600],
-                      fontSize: 16,
-                    ),
-                  ),
-                ),
-              ],
             ],
           ),
         ),

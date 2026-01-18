@@ -27,6 +27,7 @@ class _BankingAppState extends State<BankingApp> {
   final AppState _appState = AppState();
   bool _isInitialized = false;
   bool _showSplash = true;
+  double _splashOpacity = 1.0;
 
   @override
   void initState() {
@@ -35,14 +36,29 @@ class _BankingAppState extends State<BankingApp> {
   }
 
   Future<void> _initializeApp() async {
-    // Показываем splash screen минимум 2 секунды
-    await Future.delayed(const Duration(seconds: 2));
+    // Показываем splash screen минимум 1.5 секунды
+    await Future.delayed(const Duration(milliseconds: 1500));
 
     // Инициализируем данные приложения
     await _appState.init();
     print('DEBUG: App initialization completed');
 
+    // Плавно скрываем splash screen
     if (mounted) {
+      // Анимируем opacity в течение 0.5 секунды
+      const duration = Duration(milliseconds: 500);
+      const steps = 10;
+      const stepDuration = Duration(milliseconds: 50);
+
+      for (int i = 0; i < steps; i++) {
+        await Future.delayed(stepDuration);
+        if (mounted) {
+          setState(() {
+            _splashOpacity = 1.0 - (i + 1) / steps;
+          });
+        }
+      }
+
       setState(() {
         _showSplash = false;
         _isInitialized = true;
@@ -54,8 +70,11 @@ class _BankingAppState extends State<BankingApp> {
   Widget build(BuildContext context) {
     // Show splash screen first
     if (_showSplash) {
-      return const MaterialApp(
-        home: SplashScreen(),
+      return MaterialApp(
+        home: Opacity(
+          opacity: _splashOpacity,
+          child: const SplashScreen(),
+        ),
         debugShowCheckedModeBanner: false,
       );
     }

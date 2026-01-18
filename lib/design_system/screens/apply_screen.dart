@@ -10,6 +10,7 @@ import '../foundation/icons.dart';
 import '../components/buttons.dart';
 import '../components/svg_background.dart';
 import '../utils/app_state.dart';
+import '../utils/assets_constants.dart';
 import '../../l10n/app_localizations.dart';
 import 'profile_screen.dart';
 
@@ -60,13 +61,15 @@ class _ApplyScreenState extends State<ApplyScreen> with TickerProviderStateMixin
             children: [
               Icon(
                 Icons.account_circle,
-                color: isDark ? BankingColors.neutral200 : BankingColors.neutral700,
+                color: BankingColors.primary500,
                 size: 28,
               ),
               const SizedBox(width: 8),
               Text(
                 appState.userName,
-                style: Theme.of(context).textTheme.headlineSmall,
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  color: BankingColors.primary500,
+                ),
               ),
             ],
           ),
@@ -77,7 +80,7 @@ class _ApplyScreenState extends State<ApplyScreen> with TickerProviderStateMixin
             IconButton(
               icon: Icon(
                 isDark ? Icons.light_mode : Icons.dark_mode,
-                color: isDark ? BankingColors.neutral200 : BankingColors.neutral700,
+                color: BankingColors.primary500,
               ),
               onPressed: () => appState.toggleTheme(),
               tooltip: 'Переключить тему',
@@ -85,13 +88,17 @@ class _ApplyScreenState extends State<ApplyScreen> with TickerProviderStateMixin
             Container(
               margin: const EdgeInsets.only(right: 8),
               child: Badge(
-                label: appState.unreadNotificationsCount > 0
-                    ? Text(appState.unreadNotificationsCount.toString())
-                    : null,
+              label: appState.unreadNotificationsCount > 0
+                  ? Text(
+                      appState.unreadNotificationsCount.toString(),
+                      style: const TextStyle(fontSize: 9),
+                    )
+                  : null,
+              smallSize: 14,
                 child: PopupMenuButton<String>(
                 icon: Icon(
                   isDark ? BankingIcons.notification : BankingIcons.notificationFilled,
-                  color: isDark ? BankingColors.neutral200 : BankingColors.neutral700,
+                  color: BankingColors.primary500,
                 ),
               onSelected: (value) {
                 if (value == 'view_all') {
@@ -206,7 +213,7 @@ class _ApplyScreenState extends State<ApplyScreen> with TickerProviderStateMixin
                     height: 150,
                     width: 150,
                     child: Lottie.asset(
-                      'lottie/cards.json',
+                      LottieAssets.cards,
                       fit: BoxFit.contain,
                       repeat: false,
                       animate: true,
@@ -1270,7 +1277,7 @@ class _SuccessModalState extends State<SuccessModal> with TickerProviderStateMix
                   height: 120,
                   width: 120,
                   child: Lottie.asset(
-                    'assets/lottie/success.json',
+                    LottieAssets.success,
                     repeat: false,
                   ),
                 ),
