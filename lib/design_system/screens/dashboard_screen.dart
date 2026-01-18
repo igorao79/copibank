@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import '../components/cards.dart';
 import '../components/buttons.dart';
 import '../components/fintech.dart';
@@ -12,6 +11,7 @@ import '../foundation/tokens.dart';
 import '../foundation/icons.dart';
 import '../utils/app_state.dart';
 import '../../l10n/app_localizations.dart';
+import 'profile_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -64,9 +64,22 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
       child: Scaffold(
         backgroundColor: Colors.transparent,
       appBar: AppBar(
-        title: Text(
-          localizations.dashboard,
-          style: Theme.of(context).textTheme.headlineSmall,
+        title: GestureDetector(
+          onTap: () => _navigateToProfile(),
+          child: Row(
+            children: [
+              Icon(
+                Icons.account_circle,
+                color: isDark ? BankingColors.neutral200 : BankingColors.neutral700,
+                size: 28,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                appState.userName,
+                style: Theme.of(context).textTheme.headlineSmall,
+              ),
+            ],
+          ),
         ),
         actions: [
           AnimatedBuilder(
@@ -85,19 +98,98 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
               );
             },
           ),
-          IconButton(
+          PopupMenuButton<String>(
             icon: Icon(
               isDark ? BankingIcons.notification : BankingIcons.notificationFilled,
               color: isDark ? BankingColors.neutral200 : BankingColors.neutral700,
             ),
-            onPressed: () => _onNotificationsTap(),
-          ),
-          IconButton(
-            icon: Icon(
-              BankingIcons.settings,
-              color: isDark ? BankingColors.neutral200 : BankingColors.neutral700,
-            ),
-            onPressed: () => _onSettingsTap(),
+            onSelected: (value) {
+              if (value == 'view_all') {
+                _onViewAllNotifications();
+              }
+            },
+            itemBuilder: (BuildContext context) {
+              final notifications = appState.notifications;
+              final unreadCount = notifications.where((n) => !n.isRead).length;
+
+              return [
+                // Header with unread count
+                PopupMenuItem<String>(
+                  enabled: false,
+                  child: Text(
+                    unreadCount > 0
+                        ? 'Уведомления (${unreadCount} непрочитанных)'
+                        : 'Уведомления',
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                const PopupMenuDivider(),
+                // Notifications list
+                ...notifications.take(3).map((notification) {
+                  return PopupMenuItem<String>(
+                    enabled: false,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                notification.title,
+                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                  fontWeight: notification.isRead ? FontWeight.normal : FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            if (!notification.isRead)
+                              Container(
+                                width: 8,
+                                height: 8,
+                                decoration: BoxDecoration(
+                                  color: BankingColors.primary500,
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                          ],
+                        ),
+                        Text(
+                          notification.message,
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Theme.of(context).brightness == Brightness.dark
+                                ? BankingColors.neutral400
+                                : BankingColors.neutral600,
+                          ),
+                        ),
+                        Text(
+                          notification.timeAgo,
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Theme.of(context).brightness == Brightness.dark
+                                ? BankingColors.neutral500
+                                : BankingColors.neutral500,
+                            fontSize: 10,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }),
+                if (notifications.length > 3)
+                  const PopupMenuDivider(),
+                if (notifications.length > 3)
+                  PopupMenuItem<String>(
+                    value: 'view_all',
+                    child: Row(
+                      children: [
+                        Icon(Icons.expand_more, size: 16),
+                        const SizedBox(width: 8),
+                        Text('Показать все уведомления'),
+                      ],
+                    ),
+                  ),
+              ];
+            },
           ),
         ],
       ),
@@ -210,30 +302,25 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        // App Bank SVG
-        SizedBox(
-          height: 200,
-          width: 200,
-          child: SvgPicture.asset(
-            'svg/app-bank.svg',
-            fit: BoxFit.contain,
-          ),
-        ),
-        const SizedBox(height: BankingTokens.space32),
-
-        // Welcome Text
+        // Success Text
         Text(
-          'Станьте нашим клиентом',
+          'Вы успешно вошли',
           style: Theme.of(context).textTheme.headlineMedium?.copyWith(
             fontWeight: FontWeight.bold,
+            color: BankingColors.success500,
           ),
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: BankingTokens.space16),
 
+        // Welcome Text
         Text(
-          'Откройте для себя все возможности современного банкинга',
-          style: Theme.of(context).textTheme.bodyLarge,
+          'Добро пожаловать',
+          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+            color: Theme.of(context).brightness == Brightness.dark
+                ? BankingColors.neutral200
+                : BankingColors.neutral700,
+          ),
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: BankingTokens.space32),
@@ -450,32 +537,29 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
     }
   }
 
-  void _onNotificationsTap() {
+  void _onViewAllNotifications() {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: const Text('Уведомления открыты'),
+        content: const Text('Открыть экран всех уведомлений'),
         duration: const Duration(seconds: 1),
       ),
     );
-    // TODO: Navigate to notifications screen
-    print('Открыть экран уведомлений');
+    // TODO: Navigate to full notifications screen
+    print('Открыть экран всех уведомлений');
   }
 
-  void _onSettingsTap() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text('Настройки открыты'),
-        duration: const Duration(seconds: 1),
-      ),
-    );
-    // TODO: Navigate to settings screen
-    print('Открыть экран настроек');
-  }
 
   void _navigateToApply() {
     final appState = context.read<AppState>();
     // "Оформить" всегда имеет индекс 3 в main.dart
     appState.setSelectedTabIndex(3);
+  }
+
+  void _navigateToProfile() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const ProfileScreen()),
+    );
   }
 
   void _onBottomNavigationTap(int index, AppState appState, {bool hasHistory = true}) {

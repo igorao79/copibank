@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../foundation/colors.dart';
 import '../foundation/typography.dart';
 import '../foundation/tokens.dart';
 import '../components/svg_background.dart';
+import 'profile_screen.dart';
+import '../utils/app_state.dart';
 
 class NotificationsChatScreen extends StatefulWidget {
   const NotificationsChatScreen({super.key});
@@ -67,17 +70,40 @@ class _NotificationsChatScreenState extends State<NotificationsChatScreen> with 
 
   @override
   Widget build(BuildContext context) {
+    final appState = context.watch<AppState>();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return SvgBackground(
       child: Scaffold(
         backgroundColor: Colors.transparent,
         extendBody: true,
         appBar: AppBar(
-          title: Text(
-            'Уведомления',
-            style: BankingTypography.heading3,
+        title: GestureDetector(
+          onTap: () => _navigateToProfile(),
+          child: Row(
+            children: [
+              Icon(
+                Icons.account_circle,
+                color: isDark ? BankingColors.neutral200 : BankingColors.neutral700,
+                size: 28,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                appState.userName,
+                style: BankingTypography.heading3,
+              ),
+            ],
           ),
+        ),
           actions: [
+            IconButton(
+              icon: Icon(
+                isDark ? Icons.light_mode : Icons.dark_mode,
+                color: isDark ? BankingColors.neutral200 : BankingColors.neutral700,
+              ),
+              onPressed: () => appState.toggleTheme(),
+              tooltip: 'Переключить тему',
+            ),
             IconButton(
               icon: Icon(Icons.mark_email_read),
               onPressed: _markAllAsRead,
@@ -445,5 +471,12 @@ class _NotificationsChatScreenState extends State<NotificationsChatScreen> with 
     } else {
       return '${timestamp.day.toString().padLeft(2, '0')}.${timestamp.month.toString().padLeft(2, '0')}.${timestamp.year}';
     }
+  }
+
+  void _navigateToProfile() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const ProfileScreen()),
+    );
   }
 }

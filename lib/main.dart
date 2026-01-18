@@ -8,30 +8,42 @@ import 'design_system/themes/banking_theme.dart';
 import 'design_system/screens/dashboard_screen.dart';
 import 'design_system/screens/transactions_screen.dart';
 import 'design_system/screens/chats_screen.dart';
-import 'design_system/screens/cards_screen.dart';
 import 'design_system/utils/app_state.dart';
 
 void main() {
   runApp(const BankingApp());
 }
 
-class BankingApp extends StatelessWidget {
+class BankingApp extends StatefulWidget {
   const BankingApp({super.key});
+
+  @override
+  State<BankingApp> createState() => _BankingAppState();
+}
+
+class _BankingAppState extends State<BankingApp> {
+  final AppState _appState = AppState();
+
+  @override
+  void initState() {
+    super.initState();
+    _appState.init();
+  }
 
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => AppState()),
+        ChangeNotifierProvider.value(value: _appState),
       ],
       child: Consumer<AppState>(
         builder: (context, appState, child) {
           return MaterialApp(
-            title: AppLocalizations(const Locale('ru')).appTitle,
+            title: AppLocalizations(Locale(appState.userLanguage)).appTitle,
             theme: BankingTheme.light,
             darkTheme: BankingTheme.dark,
             themeMode: appState.themeMode,
-            locale: const Locale('ru'),
+            locale: Locale(appState.userLanguage),
             localizationsDelegates: [
               AppLocalizationsDelegate(),
               GlobalMaterialLocalizations.delegate,

@@ -7,6 +7,7 @@ import '../components/cards.dart';
 import '../components/svg_background.dart';
 import '../utils/app_state.dart';
 import '../../l10n/app_localizations.dart';
+import 'profile_screen.dart';
 
 class TransactionsScreen extends StatefulWidget {
   const TransactionsScreen({super.key});
@@ -119,10 +120,126 @@ class _TransactionsScreenState extends State<TransactionsScreen> with TickerProv
       child: Scaffold(
         backgroundColor: Colors.transparent,
       appBar: AppBar(
-        title: Text(
-          localizations.transactions,
-          style: Theme.of(context).textTheme.headlineSmall,
+        title: GestureDetector(
+          onTap: () => _navigateToProfile(),
+          child: Row(
+            children: [
+              Icon(
+                Icons.account_circle,
+                color: isDark ? BankingColors.neutral200 : BankingColors.neutral700,
+                size: 28,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                appState.userName,
+                style: Theme.of(context).textTheme.headlineSmall,
+              ),
+            ],
+          ),
         ),
+        actions: [
+          IconButton(
+            icon: Icon(
+              isDark ? Icons.light_mode : Icons.dark_mode,
+              color: isDark ? BankingColors.neutral200 : BankingColors.neutral700,
+            ),
+            onPressed: () => appState.toggleTheme(),
+            tooltip: 'Переключить тему',
+          ),
+          PopupMenuButton<String>(
+            icon: Icon(
+              isDark ? Icons.notifications : Icons.notifications,
+              color: isDark ? BankingColors.neutral200 : BankingColors.neutral700,
+            ),
+            onSelected: (value) {
+              if (value == 'view_all') {
+                _onViewAllNotifications();
+              }
+            },
+            itemBuilder: (BuildContext context) {
+              final notifications = appState.notifications;
+              final unreadCount = notifications.where((n) => !n.isRead).length;
+
+              return [
+                // Header with unread count
+                PopupMenuItem<String>(
+                  enabled: false,
+                  child: Text(
+                    unreadCount > 0
+                        ? 'Уведомления (${unreadCount} непрочитанных)'
+                        : 'Уведомления',
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                const PopupMenuDivider(),
+                // Notifications list
+                ...notifications.take(3).map((notification) {
+                  return PopupMenuItem<String>(
+                    enabled: false,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                notification.title,
+                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                  fontWeight: notification.isRead ? FontWeight.normal : FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            if (!notification.isRead)
+                              Container(
+                                width: 8,
+                                height: 8,
+                                decoration: BoxDecoration(
+                                  color: BankingColors.primary500,
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                          ],
+                        ),
+                        Text(
+                          notification.message,
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Theme.of(context).brightness == Brightness.dark
+                                ? BankingColors.neutral400
+                                : BankingColors.neutral600,
+                          ),
+                        ),
+                        Text(
+                          notification.timeAgo,
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Theme.of(context).brightness == Brightness.dark
+                                ? BankingColors.neutral500
+                                : BankingColors.neutral500,
+                            fontSize: 10,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }),
+                if (notifications.length > 3)
+                  const PopupMenuDivider(),
+                if (notifications.length > 3)
+                  PopupMenuItem<String>(
+                    value: 'view_all',
+                    child: Row(
+                      children: [
+                        Icon(Icons.expand_more, size: 16),
+                        const SizedBox(width: 8),
+                        Text('Показать все уведомления'),
+                      ],
+                    ),
+                  ),
+              ];
+            },
+          ),
+        ],
       ),
       body: FadeTransition(
         opacity: _fadeAnimation,
@@ -638,5 +755,17 @@ class _TransactionsScreenState extends State<TransactionsScreen> with TickerProv
 
   String _formatDate(DateTime date) {
     return '${date.day.toString().padLeft(2, '0')}.${date.month.toString().padLeft(2, '0')}.${date.year}';
+  }
+
+  void _onViewAllNotifications() {
+    // TODO: Navigate to full notifications screen
+    print('Открыть экран всех уведомлений');
+  }
+
+  void _navigateToProfile() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const ProfileScreen()),
+    );
   }
 }
