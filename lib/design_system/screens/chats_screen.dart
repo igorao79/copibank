@@ -238,9 +238,13 @@ class _ChatsScreenState extends State<ChatsScreen> with TickerProviderStateMixin
                 title: localizations.notifications,
                 subtitle: 'Важные сообщения от банка',
                 icon: Icons.notifications,
-                lastMessage: 'Ваш платёж успешно обработан',
-                time: '15:30',
-                unreadCount: 3,
+                lastMessage: appState.notifications.isNotEmpty
+                    ? appState.notifications.first.message
+                    : 'Нет новых уведомлений',
+                time: appState.notifications.isNotEmpty
+                    ? appState.notifications.first.timeAgo.split(' ')[0] + (appState.notifications.first.timeAgo.contains('назад') ? '' : ' мин')
+                    : '--:--',
+                unreadCount: appState.notifications.where((n) => !n.isRead).length,
                 onTap: () => _onChatTap('notifications'),
                 showArrow: true,
               ),

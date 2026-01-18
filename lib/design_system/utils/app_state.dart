@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/cupertino.dart';
+import 'dart:math';
 
 /// App State Management
 /// Centralized state management for the banking application
@@ -79,6 +80,10 @@ class AppState extends ChangeNotifier {
     _selectedCashbackCategoryIds = prefs.getStringList('selected_cashback_categories') ?? [];
     _hasSelectedCashbackCategories = prefs.getBool('has_selected_cashback_categories') ?? false;
 
+    // Load sticker data for each card
+    final stickerKeys = prefs.getKeys().where((key) => key.startsWith('sticker_')).toList();
+    print('DEBUG: Found sticker keys: $stickerKeys');
+
     // Load cards data
   final cardIds = prefs.getStringList('user_cards') ?? [];
   print('DEBUG: Found ${cardIds.length} cards in SharedPreferences');
@@ -102,6 +107,9 @@ class AppState extends ChangeNotifier {
     if (cardNumber != null && cardNumber.isNotEmpty &&
         expireDate != null && cvc != null && balance != null) {
 
+      // Проверяем, есть ли стикер
+      final hasSticker = prefs.getBool('sticker_$cardId') ?? false;
+
       // Форматируем номер карты для отображения
       final formattedNumber = _formatCardNumber(cardNumber);
 
@@ -116,6 +124,7 @@ class AppState extends ChangeNotifier {
         cardNumber: formattedNumber, // ← Реальный номер из генератора
         expireDate: expireDate, // ← Реальная дата из генератора
         cvc: cvc, // ← Реальный CVC из генератора
+        hasSticker: hasSticker,
       );
       _accounts.add(account);
       print('DEBUG: ✓ Added card with number: $formattedNumber, balance: $balance');
@@ -230,6 +239,128 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
+  // Transfer money between accounts
+  Future<bool> transferMoney({
+    required Account fromAccount,
+    required TransferUser toUser,
+    required double amount,
+    String? comment,
+  }) async {
+    // Validate transfer
+    if (amount <= 0) return false;
+    if (fromAccount.balance < amount) return false;
+    if (fromAccount.type != 'debit_card') return false; // Only debit cards allowed
+
+    // Update account balance
+    final accountIndex = _accounts.indexWhere((acc) => acc.id == fromAccount.id);
+    if (accountIndex == -1) return false;
+
+    final updatedAccount = Account(
+      id: fromAccount.id,
+      name: fromAccount.name,
+      type: fromAccount.type,
+      balance: fromAccount.balance - amount,
+      currency: fromAccount.currency,
+      color: fromAccount.color,
+      isPrimary: fromAccount.isPrimary,
+      cardNumber: fromAccount.cardNumber,
+      expireDate: fromAccount.expireDate,
+      cvc: fromAccount.cvc,
+      hasSticker: fromAccount.hasSticker,
+    );
+
+    _accounts[accountIndex] = updatedAccount;
+
+    // Save updated balance to SharedPreferences
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setDouble('card_${fromAccount.id}_balance', updatedAccount.balance);
+
+    // Add transaction
+    final transactionId = 'transfer_${DateTime.now().millisecondsSinceEpoch}';
+    final transaction = Transaction(
+      id: transactionId,
+      title: 'Перевод ${toUser.name}',
+      amount: -amount,
+      date: DateTime.now(),
+      category: 'Transfer',
+      icon: Icons.send,
+    );
+    addTransaction(transaction);
+
+    // Add notification
+    final notification = NotificationItem(
+      id: 'transfer_${transactionId}',
+      title: 'Перевод выполнен',
+      message: 'Перевод ${amount.toStringAsFixed(2)}\$ пользователю ${toUser.name} выполнен успешно',
+      timestamp: DateTime.now(),
+      isRead: false,
+      type: NotificationType.transaction,
+    );
+    _notifications.insert(0, notification);
+
+    notifyListeners();
+    return true;
+  }
+
+  // Receive random transfer from random user
+  Future<void> receiveRandomTransfer() async {
+    final random = Random();
+    final randomUser = _transferUsers[random.nextInt(_transferUsers.length)];
+    final randomAmount = 1 + random.nextInt(1000); // 1 to 1000 dollars
+
+    // Add to first debit account if exists
+    final debitAccounts = _accounts.where((acc) => acc.type == 'debit_card').toList();
+    if (debitAccounts.isNotEmpty) {
+      final account = debitAccounts.first;
+      final accountIndex = _accounts.indexOf(account);
+
+      final updatedAccount = Account(
+        id: account.id,
+        name: account.name,
+        type: account.type,
+        balance: account.balance + randomAmount,
+        currency: account.currency,
+        color: account.color,
+        isPrimary: account.isPrimary,
+        cardNumber: account.cardNumber,
+        expireDate: account.expireDate,
+        cvc: account.cvc,
+        hasSticker: account.hasSticker,
+      );
+
+      _accounts[accountIndex] = updatedAccount;
+
+      // Save updated balance to SharedPreferences
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setDouble('card_${account.id}_balance', updatedAccount.balance);
+
+      // Add transaction
+      final transactionId = 'receive_${DateTime.now().millisecondsSinceEpoch}';
+      final transaction = Transaction(
+        id: transactionId,
+        title: 'Получен перевод от ${randomUser.name}',
+        amount: randomAmount.toDouble(),
+        date: DateTime.now(),
+        category: 'Income',
+        icon: Icons.arrow_downward,
+      );
+      addTransaction(transaction);
+
+      // Add notification
+      final notification = NotificationItem(
+        id: 'receive_${transactionId}',
+        title: 'Получен перевод',
+        message: 'Вы получили ${randomAmount.toStringAsFixed(2)}\$ от ${randomUser.name}',
+        timestamp: DateTime.now(),
+        isRead: false,
+        type: NotificationType.transaction,
+      );
+      _notifications.insert(0, notification);
+
+      notifyListeners();
+    }
+  }
+
   // Recent transactions
   final List<Transaction> _transactions = [
     Transaction(
@@ -305,6 +436,60 @@ class AppState extends ChangeNotifier {
 
   List<QuickAction> get quickActions => _quickActions;
 
+  // Transfer users - mock users available for transfers
+  final List<TransferUser> _transferUsers = [
+    TransferUser(
+      id: '1',
+      name: 'Анна Иванова',
+      avatarUrl: 'local_avatar_1', // Using local identifiers instead of external URLs
+      phoneNumber: '+7 (999) 123-45-67',
+    ),
+    TransferUser(
+      id: '2',
+      name: 'Михаил Петров',
+      avatarUrl: 'local_avatar_2',
+      phoneNumber: '+7 (999) 234-56-78',
+    ),
+    TransferUser(
+      id: '3',
+      name: 'Елена Сидорова',
+      avatarUrl: 'local_avatar_3',
+      phoneNumber: '+7 (999) 345-67-89',
+    ),
+    TransferUser(
+      id: '4',
+      name: 'Дмитрий Козлов',
+      avatarUrl: 'local_avatar_4',
+      phoneNumber: '+7 (999) 456-78-90',
+    ),
+    TransferUser(
+      id: '5',
+      name: 'Ольга Новикова',
+      avatarUrl: 'local_avatar_5',
+      phoneNumber: '+7 (999) 567-89-01',
+    ),
+    TransferUser(
+      id: '6',
+      name: 'Алексей Морозов',
+      avatarUrl: 'local_avatar_6',
+      phoneNumber: '+7 (999) 678-90-12',
+    ),
+    TransferUser(
+      id: '7',
+      name: 'Мария Волкова',
+      avatarUrl: 'local_avatar_7',
+      phoneNumber: '+7 (999) 789-01-23',
+    ),
+    TransferUser(
+      id: '8',
+      name: 'Сергей Соколов',
+      avatarUrl: 'local_avatar_8',
+      phoneNumber: '+7 (999) 890-12-34',
+    ),
+  ];
+
+  List<TransferUser> get transferUsers => _transferUsers;
+
   // Accounts - starts empty, will be populated by user actions
   final List<Account> _accounts = [];
 
@@ -345,6 +530,57 @@ class AppState extends ChangeNotifier {
 
   int get unreadNotificationsCount {
     return _notifications.where((n) => !n.isRead).length;
+  }
+
+  // Sticker methods
+  Future<void> attachSticker(String accountId) async {
+    final accountIndex = _accounts.indexWhere((account) => account.id == accountId);
+    if (accountIndex != -1) {
+      final updatedAccount = Account(
+        id: _accounts[accountIndex].id,
+        name: _accounts[accountIndex].name,
+        type: _accounts[accountIndex].type,
+        balance: _accounts[accountIndex].balance,
+        currency: _accounts[accountIndex].currency,
+        color: _accounts[accountIndex].color,
+        isPrimary: _accounts[accountIndex].isPrimary,
+        cardNumber: _accounts[accountIndex].cardNumber,
+        expireDate: _accounts[accountIndex].expireDate,
+        cvc: _accounts[accountIndex].cvc,
+        hasSticker: true,
+      );
+      _accounts[accountIndex] = updatedAccount;
+
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('sticker_${accountId}', true);
+
+      notifyListeners();
+    }
+  }
+
+  Future<void> detachSticker(String accountId) async {
+    final accountIndex = _accounts.indexWhere((account) => account.id == accountId);
+    if (accountIndex != -1) {
+      final updatedAccount = Account(
+        id: _accounts[accountIndex].id,
+        name: _accounts[accountIndex].name,
+        type: _accounts[accountIndex].type,
+        balance: _accounts[accountIndex].balance,
+        currency: _accounts[accountIndex].currency,
+        color: _accounts[accountIndex].color,
+        isPrimary: _accounts[accountIndex].isPrimary,
+        cardNumber: _accounts[accountIndex].cardNumber,
+        expireDate: _accounts[accountIndex].expireDate,
+        cvc: _accounts[accountIndex].cvc,
+        hasSticker: false,
+      );
+      _accounts[accountIndex] = updatedAccount;
+
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('sticker_${accountId}');
+
+      notifyListeners();
+    }
   }
 
   // Cashback methods
@@ -438,6 +674,7 @@ class Account {
   final String? cardNumber;
   final String? expireDate;
   final String? cvc;
+  final bool hasSticker;
 
   Account({
     required this.id,
@@ -450,6 +687,7 @@ class Account {
     this.cardNumber,
     this.expireDate,
     this.cvc,
+    this.hasSticker = false,
   }) {
     // Debug logging in constructor
     print('DEBUG: Account constructor called:');
@@ -534,4 +772,20 @@ class CashbackCategory {
 
   @override
   int get hashCode => id.hashCode;
+}
+
+/// Transfer User Model
+/// Model for users available for money transfers
+class TransferUser {
+  final String id;
+  final String name;
+  final String avatarUrl;
+  final String phoneNumber;
+
+  const TransferUser({
+    required this.id,
+    required this.name,
+    required this.avatarUrl,
+    required this.phoneNumber,
+  });
 }

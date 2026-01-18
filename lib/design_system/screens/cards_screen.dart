@@ -202,9 +202,11 @@ class _CardsScreenState extends State<CardsScreen> with TickerProviderStateMixin
         IconButton(
             icon: Icon(
               Icons.add_card,
-              color: isDark ? BankingColors.neutral200 : BankingColors.neutral700,
+              color: (_getTotalCardCount(appState) >= 4)
+                  ? (isDark ? BankingColors.neutral500 : BankingColors.neutral400)
+                  : (isDark ? BankingColors.neutral200 : BankingColors.neutral700),
             ),
-            onPressed: () => _onAddCard(),
+            onPressed: (_getTotalCardCount(appState) >= 4) ? null : () => _onAddCard(),
           ),
         ],
       ),
@@ -469,7 +471,17 @@ class _CardsScreenState extends State<CardsScreen> with TickerProviderStateMixin
   }
 
   void _onAddCard() {
+    if (_getTotalCardCount(context.read<AppState>()) >= 4) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Достигнут лимит карт (максимум 4 карты)')),
+      );
+      return;
+    }
     _showCardTermsDialog();
+  }
+
+  int _getTotalCardCount(AppState appState) {
+    return appState.accounts.length;
   }
 
   String _generateCardNumber() {
@@ -617,6 +629,7 @@ class _CardsScreenState extends State<CardsScreen> with TickerProviderStateMixin
       cardNumber: cardNumber, // Store the full card number
       expireDate: expireDate,
       cvc: cvc,
+      hasSticker: false,
     );
 
     print('DEBUG: Account object created:');

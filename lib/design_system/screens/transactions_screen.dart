@@ -21,10 +21,6 @@ class _TransactionsScreenState extends State<TransactionsScreen> with TickerProv
   late AnimationController _fadeController;
   late Animation<double> _fadeAnimation;
 
-  final TextEditingController _searchController = TextEditingController();
-  String _searchQuery = '';
-  DateTimeRange? _selectedDateRange;
-  List<Transaction> _filteredTransactions = [];
 
   @override
   void initState() {
@@ -37,74 +33,15 @@ class _TransactionsScreenState extends State<TransactionsScreen> with TickerProv
       CurvedAnimation(parent: _fadeController, curve: Curves.easeInOut),
     );
     _fadeController.forward();
-
-    _searchController.addListener(_onSearchChanged);
   }
 
   @override
   void dispose() {
     _fadeController.dispose();
-    _searchController.dispose();
     super.dispose();
   }
 
-  void _onSearchChanged() {
-    setState(() {
-      _searchQuery = _searchController.text.toLowerCase();
-      _filterTransactions();
-    });
-  }
 
-  void _filterTransactions() {
-    final appState = context.read<AppState>();
-    List<Transaction> filtered = appState.transactions;
-
-    // Apply search filter
-    if (_searchQuery.isNotEmpty) {
-      filtered = filtered.where((transaction) {
-        return transaction.title.toLowerCase().contains(_searchQuery) ||
-               transaction.category.toLowerCase().contains(_searchQuery);
-      }).toList();
-    }
-
-    // Apply date filter
-    if (_selectedDateRange != null) {
-      filtered = filtered.where((transaction) {
-        return transaction.date.isAfter(_selectedDateRange!.start.subtract(const Duration(days: 1))) &&
-               transaction.date.isBefore(_selectedDateRange!.end.add(const Duration(days: 1)));
-      }).toList();
-    }
-
-    _filteredTransactions = filtered;
-  }
-
-  Future<void> _selectDateRange() async {
-    final DateTimeRange? picked = await showDateRangePicker(
-      context: context,
-      firstDate: DateTime(2020),
-      lastDate: DateTime.now(),
-      initialDateRange: _selectedDateRange ?? DateTimeRange(
-        start: DateTime.now().subtract(const Duration(days: 30)),
-        end: DateTime.now(),
-      ),
-    );
-
-    if (picked != null) {
-      setState(() {
-        _selectedDateRange = picked;
-        _filterTransactions();
-      });
-    }
-  }
-
-  void _clearFilters() {
-    setState(() {
-      _selectedDateRange = null;
-      _searchController.clear();
-      _searchQuery = '';
-      _filterTransactions();
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -113,9 +50,6 @@ class _TransactionsScreenState extends State<TransactionsScreen> with TickerProv
     final localizations = AppLocalizations.of(context)!;
 
     // Initialize filtered transactions if not done yet
-    if (_filteredTransactions.isEmpty && _searchQuery.isEmpty && _selectedDateRange == null) {
-      _filteredTransactions = appState.transactions;
-    }
 
     return SvgBackground(
       child: Scaffold(
@@ -267,99 +201,10 @@ class _TransactionsScreenState extends State<TransactionsScreen> with TickerProv
               ),
               const SizedBox(height: BankingTokens.space16),
 
-              // Search Bar
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: BankingTokens.space16),
-                decoration: BoxDecoration(
-                  color: isDark ? BankingColors.neutral800 : BankingColors.neutral0,
-                  borderRadius: BorderRadius.circular(BankingTokens.borderRadiusMedium),
-                  boxShadow: BankingTokens.getShadow(1),
-                ),
-                child: TextField(
-                  decoration: InputDecoration(
-                    hintText: 'Поиск транзакций...',
-                    border: InputBorder.none,
-                    icon: Icon(
-                      Icons.search,
-                      color: isDark ? BankingColors.neutral200 : BankingColors.neutral500,
-                    ),
-                  ),
-                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                    color: isDark ? BankingColors.neutral100 : BankingColors.neutral900,
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: BankingTokens.space24),
-
-              // Filter and Search Controls
-              Row(
-                children: [
-                  Expanded(
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: BankingTokens.space16),
-                      decoration: BoxDecoration(
-                        color: isDark ? BankingColors.neutral800 : BankingColors.neutral0,
-                        borderRadius: BorderRadius.circular(BankingTokens.borderRadiusMedium),
-                        boxShadow: BankingTokens.getShadow(1),
-                      ),
-                      child: TextField(
-                        controller: _searchController,
-                        decoration: InputDecoration(
-                          hintText: 'Поиск транзакций...',
-                          border: InputBorder.none,
-                          icon: Icon(
-                            Icons.search,
-                            color: isDark ? BankingColors.neutral200 : BankingColors.neutral500,
-                          ),
-                        ),
-                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                          color: isDark ? BankingColors.neutral100 : BankingColors.neutral900,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: BankingTokens.space12),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: isDark ? BankingColors.neutral800 : BankingColors.neutral0,
-                      borderRadius: BorderRadius.circular(BankingTokens.borderRadiusMedium),
-                      boxShadow: BankingTokens.getShadow(1),
-                    ),
-                    child: IconButton(
-                      icon: Icon(
-                        Icons.filter_list,
-                        color: (_selectedDateRange != null) ? BankingColors.primary500 : (isDark ? BankingColors.neutral400 : BankingColors.neutral500),
-                      ),
-                      onPressed: _selectDateRange,
-                      tooltip: 'Фильтр по дате',
-                    ),
-                  ),
-                  if (_selectedDateRange != null || _searchQuery.isNotEmpty) ...[
-                    const SizedBox(width: BankingTokens.space8),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: BankingColors.error500,
-                        borderRadius: BorderRadius.circular(BankingTokens.borderRadiusMedium),
-                        boxShadow: BankingTokens.getShadow(1),
-                      ),
-                      child: IconButton(
-                        icon: const Icon(
-                          Icons.clear,
-                          color: BankingColors.neutral0,
-                        ),
-                        onPressed: _clearFilters,
-                        tooltip: 'Очистить фильтры',
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-
               const SizedBox(height: BankingTokens.space32),
 
               // Analytics Section
-              _buildAnalyticsSection(localizations),
+              _buildAnalyticsSection(appState, localizations),
 
               const SizedBox(height: BankingTokens.space32),
 
@@ -368,21 +213,14 @@ class _TransactionsScreenState extends State<TransactionsScreen> with TickerProv
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Транзакции (${_filteredTransactions.length})',
+                    'Транзакции (${appState.transactions.length})',
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
-                  if (_selectedDateRange != null)
-                    Text(
-                      '${_formatDate(_selectedDateRange!.start)} - ${_formatDate(_selectedDateRange!.end)}',
-                      style: Theme.of(context).textTheme.labelSmall!.copyWith(
-                        color: BankingColors.primary500,
-                      ),
-                    ),
                 ],
               ),
               const SizedBox(height: BankingTokens.space16),
 
-              ..._filteredTransactions.map((transaction) {
+              ...appState.transactions.map((transaction) {
                 return Padding(
                   padding: const EdgeInsets.only(bottom: BankingTokens.space12),
                   child: BankingCards.transaction(
@@ -453,23 +291,23 @@ class _TransactionsScreenState extends State<TransactionsScreen> with TickerProv
     );
   }
 
-  Widget _buildAnalyticsSection(AppLocalizations localizations) {
+  Widget _buildAnalyticsSection(AppState appState, AppLocalizations localizations) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     // Calculate analytics
-    final totalIncome = _filteredTransactions
+    final totalIncome = appState.transactions
         .where((t) => t.amount > 0)
         .fold(0.0, (sum, t) => sum + t.amount);
 
-    final totalExpenses = _filteredTransactions
+    final totalExpenses = appState.transactions
         .where((t) => t.amount < 0)
         .fold(0.0, (sum, t) => sum + t.amount.abs());
 
-    final transactionCount = _filteredTransactions.length;
+    final transactionCount = appState.transactions.length;
 
     // Category breakdown
     final categoryTotals = <String, double>{};
-    for (final transaction in _filteredTransactions) {
+    for (final transaction in appState.transactions) {
       categoryTotals[transaction.category] = (categoryTotals[transaction.category] ?? 0) + transaction.amount.abs();
     }
 
@@ -765,9 +603,6 @@ class _TransactionsScreenState extends State<TransactionsScreen> with TickerProv
     }
   }
 
-  String _formatDate(DateTime date) {
-    return '${date.day.toString().padLeft(2, '0')}.${date.month.toString().padLeft(2, '0')}.${date.year}';
-  }
 
   void _onViewAllNotifications() {
     // TODO: Navigate to full notifications screen

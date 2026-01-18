@@ -18,36 +18,6 @@ class _NotificationsChatScreenState extends State<NotificationsChatScreen> with 
   late AnimationController _fadeController;
   late Animation<double> _fadeAnimation;
 
-  List<Map<String, dynamic>> _notifications = [
-    {
-      'title': 'Платеж успешно выполнен',
-      'message': 'Ваш перевод на сумму 5,000 ₽ был успешно выполнен',
-      'timestamp': DateTime.now().subtract(const Duration(hours: 2)),
-      'type': 'success',
-      'read': false,
-    },
-    {
-      'title': 'Новая карта готова',
-      'message': 'Ваша дебетовая карта Visa готова к выдаче в отделении банка',
-      'timestamp': DateTime.now().subtract(const Duration(days: 1)),
-      'type': 'info',
-      'read': true,
-    },
-    {
-      'title': 'Безопасность аккаунта',
-      'message': 'Рекомендуем включить двухфакторную аутентификацию для большей безопасности',
-      'timestamp': DateTime.now().subtract(const Duration(days: 2)),
-      'type': 'warning',
-      'read': false,
-    },
-    {
-      'title': 'Акция! Кешбэк до 10%',
-      'message': 'Получите до 10% кешбэка при оплате в категориях "Кафе и рестораны"',
-      'timestamp': DateTime.now().subtract(const Duration(days: 3)),
-      'type': 'promotion',
-      'read': true,
-    },
-  ];
 
   @override
   void initState() {
@@ -104,21 +74,12 @@ class _NotificationsChatScreenState extends State<NotificationsChatScreen> with 
               onPressed: () => appState.toggleTheme(),
               tooltip: 'Переключить тему',
             ),
-            IconButton(
-              icon: Icon(Icons.mark_email_read),
-              onPressed: _markAllAsRead,
-              tooltip: 'Отметить все как прочитанные',
-            ),
-            IconButton(
-              icon: Icon(Icons.more_vert),
-              onPressed: _showNotificationsMenu,
-            ),
           ],
         ),
         body: SafeArea(
           child: FadeTransition(
             opacity: _fadeAnimation,
-            child: _notifications.isEmpty
+            child: appState.notifications.isEmpty
                 ? _buildEmptyState()
                 : _buildNotificationsList(),
           ),
@@ -166,20 +127,21 @@ class _NotificationsChatScreenState extends State<NotificationsChatScreen> with 
   }
 
   Widget _buildNotificationsList() {
+    final appState = context.read<AppState>();
     return ListView.builder(
       padding: const EdgeInsets.all(BankingTokens.screenHorizontalPadding),
-      itemCount: _notifications.length,
+      itemCount: appState.notifications.length,
       itemBuilder: (context, index) {
-        final notification = _notifications[index];
+        final notification = appState.notifications[index];
         return _buildNotificationItem(notification, index);
       },
     );
   }
 
-  Widget _buildNotificationItem(Map<String, dynamic> notification, int index) {
+  Widget _buildNotificationItem(NotificationItem notification, int index) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final isRead = notification['read'] as bool;
-    final type = notification['type'] as String;
+    final isRead = notification.isRead;
+    final type = notification.type.toString().split('.').last; // Convert enum to string
 
     Color iconColor;
     IconData iconData;
@@ -206,23 +168,7 @@ class _NotificationsChatScreenState extends State<NotificationsChatScreen> with 
         iconData = Icons.info;
     }
 
-    return Dismissible(
-      key: Key('notification_$index'),
-      direction: DismissDirection.endToStart,
-      background: Container(
-        alignment: Alignment.centerRight,
-        padding: const EdgeInsets.only(right: BankingTokens.space24),
-        decoration: BoxDecoration(
-          color: BankingColors.error500,
-          borderRadius: BorderRadius.circular(BankingTokens.borderRadiusMedium),
-        ),
-        child: Icon(
-          Icons.delete,
-          color: BankingColors.neutral0,
-        ),
-      ),
-      onDismissed: (direction) => _deleteNotification(index),
-      child: Container(
+    return Container(
         margin: const EdgeInsets.only(bottom: BankingTokens.space12),
         decoration: BoxDecoration(
           color: isDark ? BankingColors.neutral800 : BankingColors.neutral0,
@@ -254,7 +200,7 @@ class _NotificationsChatScreenState extends State<NotificationsChatScreen> with 
             children: [
               Expanded(
                 child: Text(
-                  notification['title'] as String,
+                  notification.title,
                   style: BankingTypography.bodyRegular.semiBold.copyWith(
                     color: isDark ? BankingColors.neutral100 : BankingColors.neutral900,
                   ),
@@ -276,14 +222,14 @@ class _NotificationsChatScreenState extends State<NotificationsChatScreen> with 
             children: [
               const SizedBox(height: BankingTokens.space4),
               Text(
-                notification['message'] as String,
+                notification.message,
                 style: BankingTypography.bodySmall.copyWith(
                   color: isDark ? BankingColors.neutral100 : BankingColors.neutral600,
                 ),
               ),
               const SizedBox(height: BankingTokens.space8),
               Text(
-                _formatTimestamp(notification['timestamp'] as DateTime),
+                notification.timeAgo,
                 style: BankingTypography.caption.copyWith(
                   color: isDark ? BankingColors.neutral200 : BankingColors.neutral400,
                   fontSize: 10,
@@ -293,17 +239,18 @@ class _NotificationsChatScreenState extends State<NotificationsChatScreen> with 
           ),
           onTap: () => _onNotificationTap(index),
         ),
-      ),
     );
   }
 
   void _onNotificationTap(int index) {
-    setState(() {
-      _notifications[index]['read'] = true;
-    });
+    final appState = context.read<AppState>();
+    final notification = appState.notifications[index];
 
-    // Show full notification details
-    final notification = _notifications[index];
+    // Mark as read if not already read
+    if (!notification.isRead) {
+      notification.isRead = true;
+      appState.notifyListeners();
+    }
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -340,17 +287,17 @@ class _NotificationsChatScreenState extends State<NotificationsChatScreen> with 
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        notification['title'] as String,
+                        notification.title,
                         style: BankingTypography.heading3,
                       ),
                       const SizedBox(height: BankingTokens.space16),
                       Text(
-                        notification['message'] as String,
+                        notification.message,
                         style: BankingTypography.bodyRegular,
                       ),
                       const SizedBox(height: BankingTokens.space16),
                       Text(
-                        _formatTimestamp(notification['timestamp'] as DateTime),
+                        notification.timeAgo,
                         style: BankingTypography.caption.copyWith(
                           color: isDark ? BankingColors.neutral200 : BankingColors.neutral400,
                         ),
@@ -366,112 +313,8 @@ class _NotificationsChatScreenState extends State<NotificationsChatScreen> with 
     );
   }
 
-  void _markAllAsRead() {
-    setState(() {
-      for (var notification in _notifications) {
-        notification['read'] = true;
-      }
-    });
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Все уведомления отмечены как прочитанные')),
-    );
-  }
 
-  void _deleteNotification(int index) {
-    final notification = _notifications[index];
-    setState(() {
-      _notifications.removeAt(index);
-    });
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Уведомление удалено'),
-        action: SnackBarAction(
-          label: 'Отменить',
-          onPressed: () {
-            setState(() {
-              _notifications.insert(index, notification);
-            });
-          },
-        ),
-      ),
-    );
-  }
-
-  void _showNotificationsMenu() {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (context) {
-        final isDark = Theme.of(context).brightness == Brightness.dark;
-        return Container(
-          decoration: BoxDecoration(
-            color: isDark ? BankingColors.neutral800 : BankingColors.neutral0,
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(BankingTokens.borderRadiusLarge),
-              topRight: Radius.circular(BankingTokens.borderRadiusLarge),
-            ),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 40,
-                height: 4,
-                margin: const EdgeInsets.symmetric(vertical: BankingTokens.space12),
-                decoration: BoxDecoration(
-                  color: isDark ? BankingColors.neutral200 : BankingColors.neutral300,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              ListTile(
-                leading: Icon(Icons.delete_sweep, color: BankingColors.error500),
-                title: Text('Удалить все прочитанные', style: BankingTypography.bodyRegular),
-                onTap: () {
-                  Navigator.pop(context);
-                  _deleteReadNotifications();
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.settings, color: BankingColors.primary500),
-                title: Text('Настройки уведомлений', style: BankingTypography.bodyRegular),
-                onTap: () {
-                  Navigator.pop(context);
-                  // TODO: Open notification settings
-                },
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  void _deleteReadNotifications() {
-    setState(() {
-      _notifications.removeWhere((notification) => notification['read'] == true);
-    });
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Прочитанные уведомления удалены')),
-    );
-  }
-
-  String _formatTimestamp(DateTime timestamp) {
-    final now = DateTime.now();
-    final difference = now.difference(timestamp);
-
-    if (difference.inDays == 0) {
-      return '${timestamp.hour.toString().padLeft(2, '0')}:${timestamp.minute.toString().padLeft(2, '0')}';
-    } else if (difference.inDays == 1) {
-      return 'Вчера ${timestamp.hour.toString().padLeft(2, '0')}:${timestamp.minute.toString().padLeft(2, '0')}';
-    } else if (difference.inDays < 7) {
-      return '${difference.inDays} д. назад';
-    } else {
-      return '${timestamp.day.toString().padLeft(2, '0')}.${timestamp.month.toString().padLeft(2, '0')}.${timestamp.year}';
-    }
-  }
 
   void _navigateToProfile() {
     Navigator.push(

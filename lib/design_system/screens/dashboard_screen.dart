@@ -15,6 +15,7 @@ import '../../l10n/app_localizations.dart';
 import 'profile_screen.dart';
 import 'card_details_screen.dart';
 import 'cashback_selection_screen.dart';
+import 'transfer_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -534,8 +535,11 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
 
     switch (actionId) {
       case 'transfer':
-        // TODO: Navigate to transfer screen
-        print('Открыть экран перевода');
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => const TransferScreen(),
+          ),
+        );
         break;
       case 'pay':
         // TODO: Navigate to bill payment
@@ -800,6 +804,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
   }
 
   Widget _buildCashbackSection(AppState appState, AppLocalizations localizations) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -811,11 +816,13 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
         Container(
           padding: const EdgeInsets.all(BankingTokens.space24),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: isDark ? BankingColors.neutral800 : BankingColors.neutral0,
             borderRadius: BorderRadius.circular(BankingTokens.radius16),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.05),
+                color: isDark
+                    ? Colors.black.withOpacity(0.3)
+                    : Colors.black.withOpacity(0.05),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
@@ -830,6 +837,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
   }
 
   Widget _buildCashbackSetup(AppState appState) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Column(
       children: [
         Row(
@@ -855,13 +863,14 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                     'Настройте кэшбэк',
                   style: BankingTypography.bodyRegular.copyWith(
                     fontWeight: FontWeight.w600,
+                    color: isDark ? BankingColors.neutral100 : BankingColors.neutral900,
                   ),
                   ),
                   const SizedBox(height: BankingTokens.space4),
                   Text(
                     'Выберите до 3 категорий и получайте кэшбэк до 5%',
                     style: BankingTypography.caption.copyWith(
-                      color: BankingColors.neutral600,
+                      color: isDark ? BankingColors.neutral400 : BankingColors.neutral600,
                     ),
                   ),
                 ],
@@ -869,7 +878,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
             ),
             Icon(
               Icons.arrow_forward_ios,
-              color: BankingColors.neutral400,
+              color: isDark ? BankingColors.neutral500 : BankingColors.neutral400,
               size: 16,
             ),
           ],
@@ -905,6 +914,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
   }
 
   Widget _buildSelectedCashbackCategories(AppState appState) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -912,7 +922,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
           'Активные категории кэшбэка',
           style: BankingTypography.bodySmall.copyWith(
             fontWeight: FontWeight.w600,
-            color: BankingColors.neutral700,
+            color: isDark ? BankingColors.neutral200 : BankingColors.neutral700,
           ),
         ),
         const SizedBox(height: BankingTokens.space16),
@@ -939,14 +949,14 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                   Icon(
                     category.icon,
                     size: 16,
-                    color: BankingColors.neutral700,
+                    color: isDark ? BankingColors.neutral200 : BankingColors.neutral700,
                   ),
                   const SizedBox(width: BankingTokens.space8),
                   Text(
                     category.name,
                     style: BankingTypography.caption.copyWith(
                       fontWeight: FontWeight.w500,
-                      color: BankingColors.neutral700,
+                      color: isDark ? BankingColors.neutral200 : BankingColors.neutral700,
                     ),
                   ),
                   const SizedBox(width: BankingTokens.space8),

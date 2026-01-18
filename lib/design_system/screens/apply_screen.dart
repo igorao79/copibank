@@ -232,7 +232,8 @@ class _ApplyScreenState extends State<ApplyScreen> with TickerProviderStateMixin
                     title: 'Дебетовая карта',
                     description: 'Бесплатное обслуживание • Кэшбэк до 5% • Международные платежи',
                     icon: Icons.credit_card,
-                    onTap: () => _showDebitCardModal(context, appState),
+                    isDisabled: _getDebitCardCount(appState) >= 2,
+                    onTap: _getDebitCardCount(appState) >= 2 ? null : () => _showDebitCardModal(context, appState),
                   ),
                 ),
                 const SizedBox(height: BankingTokens.space16),
@@ -244,7 +245,8 @@ class _ApplyScreenState extends State<ApplyScreen> with TickerProviderStateMixin
                     title: 'Кредитная карта',
                     description: 'Льготный период до 120 дней • Кредитный лимит до 500 000 ₽ • Беспроцентный период',
                     icon: Icons.credit_card,
-                    onTap: () => _showCreditCardModal(context, appState),
+                    isDisabled: _getCreditCardCount(appState) >= 2,
+                    onTap: _getCreditCardCount(appState) >= 2 ? null : () => _showCreditCardModal(context, appState),
                   ),
                 ),
                 const SizedBox(height: BankingTokens.space16),
@@ -451,6 +453,14 @@ class _ApplyScreenState extends State<ApplyScreen> with TickerProviderStateMixin
     );
   }
 
+  int _getDebitCardCount(AppState appState) {
+    return appState.accounts.where((account) => account.type == 'debit_card').length;
+  }
+
+  int _getCreditCardCount(AppState appState) {
+    return appState.accounts.where((account) => account.type == 'credit_card').length;
+  }
+
   void _showDebitCardModal(BuildContext context, AppState appState) {
     showModalBottomSheet(
       context: context,
@@ -508,6 +518,7 @@ class _ApplyScreenState extends State<ApplyScreen> with TickerProviderStateMixin
       cardNumber: cardNumber,
       expireDate: expireDate,
       cvc: cvc,
+      hasSticker: false,
     );
 
     print('DEBUG: ApplyScreen - Account created with cardNumber: ${newAccount.cardNumber}');
@@ -576,6 +587,7 @@ class _ApplyScreenState extends State<ApplyScreen> with TickerProviderStateMixin
       cardNumber: cardNumber,
       expireDate: expireDate,
       cvc: cvc,
+      hasSticker: false,
     );
 
     print('DEBUG: ApplyScreen - Credit account created with cardNumber: ${newAccount.cardNumber}');
@@ -591,10 +603,36 @@ class _ApplyScreenState extends State<ApplyScreen> with TickerProviderStateMixin
   }
 
   void _onPaymentStickerAccepted(BuildContext context, AppState appState) {
-    // Здесь можно добавить логику для платежного стикера
-    // Пока просто показываем успех
-    Navigator.of(context).pop();
-    _showSuccessModal(context, 'Платежный стикер оформлен!', 'payment_sticker');
+    // Привязываем стикер к первой доступной карте
+    final availableCards = appState.accounts.where((account) => !account.hasSticker).toList();
+
+    if (availableCards.isNotEmpty) {
+      // Привязываем стикер к первой доступной карте
+      final targetCard = availableCards.first;
+      appState.attachSticker(targetCard.id);
+
+      // Добавляем уведомление об оформлении стикера
+      final stickerNotification = NotificationItem(
+        id: 'sticker_${DateTime.now().millisecondsSinceEpoch}',
+        title: 'Платежный стикер оформлен!',
+        message: 'Стикер успешно привязан к вашей карте',
+        timestamp: DateTime.now(),
+        type: NotificationType.transaction,
+      );
+      appState.addNotification(stickerNotification);
+
+      Navigator.of(context).pop();
+      _showSuccessModal(context, 'Платежный стикер привязан к карте ${targetCard.cardNumber ?? '**** **** **** ****'}!', 'payment_sticker');
+    } else {
+      // Нет доступных карт для привязки стикера
+      Navigator.of(context).pop();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Нет доступных карт для привязки стикера. Сначала оформите карту.'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+    }
   }
 
   void _showSuccessModal(BuildContext context, String message, String productType) {
@@ -1211,4 +1249,5 @@ class _SuccessModalState extends State<SuccessModal> with TickerProviderStateMix
       ),
     );
   }
+
 }
