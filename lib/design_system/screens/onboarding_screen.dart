@@ -47,10 +47,16 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     try {
       // Сохраняем данные пользователя
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('user_name', _nameController.text.trim());
-      await prefs.setString('user_email', _emailController.text.trim());
-      await prefs.setString('user_password', _passwordController.text.trim());
+      final name = _nameController.text.trim();
+      final email = _emailController.text.trim();
+      final password = _passwordController.text.trim();
+
+      await prefs.setString('user_name', name);
+      await prefs.setString('user_email', email);
+      await prefs.setString('user_password', password);
       await prefs.setBool('onboarding_completed', true);
+
+      print('DEBUG: Saved user data - name: $name, email: $email');
 
       // Переходим на главный экран
       if (mounted) {

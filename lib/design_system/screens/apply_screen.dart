@@ -80,99 +80,110 @@ class _ApplyScreenState extends State<ApplyScreen> with TickerProviderStateMixin
               onPressed: () => appState.toggleTheme(),
               tooltip: 'Переключить тему',
             ),
-            PopupMenuButton<String>(
-              icon: Icon(
-                isDark ? BankingIcons.notification : BankingIcons.notificationFilled,
-                color: isDark ? BankingColors.neutral200 : BankingColors.neutral700,
-              ),
+            Container(
+              margin: const EdgeInsets.only(right: 8),
+              child: Badge(
+                label: appState.unreadNotificationsCount > 0
+                    ? Text(appState.unreadNotificationsCount.toString())
+                    : null,
+                child: PopupMenuButton<String>(
+                icon: Icon(
+                  isDark ? BankingIcons.notification : BankingIcons.notificationFilled,
+                  color: isDark ? BankingColors.neutral200 : BankingColors.neutral700,
+                ),
               onSelected: (value) {
                 if (value == 'view_all') {
                   _onViewAllNotifications();
                 }
               },
-              itemBuilder: (BuildContext context) {
-                final notifications = appState.notifications;
-                final unreadCount = notifications.where((n) => !n.isRead).length;
-
-                return [
-                  // Header with unread count
-                  PopupMenuItem<String>(
-                    enabled: false,
-                    child: Text(
-                      unreadCount > 0
-                          ? 'Уведомления (${unreadCount} непрочитанных)'
-                          : 'Уведомления',
-                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  const PopupMenuDivider(),
-                  // Notifications list
-                  ...notifications.take(3).map((notification) {
-                    return PopupMenuItem<String>(
-                      enabled: false,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  notification.title,
-                                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    fontWeight: notification.isRead ? FontWeight.normal : FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                              if (!notification.isRead)
-                                Container(
-                                  width: 8,
-                                  height: 8,
-                                  decoration: BoxDecoration(
-                                    color: BankingColors.primary500,
-                                    shape: BoxShape.circle,
-                                  ),
-                                ),
-                            ],
-                          ),
-                          Text(
-                            notification.message,
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Theme.of(context).brightness == Brightness.dark
-                                  ? BankingColors.neutral400
-                                  : BankingColors.neutral600,
-                            ),
-                          ),
-                          Text(
-                            notification.timeAgo,
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Theme.of(context).brightness == Brightness.dark
-                                  ? BankingColors.neutral500
-                                  : BankingColors.neutral500,
-                              fontSize: 10,
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  }),
-                  if (notifications.length > 3)
-                    const PopupMenuDivider(),
-                  if (notifications.length > 3)
-                    PopupMenuItem<String>(
-                      value: 'view_all',
-                      child: Row(
-                        children: [
-                          Icon(Icons.expand_more, size: 16),
-                          const SizedBox(width: 8),
-                          Text('Показать все уведомления'),
-                        ],
-                      ),
-                    ),
-                ];
+              onOpened: () {
+                appState.markAllNotificationsAsRead();
               },
+                itemBuilder: (BuildContext context) {
+                  final notifications = appState.notifications;
+                  final unreadCount = notifications.where((n) => !n.isRead).length;
+
+                  return [
+                    // Header with unread count
+                    PopupMenuItem<String>(
+                      enabled: false,
+                      child: Text(
+                        unreadCount > 0
+                          ? '${localizations.notificationsHeader} (${unreadCount} ${localizations.unreadNotifications})'
+                          : localizations.notificationsHeader,
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    const PopupMenuDivider(),
+                    // Notifications list
+                    ...notifications.take(3).map((notification) {
+                      return PopupMenuItem<String>(
+                        enabled: false,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    notification.title,
+                                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                      fontWeight: notification.isRead ? FontWeight.normal : FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                                if (!notification.isRead)
+                                  Container(
+                                    width: 8,
+                                    height: 8,
+                                    decoration: BoxDecoration(
+                                      color: BankingColors.primary500,
+                                      shape: BoxShape.circle,
+                                    ),
+                                  ),
+                              ],
+                            ),
+                            Text(
+                              notification.message,
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: Theme.of(context).brightness == Brightness.dark
+                                    ? BankingColors.neutral400
+                                    : BankingColors.neutral600,
+                              ),
+                            ),
+                            Text(
+                              notification.timeAgo,
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: Theme.of(context).brightness == Brightness.dark
+                                    ? BankingColors.neutral500
+                                    : BankingColors.neutral500,
+                                fontSize: 10,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }),
+                    if (notifications.length > 3)
+                      const PopupMenuDivider(),
+                    if (notifications.length > 3)
+                      PopupMenuItem<String>(
+                        value: 'view_all',
+                        child: Row(
+                          children: [
+                            Icon(Icons.expand_more, size: 16),
+                            const SizedBox(width: 8),
+                            Text(localizations.viewAllNotifications),
+                          ],
+                        ),
+                      ),
+                  ];
+                },
+              ),
             ),
+          ),
           ],
         ),
         body: FadeTransition(

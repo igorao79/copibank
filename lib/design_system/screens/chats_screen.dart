@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../foundation/colors.dart';
 import '../foundation/typography.dart';
 import '../foundation/tokens.dart';
+import '../foundation/icons.dart';
 import '../components/svg_background.dart';
 import '../utils/app_state.dart';
 import 'support_chat_screen.dart';
@@ -69,50 +70,59 @@ class _ChatsScreenState extends State<ChatsScreen> with TickerProviderStateMixin
             ],
           ),
         ),
-        actions: [
-          IconButton(
-            icon: Icon(
-              isDark ? Icons.light_mode : Icons.dark_mode,
-              color: isDark ? BankingColors.neutral200 : BankingColors.neutral700,
+          actions: [
+            IconButton(
+              icon: Icon(
+                isDark ? Icons.light_mode : Icons.dark_mode,
+                color: isDark ? BankingColors.neutral200 : BankingColors.neutral700,
+              ),
+              onPressed: () => appState.toggleTheme(),
+              tooltip: 'Переключить тему',
             ),
-            onPressed: () => appState.toggleTheme(),
-            tooltip: 'Переключить тему',
-          ),
-          PopupMenuButton<String>(
-            icon: Icon(
-              isDark ? Icons.notifications : Icons.notifications,
-              color: isDark ? BankingColors.neutral200 : BankingColors.neutral700,
-            ),
-            onSelected: (value) {
-              if (value == 'view_all') {
-                _onViewAllNotifications();
-              }
-            },
-            itemBuilder: (BuildContext context) {
-              final notifications = appState.notifications;
-              final unreadCount = notifications.where((n) => !n.isRead).length;
-
-              return [
-                // Header with unread count
-                PopupMenuItem<String>(
-                  enabled: false,
-                  child: Text(
-                    unreadCount > 0
-                        ? 'Уведомления (${unreadCount} непрочитанных)'
-                        : 'Уведомления',
-                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+            Container(
+              margin: const EdgeInsets.only(right: 8),
+              child: Badge(
+                label: appState.unreadNotificationsCount > 0
+                    ? Text(appState.unreadNotificationsCount.toString())
+                    : null,
+              child: PopupMenuButton<String>(
+                icon: Icon(
+                  isDark ? BankingIcons.notification : BankingIcons.notificationFilled,
+                  color: isDark ? BankingColors.neutral200 : BankingColors.neutral700,
                 ),
-                const PopupMenuDivider(),
-                // Notifications list
-                ...notifications.take(3).map((notification) {
-                  return PopupMenuItem<String>(
-                    enabled: false,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
+                onSelected: (value) {
+                  if (value == 'view_all') {
+                    _onViewAllNotifications();
+                  }
+                },
+                onOpened: () {
+                  appState.markAllNotificationsAsRead();
+                },
+                itemBuilder: (BuildContext context) {
+                  final notifications = appState.notifications;
+                  final unreadCount = notifications.where((n) => !n.isRead).length;
+
+                  return [
+                    // Header with unread count
+                    PopupMenuItem<String>(
+                      enabled: false,
+                      child: Text(
+                        unreadCount > 0
+                            ? '${localizations.notificationsHeader} (${unreadCount} ${localizations.unreadNotifications})'
+                            : localizations.notificationsHeader,
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    const PopupMenuDivider(),
+                    // Notifications list
+                    ...notifications.take(3).map((notification) {
+                      return PopupMenuItem<String>(
+                        enabled: false,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
                         Row(
                           children: [
                             Expanded(
@@ -164,16 +174,18 @@ class _ChatsScreenState extends State<ChatsScreen> with TickerProviderStateMixin
                       children: [
                         Icon(Icons.expand_more, size: 16),
                         const SizedBox(width: 8),
-                        Text('Показать все уведомления'),
+                        Text(localizations.viewAllNotifications),
                       ],
                     ),
                   ),
               ];
             },
           ),
+        ),
+        ),
         ],
-      ),
-      body: FadeTransition(
+        ),
+        body: FadeTransition(
         opacity: _fadeAnimation,
         child: SafeArea(
           child: SingleChildScrollView(

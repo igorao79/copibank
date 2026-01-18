@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:provider/provider.dart';
 import '../components/cards.dart';
+import 'package:flutter/material.dart' show Badge;
 import '../components/buttons.dart';
 import '../components/fintech.dart';
 import '../components/svg_background.dart';
@@ -12,6 +13,7 @@ import '../foundation/icons.dart';
 import '../utils/app_state.dart';
 import '../../l10n/app_localizations.dart';
 import 'profile_screen.dart';
+import 'card_details_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -45,6 +47,14 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
     _themeButtonAnimation = Tween<double>(begin: 1.0, end: 0.8).animate(
       CurvedAnimation(parent: _themeButtonController, curve: Curves.easeInOut),
     );
+
+    // Ensure user data is loaded
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final appState = context.read<AppState>();
+      if (appState.userName.isEmpty) {
+        appState.init(); // Reload data if needed
+      }
+    });
   }
 
   @override
@@ -98,16 +108,25 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
               );
             },
           ),
-          PopupMenuButton<String>(
-            icon: Icon(
-              isDark ? BankingIcons.notification : BankingIcons.notificationFilled,
-              color: isDark ? BankingColors.neutral200 : BankingColors.neutral700,
-            ),
-            onSelected: (value) {
-              if (value == 'view_all') {
-                _onViewAllNotifications();
-              }
-            },
+          Container(
+            margin: const EdgeInsets.only(right: 8),
+            child: Badge(
+              label: appState.unreadNotificationsCount > 0
+                  ? Text(appState.unreadNotificationsCount.toString())
+                  : null,
+              child: PopupMenuButton<String>(
+              icon: Icon(
+                isDark ? BankingIcons.notification : BankingIcons.notificationFilled,
+                color: isDark ? BankingColors.neutral200 : BankingColors.neutral700,
+              ),
+              onSelected: (value) {
+                if (value == 'view_all') {
+                  _onViewAllNotifications();
+                }
+              },
+              onOpened: () {
+                appState.markAllNotificationsAsRead();
+              },
             itemBuilder: (BuildContext context) {
               final notifications = appState.notifications;
               final unreadCount = notifications.where((n) => !n.isRead).length;
@@ -118,8 +137,8 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                   enabled: false,
                   child: Text(
                     unreadCount > 0
-                        ? 'Уведомления (${unreadCount} непрочитанных)'
-                        : 'Уведомления',
+                        ? '${localizations.notificationsHeader} (${unreadCount} ${localizations.unreadNotifications})'
+                        : localizations.notificationsHeader,
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
@@ -184,60 +203,67 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                       children: [
                         Icon(Icons.expand_more, size: 16),
                         const SizedBox(width: 8),
-                        Text('Показать все уведомления'),
+                        Text(localizations.viewAllNotifications),
                       ],
                     ),
                   ),
               ];
             },
           ),
+        ),
+        ),
         ],
-      ),
-      body: FadeTransition(
+        ),
+        body: FadeTransition(
         opacity: _fadeAnimation,
-        child: SingleChildScrollView(
-          padding: EdgeInsets.only(
-            left: BankingTokens.screenHorizontalPadding,
-            right: BankingTokens.screenHorizontalPadding,
-            top: BankingTokens.screenVerticalPadding,
-            bottom: BankingTokens.screenVerticalPadding,
-          ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+        child: appState.accounts.isEmpty
+          ? // Для пользователей без карт - центрируем по всему экрану
+            Center(
+              child: _buildWelcomeSection(localizations),
+            )
+          : SingleChildScrollView(
+              padding: EdgeInsets.only(
+                left: BankingTokens.screenHorizontalPadding,
+                right: BankingTokens.screenHorizontalPadding,
+                top: BankingTokens.screenVerticalPadding,
+                bottom: BankingTokens.screenVerticalPadding,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: AnimationConfiguration.toStaggeredList(
-                duration: BankingTokens.durationNormal,
-                childAnimationBuilder: (widget) => SlideAnimation(
-                  verticalOffset: 50.0,
-                  child: FadeInAnimation(child: widget),
+                  duration: BankingTokens.durationNormal,
+                  childAnimationBuilder: (widget) => SlideAnimation(
+                    verticalOffset: 50.0,
+                    child: FadeInAnimation(child: widget),
+                  ),
+                  children: [
+                    // Balance Section
+                    _buildBalanceSection(appState, localizations),
+
+                    const SizedBox(height: BankingTokens.space32),
+
+                    // Accounts/Cards Section
+                    _buildAccountsSection(appState, localizations),
+
+                    const SizedBox(height: BankingTokens.space32),
+
+                    // Quick Actions
+                    _buildQuickActions(appState, localizations),
+
+                    const SizedBox(height: BankingTokens.space32),
+
+                    // Chart Section
+                    _buildChartSection(localizations),
+
+                    const SizedBox(height: BankingTokens.space32),
+
+                    // Recent Transactions
+                    _buildRecentTransactions(appState, localizations),
+                  ],
                 ),
-                children: appState.accounts.isEmpty
-                  ? [
-                      // Для пользователей без карт
-                      _buildWelcomeSection(localizations),
-                    ]
-                  : [
-                      // Balance Section
-                      _buildBalanceSection(appState, localizations),
-
-                      const SizedBox(height: BankingTokens.space32),
-
-                      // Quick Actions
-                      _buildQuickActions(appState, localizations),
-
-                      const SizedBox(height: BankingTokens.space32),
-
-                      // Chart Section
-                      _buildChartSection(localizations),
-
-                      const SizedBox(height: BankingTokens.space32),
-
-                      // Recent Transactions
-                      _buildRecentTransactions(appState, localizations),
-                    ],
               ),
             ),
-          ),
-        ),
+      ),
         bottomNavigationBar: _buildBottomNavigation(appState, localizations),
       ),
     );
@@ -304,7 +330,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
       children: [
         // Success Text
         Text(
-          'Вы успешно вошли',
+          localizations.loginSuccess,
           style: Theme.of(context).textTheme.headlineMedium?.copyWith(
             fontWeight: FontWeight.bold,
             color: BankingColors.success500,
@@ -315,7 +341,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
 
         // Welcome Text
         Text(
-          'Добро пожаловать',
+          localizations.welcomeMessage,
           style: Theme.of(context).textTheme.headlineSmall?.copyWith(
             color: Theme.of(context).brightness == Brightness.dark
                 ? BankingColors.neutral200
@@ -668,5 +694,94 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
     } else {
       return '${date.month}/${date.day}';
     }
+  }
+
+  Widget _buildAccountsSection(AppState appState, AppLocalizations localizations) {
+    if (appState.accounts.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Мои карты',
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: BankingTokens.space16),
+        ...appState.accounts.map((account) => Padding(
+          padding: const EdgeInsets.only(bottom: BankingTokens.space12),
+          child: GestureDetector(
+            onTap: () => _onAccountTap(account),
+            child: Container(
+              padding: const EdgeInsets.all(BankingTokens.space16),
+              decoration: BoxDecoration(
+                color: account.color.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(BankingTokens.radius12),
+                border: Border.all(
+                  color: account.color.withOpacity(0.3),
+                  width: 1,
+                ),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: account.color,
+                      borderRadius: BorderRadius.circular(BankingTokens.radius8),
+                    ),
+                    child: const Icon(
+                      Icons.credit_card,
+                      color: Colors.white,
+                      size: 20,
+                    ),
+                  ),
+                  const SizedBox(width: BankingTokens.space12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          account.name,
+                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        Text(
+                          account.cardNumber ?? '**** **** **** ****',
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Text(
+                    account.formattedBalance,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: account.isPositive ? Colors.green : Colors.red,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        )),
+      ],
+    );
+  }
+
+  void _onAccountTap(Account account) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CardDetailsScreen(account: account),
+      ),
+    );
   }
 }

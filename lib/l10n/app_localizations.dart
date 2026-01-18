@@ -68,6 +68,11 @@ class AppLocalizations {
       'health': 'Health',
       'education': 'Education',
       'utilities': 'Utilities',
+      'viewAllNotifications': 'View all notifications',
+      'welcomeMessage': 'Welcome!',
+      'loginSuccess': 'You have successfully logged in',
+      'notificationsHeader': 'Notifications',
+      'unreadNotifications': 'unread notifications',
     },
     'ru': {
       'appTitle': 'Banki2 - Банковское приложение',
@@ -125,6 +130,11 @@ class AppLocalizations {
       'health': 'Здоровье',
       'education': 'Образование',
       'utilities': 'Коммунальные услуги',
+      'viewAllNotifications': 'Показать все уведомления',
+      'welcomeMessage': 'Добро пожаловать!',
+      'loginSuccess': 'Вы успешно вошли',
+      'notificationsHeader': 'Уведомления',
+      'unreadNotifications': 'непрочитанных',
     },
   };
 
@@ -183,6 +193,11 @@ class AppLocalizations {
   String get health => _localizedValues[locale.languageCode]?['health'] ?? 'Health';
   String get education => _localizedValues[locale.languageCode]?['education'] ?? 'Education';
   String get utilities => _localizedValues[locale.languageCode]?['utilities'] ?? 'Utilities';
+  String get viewAllNotifications => _localizedValues[locale.languageCode]?['viewAllNotifications'] ?? 'View all notifications';
+  String get welcomeMessage => _localizedValues[locale.languageCode]?['welcomeMessage'] ?? 'Welcome!';
+  String get loginSuccess => _localizedValues[locale.languageCode]?['loginSuccess'] ?? 'You have successfully logged in';
+  String get notificationsHeader => _localizedValues[locale.languageCode]?['notificationsHeader'] ?? 'Notifications';
+  String get unreadNotifications => _localizedValues[locale.languageCode]?['unreadNotifications'] ?? 'unread notifications';
 
   String getTransactionTitle(String key) {
     return _localizedValues[locale.languageCode]?[key] ?? key;

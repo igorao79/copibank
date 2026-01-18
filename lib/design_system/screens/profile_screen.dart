@@ -31,6 +31,12 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
       CurvedAnimation(parent: _fadeController, curve: Curves.easeInOut),
     );
     _fadeController.forward();
+
+    // Ensure user data is loaded
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final appState = context.read<AppState>();
+      appState.init(); // Reload data if needed
+    });
   }
 
   @override
@@ -44,6 +50,15 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
     final appState = context.watch<AppState>();
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final localizations = AppLocalizations.of(context)!;
+
+    print('DEBUG: Profile screen - userName: ${appState.userName}, userEmail: ${appState.userEmail}');
+
+    // If data is empty, try to load it synchronously
+    if (appState.userName.isEmpty || appState.userEmail.isEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        await appState.init();
+      });
+    }
 
     return SvgBackground(
       child: Scaffold(
@@ -75,15 +90,24 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
               onPressed: () => appState.toggleTheme(),
               tooltip: 'Переключить тему',
             ),
-            PopupMenuButton<String>(
-              icon: Icon(
-                isDark ? BankingIcons.notification : BankingIcons.notificationFilled,
-                color: isDark ? BankingColors.neutral200 : BankingColors.neutral700,
-              ),
+            Container(
+              margin: const EdgeInsets.only(right: 8),
+              child: Badge(
+                label: appState.unreadNotificationsCount > 0
+                    ? Text(appState.unreadNotificationsCount.toString())
+                    : null,
+                child: PopupMenuButton<String>(
+                icon: Icon(
+                  isDark ? BankingIcons.notification : BankingIcons.notificationFilled,
+                  color: isDark ? BankingColors.neutral200 : BankingColors.neutral700,
+                ),
               onSelected: (value) {
                 if (value == 'view_all') {
                   _onViewAllNotifications();
                 }
+              },
+              onOpened: () {
+                appState.markAllNotificationsAsRead();
               },
               itemBuilder: (BuildContext context) {
                 final notifications = appState.notifications;
@@ -95,8 +119,8 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
                     enabled: false,
                     child: Text(
                       unreadCount > 0
-                          ? 'Уведомления (${unreadCount} непрочитанных)'
-                          : 'Уведомления',
+                          ? '${localizations.notificationsHeader} (${unreadCount} ${localizations.unreadNotifications})'
+                          : localizations.notificationsHeader,
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
@@ -161,14 +185,16 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
                         children: [
                           Icon(Icons.expand_more, size: 16),
                           const SizedBox(width: 8),
-                          Text('Показать все уведомления'),
+                          Text(localizations.viewAllNotifications),
                         ],
                       ),
                     ),
                 ];
               },
             ),
-          ],
+        ),
+        ),
+        ],
         ),
         body: FadeTransition(
           opacity: _fadeAnimation,

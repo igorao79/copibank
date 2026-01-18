@@ -14,6 +14,37 @@ class AppState extends ChangeNotifier {
     _userName = prefs.getString('user_name') ?? _userName;
     _userEmail = prefs.getString('user_email') ?? _userEmail;
     _userLanguage = prefs.getString('user_language') ?? _userLanguage;
+
+    // Load cards data
+    final cardIds = prefs.getStringList('user_cards') ?? [];
+    print('DEBUG: Found ${cardIds.length} cards in SharedPreferences');
+    for (final cardId in cardIds) {
+      final cardNumber = prefs.getString('card_${cardId}_number');
+      final expireDate = prefs.getString('card_${cardId}_expire') ?? '12/25'; // Default expire date
+      final cvc = prefs.getString('card_${cardId}_cvc') ?? '123'; // Default CVC
+      final balance = prefs.getDouble('card_${cardId}_balance') ?? 0.0;
+
+      print('DEBUG: Loading card $cardId - number: $cardNumber, expire: $expireDate, cvc: $cvc, balance: $balance');
+
+      if (cardNumber != null) {
+        final account = Account(
+          id: cardId,
+          name: 'Дебетовая карта',
+          type: 'debit_card',
+          balance: balance,
+          currency: 'USD',
+          color: const Color(0xFF2196F3),
+          isPrimary: _accounts.isEmpty,
+          cardNumber: cardNumber,
+          expireDate: expireDate,
+          cvc: cvc,
+        );
+        _accounts.add(account);
+        print('DEBUG: Added card $cardId with balance ${account.balance}');
+      }
+    }
+
+    print('DEBUG: Loaded user data - name: $_userName, email: $_userEmail, language: $_userLanguage, cards: ${_accounts.length}');
     notifyListeners();
   }
 
@@ -22,10 +53,10 @@ class AppState extends ChangeNotifier {
   ThemeMode get themeMode => _themeMode;
 
   // User management
-  String _userName = 'Игорь'; // Default user name
+  String _userName = ''; // Default user name - loaded from SharedPreferences
   String get userName => _userName;
 
-  String _userEmail = 'igor@example.com'; // Default user email
+  String _userEmail = ''; // Default user email - loaded from SharedPreferences
   String get userEmail => _userEmail;
 
   String _userLanguage = 'ru'; // Default language
@@ -73,17 +104,39 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  // User balance
-  double _balance = 15420.75;
-  double get balance => _balance;
-
-  void updateBalance(double newBalance) {
-    _balance = newBalance;
-    notifyListeners();
-  }
+  // User balance - calculated from all accounts
+  double get balance => _accounts.fold<double>(0.0, (sum, account) => sum + account.balance);
 
   void addAccount(Account account) {
     _accounts.add(account);
+
+    // Add notification about new card
+    final notification = NotificationItem(
+      id: 'card_${account.id}_${DateTime.now().millisecondsSinceEpoch}',
+      title: 'Карта оформлена!',
+      message: 'Ваша новая дебетовая карта готова к использованию',
+      timestamp: DateTime.now(),
+      isRead: false,
+      type: NotificationType.transaction,
+    );
+    _notifications.insert(0, notification);
+
+    notifyListeners();
+  }
+
+  Future<void> removeAccount(String accountId) async {
+    _accounts.removeWhere((account) => account.id == accountId);
+
+    // Remove from SharedPreferences
+    final prefs = await SharedPreferences.getInstance();
+    final existingCards = prefs.getStringList('user_cards') ?? [];
+    existingCards.remove(accountId);
+    await prefs.setStringList('user_cards', existingCards);
+    await prefs.remove('card_${accountId}_number');
+    await prefs.remove('card_${accountId}_expire');
+    await prefs.remove('card_${accountId}_cvc');
+    await prefs.remove('card_${accountId}_balance');
+
     notifyListeners();
   }
 
@@ -172,7 +225,7 @@ class AppState extends ChangeNotifier {
   final List<NotificationItem> _notifications = [
     NotificationItem(
       id: '1',
-      title: 'Добро пожаловать!',
+      title: 'Добро пожаловать!', // Will be localized later
       message: 'Вы успешно вошли в систему',
       timestamp: DateTime.now(),
       isRead: false,
@@ -191,6 +244,17 @@ class AppState extends ChangeNotifier {
     final notification = _notifications.firstWhere((n) => n.id == notificationId);
     notification.isRead = true;
     notifyListeners();
+  }
+
+  void markAllNotificationsAsRead() {
+    for (var notification in _notifications) {
+      notification.isRead = true;
+    }
+    notifyListeners();
+  }
+
+  int get unreadNotificationsCount {
+    return _notifications.where((n) => !n.isRead).length;
   }
 }
 
@@ -242,6 +306,9 @@ class Account {
   final String currency;
   final Color color;
   final bool isPrimary;
+  final String? cardNumber;
+  final String? expireDate;
+  final String? cvc;
 
   const Account({
     required this.id,
@@ -251,6 +318,9 @@ class Account {
     required this.currency,
     required this.color,
     required this.isPrimary,
+    this.cardNumber,
+    this.expireDate,
+    this.cvc,
   });
 
   bool get isPositive => balance >= 0;

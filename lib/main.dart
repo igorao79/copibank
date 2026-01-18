@@ -23,15 +23,37 @@ class BankingApp extends StatefulWidget {
 
 class _BankingAppState extends State<BankingApp> {
   final AppState _appState = AppState();
+  bool _isInitialized = false;
 
   @override
   void initState() {
     super.initState();
-    _appState.init();
+    _initializeApp();
+  }
+
+  Future<void> _initializeApp() async {
+    await _appState.init();
+    print('DEBUG: App initialization completed');
+    if (mounted) {
+      setState(() {
+        _isInitialized = true;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    // Show loading while initializing
+    if (!_isInitialized) {
+      return const MaterialApp(
+        home: Scaffold(
+          body: Center(
+            child: CircularProgressIndicator(),
+          ),
+        ),
+      );
+    }
+
     return MultiProvider(
       providers: [
         ChangeNotifierProvider.value(value: _appState),
@@ -82,6 +104,7 @@ class _BankingAppHomeState extends State<BankingAppHome> {
   Future<void> _checkOnboardingStatus() async {
     final prefs = await SharedPreferences.getInstance();
     final isCompleted = prefs.getBool('onboarding_completed') ?? false;
+    print('DEBUG: Onboarding completed: $isCompleted');
     setState(() {
       _isOnboardingCompleted = isCompleted;
     });

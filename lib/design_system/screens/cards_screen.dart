@@ -1,8 +1,11 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../foundation/colors.dart';
 import '../foundation/typography.dart';
 import '../foundation/tokens.dart';
+import '../foundation/icons.dart';
 import '../components/cards.dart';
 import '../components/buttons.dart';
 import '../components/svg_background.dart';
@@ -32,6 +35,14 @@ class _CardsScreenState extends State<CardsScreen> with TickerProviderStateMixin
       CurvedAnimation(parent: _fadeController, curve: Curves.easeInOut),
     );
     _fadeController.forward();
+
+    // Ensure user data is loaded
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final appState = context.read<AppState>();
+      if (appState.userName.isEmpty) {
+        appState.init(); // Reload data if needed
+      }
+    });
   }
 
   @override
@@ -45,6 +56,11 @@ class _CardsScreenState extends State<CardsScreen> with TickerProviderStateMixin
     final appState = context.watch<AppState>();
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final localizations = AppLocalizations.of(context)!;
+
+    print('DEBUG: CardsScreen build - accounts count: ${appState.accounts.length}');
+    for (var account in appState.accounts) {
+      print('DEBUG: Account: ${account.name}, number: ${account.cardNumber}, balance: ${account.balance}');
+    }
 
     return SvgBackground(
       child: Scaffold(
@@ -76,16 +92,25 @@ class _CardsScreenState extends State<CardsScreen> with TickerProviderStateMixin
             onPressed: () => appState.toggleTheme(),
             tooltip: 'Переключить тему',
           ),
-          PopupMenuButton<String>(
-            icon: Icon(
-              isDark ? Icons.notifications : Icons.notifications,
-              color: isDark ? BankingColors.neutral200 : BankingColors.neutral700,
-            ),
-            onSelected: (value) {
-              if (value == 'view_all') {
-                _onViewAllNotifications();
-              }
-            },
+          Container(
+            margin: const EdgeInsets.only(right: 8),
+            child: Badge(
+              label: appState.unreadNotificationsCount > 0
+                  ? Text(appState.unreadNotificationsCount.toString())
+                  : null,
+              child: PopupMenuButton<String>(
+                icon: Icon(
+                  isDark ? BankingIcons.notification : BankingIcons.notificationFilled,
+                  color: isDark ? BankingColors.neutral200 : BankingColors.neutral700,
+                ),
+              onSelected: (value) {
+                if (value == 'view_all') {
+                  _onViewAllNotifications();
+                }
+              },
+              onOpened: () {
+                appState.markAllNotificationsAsRead();
+              },
             itemBuilder: (BuildContext context) {
               final notifications = appState.notifications;
               final unreadCount = notifications.where((n) => !n.isRead).length;
@@ -96,8 +121,8 @@ class _CardsScreenState extends State<CardsScreen> with TickerProviderStateMixin
                   enabled: false,
                   child: Text(
                     unreadCount > 0
-                        ? 'Уведомления (${unreadCount} непрочитанных)'
-                        : 'Уведомления',
+                        ? '${localizations.notificationsHeader} (${unreadCount} ${localizations.unreadNotifications})'
+                        : localizations.notificationsHeader,
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
@@ -162,14 +187,16 @@ class _CardsScreenState extends State<CardsScreen> with TickerProviderStateMixin
                       children: [
                         Icon(Icons.expand_more, size: 16),
                         const SizedBox(width: 8),
-                        Text('Показать все уведомления'),
+                        Text(localizations.viewAllNotifications),
                       ],
                     ),
                   ),
               ];
             },
           ),
-          IconButton(
+        ),
+        ),
+        IconButton(
             icon: Icon(
               Icons.add_card,
               color: isDark ? BankingColors.neutral200 : BankingColors.neutral700,
@@ -208,7 +235,7 @@ class _CardsScreenState extends State<CardsScreen> with TickerProviderStateMixin
                       child: BankingCards.gradientAccount(
                         title: account.name,
                         amount: account.formattedBalance,
-                        subtitle: account.type,
+                        subtitle: _formatCardNumber(account.cardNumber ?? '**** **** **** ****'),
                         gradientStart: account.color,
                         gradientEnd: account.color.withOpacity(0.7),
                         onTap: () => _onAccountTap(account),
@@ -439,10 +466,167 @@ class _CardsScreenState extends State<CardsScreen> with TickerProviderStateMixin
   }
 
   void _onAddCard() {
+    _showCardTermsDialog();
+  }
+
+  String _generateCardNumber() {
+    // Generate 16 random digits
+    final random = Random();
+    return List.generate(16, (_) => random.nextInt(10).toString()).join();
+  }
+
+  String _generateExpireDate() {
+    final now = DateTime.now();
+    final month = (1 + Random().nextInt(12)).toString().padLeft(2, '0');
+    final year = (now.year + 1 + Random().nextInt(4)).toString().substring(2); // 1-4 years from now
+    return '$month/$year';
+  }
+
+  String _generateCVC() {
+    final random = Random();
+    return (100 + random.nextInt(900)).toString(); // 3 digits
+  }
+
+  String _formatCardNumber(String cardNumber) {
+    if (cardNumber.length >= 16) {
+      final cleanNumber = cardNumber.replaceAll(' ', '');
+      if (cleanNumber.length == 16) {
+        return '${cleanNumber.substring(0, 4)} ${cleanNumber.substring(4, 8)} ${cleanNumber.substring(8, 12)} ${cleanNumber.substring(12, 16)}';
+      }
+    }
+    return cardNumber;
+  }
+
+  void _showCardTermsDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(BankingTokens.radius16),
+          ),
+          child: Container(
+            padding: const EdgeInsets.all(BankingTokens.space24),
+            constraints: const BoxConstraints(maxWidth: 400),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Условия оформления карты',
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: BankingTokens.space16),
+                const Flexible(
+                  child: SingleChildScrollView(
+                    child: Text(
+                      'Для оформления дебетовой карты необходимо:\n\n'
+                      '• Быть гражданином РФ\n'
+                      '• Иметь постоянную регистрацию\n'
+                      '• Предоставить паспортные данные\n'
+                      '• Иметь доход от 30 000 руб/месяц\n\n'
+                      'Карта будет доставлена в течение 7-10 рабочих дней.\n\n'
+                      'Согласны ли вы с условиями?',
+                      textAlign: TextAlign.left,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: BankingTokens.space24),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        child: const Text('Отмена'),
+                      ),
+                    ),
+                    const SizedBox(width: BankingTokens.space12),
+                    Expanded(
+                      child:             ElevatedButton(
+              onPressed: () async {
+                Navigator.of(context).pop();
+                await _addNewCard();
+              },
+              child: const Text('Согласен'),
+            ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _addNewCard() async {
+    final appState = context.read<AppState>();
+
+    // Generate card data
+    final cardNumber = _generateCardNumber();
+    final expireDate = _generateExpireDate();
+    final cvc = _generateCVC();
+
+    print('DEBUG: Generated card data - number: $cardNumber, expire: $expireDate, cvc: $cvc');
+
+    // Create new account/card
+    final newAccount = Account(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      name: 'Дебетовая карта',
+      type: 'debit_card',
+      balance: 5000.00, // Always start with $5,000
+      currency: 'USD',
+      color: const Color(0xFF2196F3), // Blue color for cards
+      isPrimary: appState.accounts.isEmpty, // First card is primary
+      cardNumber: cardNumber, // Store the full card number
+      expireDate: expireDate,
+      cvc: cvc,
+    );
+
+    print('DEBUG: Creating card with number: $cardNumber, expire: $expireDate, cvc: $cvc, balance: ${newAccount.balance}');
+    appState.addAccount(newAccount);
+
+    // Force rebuild to show new card immediately
+    setState(() {});
+
+    // Save card data to SharedPreferences
+    final prefs = await SharedPreferences.getInstance();
+    final existingCards = prefs.getStringList('user_cards') ?? [];
+    existingCards.add(newAccount.id);
+    await prefs.setString('card_${newAccount.id}_number', cardNumber);
+    await prefs.setString('card_${newAccount.id}_expire', expireDate);
+    await prefs.setString('card_${newAccount.id}_cvc', cvc);
+    await prefs.setDouble('card_${newAccount.id}_balance', 5000.00);
+    await prefs.setStringList('user_cards', existingCards);
+
+    print('DEBUG: Card saved to SharedPreferences:');
+    print('  ID: ${newAccount.id}');
+    print('  Number: $cardNumber');
+    print('  Expire: $expireDate');
+    print('  CVC: $cvc');
+    print('  Balance: 5000.00');
+    print('  Cards list: $existingCards');
+
+    // Verify data was saved
+    final savedNumber = prefs.getString('card_${newAccount.id}_number');
+    final savedExpire = prefs.getString('card_${newAccount.id}_expire');
+    final savedCvc = prefs.getString('card_${newAccount.id}_cvc');
+    final savedBalance = prefs.getDouble('card_${newAccount.id}_balance');
+    final savedCardsList = prefs.getStringList('user_cards');
+
+    print('DEBUG: Verification - saved number: $savedNumber, expire: $savedExpire, cvc: $savedCvc, balance: $savedBalance');
+    print('DEBUG: Verification - cards list: $savedCardsList');
+
+    final formattedCardNumber = '${cardNumber.substring(0, 4)} ${cardNumber.substring(4, 8)} ${cardNumber.substring(8, 12)} ${cardNumber.substring(12, 16)}';
+
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Открыть экран добавления карты'),
-        duration: const Duration(seconds: 1),
+      SnackBar(
+        content: Text('Карта успешно оформлена! Номер: $formattedCardNumber'),
+        duration: const Duration(seconds: 3),
       ),
     );
   }

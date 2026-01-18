@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../foundation/colors.dart';
 import '../foundation/typography.dart';
 import '../foundation/tokens.dart';
+import '../foundation/icons.dart';
 import '../components/cards.dart';
 import '../components/svg_background.dart';
 import '../utils/app_state.dart';
@@ -146,16 +147,25 @@ class _TransactionsScreenState extends State<TransactionsScreen> with TickerProv
             onPressed: () => appState.toggleTheme(),
             tooltip: 'Переключить тему',
           ),
-          PopupMenuButton<String>(
-            icon: Icon(
-              isDark ? Icons.notifications : Icons.notifications,
-              color: isDark ? BankingColors.neutral200 : BankingColors.neutral700,
-            ),
-            onSelected: (value) {
-              if (value == 'view_all') {
-                _onViewAllNotifications();
-              }
-            },
+          Container(
+            margin: const EdgeInsets.only(right: 8),
+            child: Badge(
+              label: appState.unreadNotificationsCount > 0
+                  ? Text(appState.unreadNotificationsCount.toString())
+                  : null,
+              child: PopupMenuButton<String>(
+              icon: Icon(
+                isDark ? BankingIcons.notification : BankingIcons.notificationFilled,
+                color: isDark ? BankingColors.neutral200 : BankingColors.neutral700,
+              ),
+              onSelected: (value) {
+                if (value == 'view_all') {
+                  _onViewAllNotifications();
+                }
+              },
+              onOpened: () {
+                appState.markAllNotificationsAsRead();
+              },
             itemBuilder: (BuildContext context) {
               final notifications = appState.notifications;
               final unreadCount = notifications.where((n) => !n.isRead).length;
@@ -166,8 +176,8 @@ class _TransactionsScreenState extends State<TransactionsScreen> with TickerProv
                   enabled: false,
                   child: Text(
                     unreadCount > 0
-                        ? 'Уведомления (${unreadCount} непрочитанных)'
-                        : 'Уведомления',
+                        ? '${localizations.notificationsHeader} (${unreadCount} ${localizations.unreadNotifications})'
+                        : localizations.notificationsHeader,
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
@@ -232,16 +242,18 @@ class _TransactionsScreenState extends State<TransactionsScreen> with TickerProv
                       children: [
                         Icon(Icons.expand_more, size: 16),
                         const SizedBox(width: 8),
-                        Text('Показать все уведомления'),
+                        Text(localizations.viewAllNotifications),
                       ],
                     ),
                   ),
               ];
             },
           ),
+        ),
+        ),
         ],
-      ),
-      body: FadeTransition(
+        ),
+        body: FadeTransition(
         opacity: _fadeAnimation,
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(BankingTokens.screenHorizontalPadding),
