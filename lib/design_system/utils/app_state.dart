@@ -77,8 +77,29 @@ class AppState extends ChangeNotifier {
     _userName = prefs.getString('user_name') ?? _userName;
     _userEmail = prefs.getString('user_email') ?? _userEmail;
     _userLanguage = prefs.getString('user_language') ?? _userLanguage;
+
+    // Load theme mode
+    final themeModeString = prefs.getString('theme_mode');
+    if (themeModeString != null) {
+      switch (themeModeString) {
+        case 'light':
+          _themeMode = ThemeMode.light;
+          break;
+        case 'dark':
+          _themeMode = ThemeMode.dark;
+          break;
+        case 'system':
+        default:
+          _themeMode = ThemeMode.system;
+          break;
+      }
+    }
+    _lastSavedThemeMode = _themeMode; // Инициализируем кэш
     _selectedCashbackCategoryIds = prefs.getStringList('selected_cashback_categories') ?? [];
     _hasSelectedCashbackCategories = prefs.getBool('has_selected_cashback_categories') ?? false;
+
+    // Load PIN code
+    _pinCode = prefs.getString('user_pin_code');
 
     // Load sticker data for each card
     final stickerKeys = prefs.getKeys().where((key) => key.startsWith('sticker_')).toList();
@@ -164,7 +185,12 @@ class AppState extends ChangeNotifier {
 
   // Theme management
   ThemeMode _themeMode = ThemeMode.system;
+  ThemeMode? _lastSavedThemeMode; // Кэш для избежания лишних сохранений
   ThemeMode get themeMode => _themeMode;
+
+  // PIN code management
+  String? _pinCode;
+  String? get pinCode => _pinCode;
 
   // User management
   String _userName = ''; // Default user name - loaded from SharedPreferences
@@ -184,6 +210,7 @@ class AppState extends ChangeNotifier {
   void setThemeMode(ThemeMode mode) {
     _themeMode = mode;
     notifyListeners();
+    _saveThemeToPrefs(mode); // Сохраняем в фоне без блокировки UI
   }
 
   void setUserName(String name) {
@@ -203,7 +230,34 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> setPinCode(String pinCode) async {
+    _pinCode = pinCode;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('user_pin_code', pinCode);
+    notifyListeners();
+  }
+
+  Future<void> changePinCode(String newPinCode) async {
+    await setPinCode(newPinCode);
+
+    // Add notification about PIN code change
+    addNotification(NotificationItem(
+      id: 'pin_changed_${DateTime.now().millisecondsSinceEpoch}',
+      title: 'PIN-код изменен',
+      message: 'Ваш PIN-код был успешно изменен',
+      timestamp: DateTime.now(),
+      type: NotificationType.security,
+    ));
+  }
+
+  bool verifyPinCode(String pinCode) {
+    return _pinCode == pinCode;
+  }
+
+  bool get hasPinCode => _pinCode != null && _pinCode!.isNotEmpty;
+
   void toggleTheme() {
+    // Определяем новую тему
     switch (_themeMode) {
       case ThemeMode.system:
         _themeMode = ThemeMode.light;
@@ -215,7 +269,33 @@ class AppState extends ChangeNotifier {
         _themeMode = ThemeMode.system;
         break;
     }
+
+    // МГНОВЕННО обновляем UI
     notifyListeners();
+
+    // Сохраняем в фоне без блокировки UI
+    _saveThemeToPrefs(_themeMode);
+  }
+
+  Future<void> _saveThemeToPrefs(ThemeMode mode) async {
+    // Кэширование - не сохраняем повторно ту же тему
+    if (_lastSavedThemeMode == mode) return;
+
+    final prefs = await SharedPreferences.getInstance();
+    String themeString;
+    switch (mode) {
+      case ThemeMode.light:
+        themeString = 'light';
+        break;
+      case ThemeMode.dark:
+        themeString = 'dark';
+        break;
+      case ThemeMode.system:
+        themeString = 'system';
+        break;
+    }
+    await prefs.setString('theme_mode', themeString);
+    _lastSavedThemeMode = mode;
   }
 
   // User balance - calculated from all accounts

@@ -73,6 +73,60 @@ class AppLocalizations {
       'loginSuccess': 'You have successfully logged in',
       'notificationsHeader': 'Notifications',
       'unreadNotifications': 'unread notifications',
+      'insufficientFunds': 'Insufficient funds in savings account',
+      'selectRecipient': 'Select recipient',
+      'selectCard': 'Select card for transfer',
+      'debitOnly': 'Transfers are only possible from debit cards',
+      'enterValidAmount': 'Enter valid amount',
+      'insufficientCardFunds': 'Insufficient funds on card',
+      'transferError': 'Transfer execution error',
+      'receiveError': 'Receive transfer error',
+      'depositSavingsTitle': 'Deposit to savings account',
+      'cancel': 'Cancel',
+      'accountDeposited': 'Account deposited with',
+      'insufficientFundsGeneral': 'Insufficient funds',
+      'deposit': 'Deposit',
+      'actionSelected': 'Action selected',
+      'openAllNotifications': 'Open all notifications screen',
+      'transactionOpened': 'Transaction opened',
+      'openFullChart': 'Open full expense chart',
+      'openAllTransactions': 'Open all transactions',
+      'noCardsForSticker': 'No available cards for sticker attachment. Apply for a card first.',
+      'applyCard': 'Apply for card',
+      'applySticker': 'Apply for sticker',
+      'openAccount': 'Open account',
+      'error': 'Error',
+      'cardOpened': 'Card opened',
+      'action': 'Action',
+      'openCardDetails': 'Open detailed card information',
+      'cardLimitReached': 'Card limit reached (maximum 4 cards)',
+      'agree': 'Agree',
+      'cardSuccessfullyApplied': 'Card successfully applied!',
+      'linkCopied': 'Link copied!',
+      'later': 'Later',
+      'linkSent': 'Link sent!',
+      'send': 'Send',
+      'dataSaveError': 'Data save error',
+      'changeName': 'Change name',
+      'nameChangedSuccessfully': 'Name changed successfully',
+      'save': 'Save',
+      'changeEmail': 'Change email',
+      'emailChangedSuccessfully': 'Email changed successfully',
+      'changePassword': 'Change password',
+      'passwordChangedSuccessfully': 'Password changed successfully',
+      'passwordsDontMatch': 'Passwords don\'t match',
+      'selectLanguage': 'Select language',
+      'russian': 'Russian',
+      'languageChangedToRussian': 'Language changed to Russian',
+      'english': 'English',
+      'languageChangedToEnglish': 'Language changed to English',
+      'selectTheme': 'Select theme',
+      'light': 'Light',
+      'dark': 'Dark',
+      'system': 'System',
+      'logout': 'Logout',
+      'logoutConfirmation': 'Are you sure you want to log out?',
+      'loggedOut': 'You have been logged out',
     },
     'ru': {
       'appTitle': 'Banki2 - Банковское приложение',
@@ -135,6 +189,60 @@ class AppLocalizations {
       'loginSuccess': 'Вы успешно вошли',
       'notificationsHeader': 'Уведомления',
       'unreadNotifications': 'непрочитанных',
+      'insufficientFunds': 'Недостаточно средств на накопительном счете',
+      'selectRecipient': 'Выберите получателя',
+      'selectCard': 'Выберите карту для перевода',
+      'debitOnly': 'Переводы возможны только с дебетовых карт',
+      'enterValidAmount': 'Введите корректную сумму',
+      'insufficientCardFunds': 'Недостаточно средств на карте',
+      'transferError': 'Ошибка при выполнении перевода',
+      'receiveError': 'Ошибка при получении перевода',
+      'depositSavingsTitle': 'Пополнение накопительного счета',
+      'cancel': 'Отмена',
+      'accountDeposited': 'Счет пополнен на',
+      'insufficientFundsGeneral': 'Недостаточно средств',
+      'deposit': 'Пополнить',
+      'actionSelected': 'Действие выбрано',
+      'openAllNotifications': 'Открыть экран всех уведомлений',
+      'transactionOpened': 'Открыта транзакция',
+      'openFullChart': 'Открыть полный график расходов',
+      'openAllTransactions': 'Открыть все транзакции',
+      'noCardsForSticker': 'Нет доступных карт для привязки стикера. Сначала оформите карту.',
+      'applyCard': 'Оформить карту',
+      'applySticker': 'Оформить стикер',
+      'openAccount': 'Открыть счет',
+      'error': 'Ошибка',
+      'cardOpened': 'Открыта карта',
+      'action': 'Действие',
+      'openCardDetails': 'Открыть подробную информацию о карте',
+      'cardLimitReached': 'Достигнут лимит карт (максимум 4 карты)',
+      'agree': 'Согласен',
+      'cardSuccessfullyApplied': 'Карта успешно оформлена!',
+      'linkCopied': 'Ссылка скопирована!',
+      'later': 'Позже',
+      'linkSent': 'Ссылка отправлена!',
+      'send': 'Отправить',
+      'dataSaveError': 'Ошибка сохранения данных',
+      'changeName': 'Изменить имя',
+      'nameChangedSuccessfully': 'Имя успешно изменено',
+      'save': 'Сохранить',
+      'changeEmail': 'Изменить email',
+      'emailChangedSuccessfully': 'Email успешно изменен',
+      'changePassword': 'Изменить пароль',
+      'passwordChangedSuccessfully': 'Пароль успешно изменен',
+      'passwordsDontMatch': 'Пароли не совпадают',
+      'selectLanguage': 'Выберите язык',
+      'russian': 'Русский',
+      'languageChangedToRussian': 'Язык изменен на русский',
+      'english': 'English',
+      'languageChangedToEnglish': 'Language changed to English',
+      'selectTheme': 'Выберите тему',
+      'light': 'Светлая',
+      'dark': 'Темная',
+      'system': 'Системная',
+      'logout': 'Выйти из аккаунта',
+      'logoutConfirmation': 'Вы уверены, что хотите выйти из аккаунта?',
+      'loggedOut': 'Вы вышли из аккаунта',
     },
   };
 
@@ -198,6 +306,60 @@ class AppLocalizations {
   String get loginSuccess => _localizedValues[locale.languageCode]?['loginSuccess'] ?? 'You have successfully logged in';
   String get notificationsHeader => _localizedValues[locale.languageCode]?['notificationsHeader'] ?? 'Notifications';
   String get unreadNotifications => _localizedValues[locale.languageCode]?['unreadNotifications'] ?? 'unread notifications';
+  String get insufficientFunds => _localizedValues[locale.languageCode]?['insufficientFunds'] ?? 'Insufficient funds in savings account';
+  String get selectRecipient => _localizedValues[locale.languageCode]?['selectRecipient'] ?? 'Select recipient';
+  String get selectCard => _localizedValues[locale.languageCode]?['selectCard'] ?? 'Select card for transfer';
+  String get debitOnly => _localizedValues[locale.languageCode]?['debitOnly'] ?? 'Transfers are only possible from debit cards';
+  String get enterValidAmount => _localizedValues[locale.languageCode]?['enterValidAmount'] ?? 'Enter valid amount';
+  String get insufficientCardFunds => _localizedValues[locale.languageCode]?['insufficientCardFunds'] ?? 'Insufficient funds on card';
+  String get transferError => _localizedValues[locale.languageCode]?['transferError'] ?? 'Transfer execution error';
+  String get receiveError => _localizedValues[locale.languageCode]?['receiveError'] ?? 'Receive transfer error';
+  String get depositSavingsTitle => _localizedValues[locale.languageCode]?['depositSavingsTitle'] ?? 'Deposit to savings account';
+  String get cancel => _localizedValues[locale.languageCode]?['cancel'] ?? 'Cancel';
+  String get accountDeposited => _localizedValues[locale.languageCode]?['accountDeposited'] ?? 'Account deposited with';
+  String get insufficientFundsGeneral => _localizedValues[locale.languageCode]?['insufficientFundsGeneral'] ?? 'Insufficient funds';
+  String get deposit => _localizedValues[locale.languageCode]?['deposit'] ?? 'Deposit';
+  String get actionSelected => _localizedValues[locale.languageCode]?['actionSelected'] ?? 'Action selected';
+  String get openAllNotifications => _localizedValues[locale.languageCode]?['openAllNotifications'] ?? 'Open all notifications screen';
+  String get transactionOpened => _localizedValues[locale.languageCode]?['transactionOpened'] ?? 'Transaction opened';
+  String get openFullChart => _localizedValues[locale.languageCode]?['openFullChart'] ?? 'Open full expense chart';
+  String get openAllTransactions => _localizedValues[locale.languageCode]?['openAllTransactions'] ?? 'Open all transactions';
+  String get noCardsForSticker => _localizedValues[locale.languageCode]?['noCardsForSticker'] ?? 'No available cards for sticker attachment. Apply for a card first.';
+  String get applyCard => _localizedValues[locale.languageCode]?['applyCard'] ?? 'Apply for card';
+  String get applySticker => _localizedValues[locale.languageCode]?['applySticker'] ?? 'Apply for sticker';
+  String get openAccount => _localizedValues[locale.languageCode]?['openAccount'] ?? 'Open account';
+  String get error => _localizedValues[locale.languageCode]?['error'] ?? 'Error';
+  String get cardOpened => _localizedValues[locale.languageCode]?['cardOpened'] ?? 'Card opened';
+  String get action => _localizedValues[locale.languageCode]?['action'] ?? 'Action';
+  String get openCardDetails => _localizedValues[locale.languageCode]?['openCardDetails'] ?? 'Open detailed card information';
+  String get cardLimitReached => _localizedValues[locale.languageCode]?['cardLimitReached'] ?? 'Card limit reached (maximum 4 cards)';
+  String get agree => _localizedValues[locale.languageCode]?['agree'] ?? 'Agree';
+  String get cardSuccessfullyApplied => _localizedValues[locale.languageCode]?['cardSuccessfullyApplied'] ?? 'Card successfully applied!';
+  String get linkCopied => _localizedValues[locale.languageCode]?['linkCopied'] ?? 'Link copied!';
+  String get later => _localizedValues[locale.languageCode]?['later'] ?? 'Later';
+  String get linkSent => _localizedValues[locale.languageCode]?['linkSent'] ?? 'Link sent!';
+  String get send => _localizedValues[locale.languageCode]?['send'] ?? 'Send';
+  String get dataSaveError => _localizedValues[locale.languageCode]?['dataSaveError'] ?? 'Data save error';
+  String get changeName => _localizedValues[locale.languageCode]?['changeName'] ?? 'Change name';
+  String get nameChangedSuccessfully => _localizedValues[locale.languageCode]?['nameChangedSuccessfully'] ?? 'Name changed successfully';
+  String get save => _localizedValues[locale.languageCode]?['save'] ?? 'Save';
+  String get changeEmail => _localizedValues[locale.languageCode]?['changeEmail'] ?? 'Change email';
+  String get emailChangedSuccessfully => _localizedValues[locale.languageCode]?['emailChangedSuccessfully'] ?? 'Email changed successfully';
+  String get changePassword => _localizedValues[locale.languageCode]?['changePassword'] ?? 'Change password';
+  String get passwordChangedSuccessfully => _localizedValues[locale.languageCode]?['passwordChangedSuccessfully'] ?? 'Password changed successfully';
+  String get passwordsDontMatch => _localizedValues[locale.languageCode]?['passwordsDontMatch'] ?? 'Passwords don\'t match';
+  String get selectLanguage => _localizedValues[locale.languageCode]?['selectLanguage'] ?? 'Select language';
+  String get russian => _localizedValues[locale.languageCode]?['russian'] ?? 'Russian';
+  String get languageChangedToRussian => _localizedValues[locale.languageCode]?['languageChangedToRussian'] ?? 'Language changed to Russian';
+  String get english => _localizedValues[locale.languageCode]?['english'] ?? 'English';
+  String get languageChangedToEnglish => _localizedValues[locale.languageCode]?['languageChangedToEnglish'] ?? 'Language changed to English';
+  String get selectTheme => _localizedValues[locale.languageCode]?['selectTheme'] ?? 'Select theme';
+  String get light => _localizedValues[locale.languageCode]?['light'] ?? 'Light';
+  String get dark => _localizedValues[locale.languageCode]?['dark'] ?? 'Dark';
+  String get system => _localizedValues[locale.languageCode]?['system'] ?? 'System';
+  String get logout => _localizedValues[locale.languageCode]?['logout'] ?? 'Logout';
+  String get logoutConfirmation => _localizedValues[locale.languageCode]?['logoutConfirmation'] ?? 'Are you sure you want to log out?';
+  String get loggedOut => _localizedValues[locale.languageCode]?['loggedOut'] ?? 'You have been logged out';
 
   String getTransactionTitle(String key) {
     return _localizedValues[locale.languageCode]?[key] ?? key;

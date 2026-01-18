@@ -446,7 +446,7 @@ class _CardsScreenState extends State<CardsScreen> with TickerProviderStateMixin
   void _onAccountTap(Account account) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Открыта карта "${account.name}"'),
+        content: Text('${AppLocalizations.of(context)?.cardOpened ?? 'Открыта карта'} "${account.name}"'),
         duration: const Duration(seconds: 1),
       ),
     );
@@ -455,7 +455,7 @@ class _CardsScreenState extends State<CardsScreen> with TickerProviderStateMixin
   void _onCardAction(String action) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Действие: $action'),
+        content: Text('${AppLocalizations.of(context)?.action ?? 'Действие'}: $action'),
         duration: const Duration(seconds: 1),
       ),
     );
@@ -463,8 +463,8 @@ class _CardsScreenState extends State<CardsScreen> with TickerProviderStateMixin
 
   void _onCardDetails() {
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Открыть подробную информацию о карте'),
+      SnackBar(
+        content: Text(AppLocalizations.of(context)?.openCardDetails ?? 'Открыть подробную информацию о карте'),
         duration: const Duration(seconds: 1),
       ),
     );
@@ -473,7 +473,7 @@ class _CardsScreenState extends State<CardsScreen> with TickerProviderStateMixin
   void _onAddCard() {
     if (_getTotalCardCount(context.read<AppState>()) >= 4) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Достигнут лимит карт (максимум 4 карты)')),
+        SnackBar(content: Text(AppLocalizations.of(context)?.cardLimitReached ?? 'Достигнут лимит карт (максимум 4 карты)')),
       );
       return;
     }
@@ -555,7 +555,7 @@ class _CardsScreenState extends State<CardsScreen> with TickerProviderStateMixin
                     Expanded(
                       child: OutlinedButton(
                         onPressed: () => Navigator.of(context).pop(),
-                        child: const Text('Отмена'),
+                        child: Text(AppLocalizations.of(context)?.cancel ?? 'Отмена'),
                       ),
                     ),
                     const SizedBox(width: BankingTokens.space12),
@@ -565,7 +565,7 @@ class _CardsScreenState extends State<CardsScreen> with TickerProviderStateMixin
                 Navigator.of(context).pop();
                 await _addNewCard();
               },
-              child: const Text('Согласен'),
+              child: Text(AppLocalizations.of(context)?.agree ?? 'Согласен'),
             ),
                     ),
                   ],
@@ -718,7 +718,7 @@ class _CardsScreenState extends State<CardsScreen> with TickerProviderStateMixin
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Карта успешно оформлена!'),
+        content: Text(AppLocalizations.of(context)?.cardSuccessfullyApplied ?? 'Карта успешно оформлена!'),
         duration: const Duration(seconds: 3),
       ),
     );
@@ -882,7 +882,7 @@ class _CardsScreenState extends State<CardsScreen> with TickerProviderStateMixin
                         onPressed: () {
                           // TODO: Copy to clipboard
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Ссылка скопирована!')),
+                            SnackBar(content: Text(AppLocalizations.of(context)?.linkCopied ?? 'Ссылка скопирована!')),
                           );
                         },
                         icon: const Icon(Icons.copy),
@@ -897,7 +897,7 @@ class _CardsScreenState extends State<CardsScreen> with TickerProviderStateMixin
                     Expanded(
                       child: OutlinedButton(
                         onPressed: () => Navigator.of(context).pop(),
-                        child: const Text('Позже'),
+                        child: Text(AppLocalizations.of(context)?.later ?? 'Позже'),
                       ),
                     ),
                     const SizedBox(width: BankingTokens.space12),
@@ -906,11 +906,11 @@ class _CardsScreenState extends State<CardsScreen> with TickerProviderStateMixin
                         onPressed: () {
                           // TODO: Share link
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Ссылка отправлена!')),
+                            SnackBar(content: Text(AppLocalizations.of(context)?.linkSent ?? 'Ссылка отправлена!')),
                           );
                           Navigator.of(context).pop();
                         },
-                        child: const Text('Отправить'),
+                        child: Text(AppLocalizations.of(context)?.send ?? 'Отправить'),
                       ),
                     ),
                   ],

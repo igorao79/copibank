@@ -563,7 +563,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> with TickerProv
   void _onTransactionTap(Transaction transaction) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Открыта транзакция "${_getLocalizedTransactionTitle(transaction.title, AppLocalizations.of(context)!)}"'),
+        content: Text('${AppLocalizations.of(context)?.transactionOpened ?? 'Открыта транзакция'} "${_getLocalizedTransactionTitle(transaction.title, AppLocalizations.of(context)!)}"'),
         duration: const Duration(seconds: 1),
       ),
     );

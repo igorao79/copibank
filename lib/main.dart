@@ -8,6 +8,8 @@ import 'design_system/themes/banking_theme.dart';
 import 'design_system/screens/dashboard_screen.dart';
 import 'design_system/screens/transactions_screen.dart';
 import 'design_system/screens/chats_screen.dart';
+import 'design_system/screens/splash_screen.dart';
+import 'design_system/screens/pin_input_screen.dart';
 import 'design_system/utils/app_state.dart';
 
 void main() {
@@ -24,6 +26,7 @@ class BankingApp extends StatefulWidget {
 class _BankingAppState extends State<BankingApp> {
   final AppState _appState = AppState();
   bool _isInitialized = false;
+  bool _showSplash = true;
 
   @override
   void initState() {
@@ -32,10 +35,16 @@ class _BankingAppState extends State<BankingApp> {
   }
 
   Future<void> _initializeApp() async {
+    // Показываем splash screen минимум 2 секунды
+    await Future.delayed(const Duration(seconds: 2));
+
+    // Инициализируем данные приложения
     await _appState.init();
     print('DEBUG: App initialization completed');
+
     if (mounted) {
       setState(() {
+        _showSplash = false;
         _isInitialized = true;
       });
     }
@@ -43,6 +52,14 @@ class _BankingAppState extends State<BankingApp> {
 
   @override
   Widget build(BuildContext context) {
+    // Show splash screen first
+    if (_showSplash) {
+      return const MaterialApp(
+        home: SplashScreen(),
+        debugShowCheckedModeBanner: false,
+      );
+    }
+
     // Show loading while initializing
     if (!_isInitialized) {
       return const MaterialApp(
@@ -51,6 +68,7 @@ class _BankingAppState extends State<BankingApp> {
             child: CircularProgressIndicator(),
           ),
         ),
+        debugShowCheckedModeBanner: false,
       );
     }
 
@@ -94,6 +112,7 @@ class BankingAppHome extends StatefulWidget {
 
 class _BankingAppHomeState extends State<BankingAppHome> {
   bool? _isOnboardingCompleted;
+  bool? _isPinVerified;
 
   @override
   void initState() {
@@ -108,6 +127,36 @@ class _BankingAppHomeState extends State<BankingAppHome> {
     setState(() {
       _isOnboardingCompleted = isCompleted;
     });
+  }
+
+  Future<void> _showPinSetupIfNeeded(BuildContext context, AppState appState) async {
+    // Если PIN-код еще не установлен, показываем экран установки
+    if (!appState.hasPinCode) {
+      final result = await Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => const PinInputScreen(isSetupMode: true),
+          fullscreenDialog: true,
+        ),
+      );
+      if (result == true) {
+        setState(() {
+          _isPinVerified = true;
+        });
+      }
+    } else {
+      // Если PIN-код установлен, показываем экран ввода
+      final result = await Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => const PinInputScreen(isSetupMode: false),
+          fullscreenDialog: true,
+        ),
+      );
+      if (result == true) {
+        setState(() {
+          _isPinVerified = true;
+        });
+      }
+    }
   }
 
   @override
@@ -126,9 +175,22 @@ class _BankingAppHomeState extends State<BankingAppHome> {
       return const OnboardingScreen();
     }
 
-    // Если onboarding завершен, показываем основной экран приложения
+    // Если onboarding завершен, проверяем PIN-код
     return Consumer<AppState>(
       builder: (context, appState, child) {
+        // Если PIN еще не проверен, показываем экран PIN
+        if (_isPinVerified != true) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            _showPinSetupIfNeeded(context, appState);
+          });
+          return const Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
+        }
+
+        // Если PIN проверен, показываем основной экран приложения
         Widget currentScreen;
         switch (appState.selectedTabIndex) {
           case 0:

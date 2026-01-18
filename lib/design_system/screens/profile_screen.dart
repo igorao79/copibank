@@ -7,6 +7,7 @@ import '../foundation/icons.dart';
 import '../components/buttons.dart';
 import '../components/svg_background.dart';
 import '../utils/app_state.dart';
+import '../screens/change_pin_screen.dart';
 import '../../l10n/app_localizations.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -303,6 +304,16 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
                 ),
                 const SizedBox(height: BankingTokens.space16),
 
+                // PIN Code Setting
+                _buildSettingItem(
+                  context: context,
+                  title: 'PIN-код',
+                  value: appState.hasPinCode ? 'Установлен' : 'Не установлен',
+                  icon: Icons.lock,
+                  onTap: () => _navigateToChangePin(context),
+                ),
+                const SizedBox(height: BankingTokens.space16),
+
                 // Theme Setting
                 _buildSettingItem(
                   context: context,
@@ -550,7 +561,7 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Изменить имя'),
+        title: Text(AppLocalizations.of(context)?.changeName ?? 'Изменить имя'),
         content: TextField(
           controller: controller,
           decoration: const InputDecoration(
@@ -560,7 +571,7 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Отмена'),
+            child: Text(AppLocalizations.of(context)?.cancel ?? 'Отмена'),
           ),
           TextButton(
             onPressed: () {
@@ -568,11 +579,11 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
                 appState.setUserName(controller.text);
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Имя успешно изменено')),
+                  SnackBar(content: Text(AppLocalizations.of(context)?.nameChangedSuccessfully ?? 'Имя успешно изменено')),
                 );
               }
             },
-            child: const Text('Сохранить'),
+            child: Text(AppLocalizations.of(context)?.save ?? 'Сохранить'),
           ),
         ],
       ),
@@ -585,7 +596,7 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Изменить email'),
+        title: Text(AppLocalizations.of(context)?.changeEmail ?? 'Изменить email'),
         content: TextField(
           controller: controller,
           decoration: const InputDecoration(
@@ -596,7 +607,7 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Отмена'),
+            child: Text(AppLocalizations.of(context)?.cancel ?? 'Отмена'),
           ),
           TextButton(
             onPressed: () async {
@@ -608,11 +619,11 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
 
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Email успешно изменен')),
+                  SnackBar(content: Text(AppLocalizations.of(context)?.emailChangedSuccessfully ?? 'Email успешно изменен')),
                 );
               }
             },
-            child: const Text('Сохранить'),
+            child: Text(AppLocalizations.of(context)?.save ?? 'Сохранить'),
           ),
         ],
       ),
@@ -627,7 +638,7 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Изменить пароль'),
+        title: Text(AppLocalizations.of(context)?.changePassword ?? 'Изменить пароль'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -659,7 +670,7 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Отмена'),
+            child: Text(AppLocalizations.of(context)?.cancel ?? 'Отмена'),
           ),
           TextButton(
             onPressed: () {
@@ -667,15 +678,15 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
                 // TODO: Change password
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Пароль успешно изменен')),
+                  SnackBar(content: Text(AppLocalizations.of(context)?.passwordChangedSuccessfully ?? 'Пароль успешно изменен')),
                 );
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Пароли не совпадают')),
+                  SnackBar(content: Text(AppLocalizations.of(context)?.passwordsDontMatch ?? 'Пароли не совпадают')),
                 );
               }
             },
-            child: const Text('Сохранить'),
+            child: Text(AppLocalizations.of(context)?.save ?? 'Сохранить'),
           ),
         ],
       ),
@@ -686,30 +697,24 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Выберите язык'),
+        title: Text(AppLocalizations.of(context)?.selectLanguage ?? 'Выберите язык'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              title: const Text('Русский'),
+              title: Text(AppLocalizations.of(context)?.russian ?? 'Русский'),
               leading: appState.userLanguage == 'ru' ? const Icon(Icons.check) : const SizedBox(),
               onTap: () {
                 appState.setUserLanguage('ru');
                 Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Язык изменен на русский')),
-                );
               },
             ),
             ListTile(
-              title: const Text('English'),
+              title: Text(AppLocalizations.of(context)?.english ?? 'English'),
               leading: appState.userLanguage == 'en' ? const Icon(Icons.check) : const SizedBox(),
               onTap: () {
                 appState.setUserLanguage('en');
                 Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Language changed to English')),
-                );
               },
             ),
           ],
@@ -722,12 +727,12 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Выберите тему'),
+        title: Text(AppLocalizations.of(context)?.selectTheme ?? 'Выберите тему'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              title: const Text('Светлая'),
+              title: Text(AppLocalizations.of(context)?.light ?? 'Светлая'),
               leading: appState.themeMode == ThemeMode.light ? const Icon(Icons.check) : const SizedBox(),
               onTap: () {
                 appState.setThemeMode(ThemeMode.light);
@@ -735,7 +740,7 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
               },
             ),
             ListTile(
-              title: const Text('Темная'),
+              title: Text(AppLocalizations.of(context)?.dark ?? 'Темная'),
               leading: appState.themeMode == ThemeMode.dark ? const Icon(Icons.check) : const SizedBox(),
               onTap: () {
                 appState.setThemeMode(ThemeMode.dark);
@@ -743,7 +748,7 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
               },
             ),
             ListTile(
-              title: const Text('Системная'),
+              title: Text(AppLocalizations.of(context)?.system ?? 'Системная'),
               leading: appState.themeMode == ThemeMode.system ? const Icon(Icons.check) : const SizedBox(),
               onTap: () {
                 appState.setThemeMode(ThemeMode.system);
@@ -756,26 +761,34 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
     );
   }
 
+  void _navigateToChangePin(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => const ChangePinScreen(),
+      ),
+    );
+  }
+
   void _showLogoutDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Выйти из аккаунта'),
-        content: const Text('Вы уверены, что хотите выйти из аккаунта?'),
+        title: Text(AppLocalizations.of(context)?.logout ?? 'Выйти из аккаунта'),
+        content: Text(AppLocalizations.of(context)?.logoutConfirmation ?? 'Вы уверены, что хотите выйти из аккаунта?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Отмена'),
+            child: Text(AppLocalizations.of(context)?.cancel ?? 'Отмена'),
           ),
           TextButton(
             onPressed: () {
               // TODO: Logout logic
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Вы вышли из аккаунта')),
+                SnackBar(content: Text(AppLocalizations.of(context)?.loggedOut ?? 'Вы вышли из аккаунта')),
               );
             },
-            child: const Text('Выйти'),
+            child: Text(AppLocalizations.of(context)?.logout ?? 'Выйти'),
             style: TextButton.styleFrom(
               foregroundColor: BankingColors.error500,
             ),

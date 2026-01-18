@@ -111,7 +111,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
             },
           ),
           Container(
-            margin: const EdgeInsets.only(right: 8),
+            margin: const EdgeInsets.only(right: 4),
             child: Badge(
               label: appState.unreadNotificationsCount > 0
                   ? Text(appState.unreadNotificationsCount.toString())
@@ -402,7 +402,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
       builder: (BuildContext context) {
         return StatefulBuilder(
           builder: (context, setState) => AlertDialog(
-            title: const Text('Пополнение накопительного счета'),
+            title: Text(AppLocalizations.of(context)?.depositSavingsTitle ?? 'Пополнение накопительного счета'),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -427,7 +427,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(),
-                child: const Text('Отмена'),
+                child: Text(AppLocalizations.of(context)?.cancel ?? 'Отмена'),
               ),
               ElevatedButton(
                 onPressed: () async {
@@ -438,21 +438,21 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                       Navigator.of(context).pop();
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: Text('Счет пополнен на \$${amount.toStringAsFixed(2)}'),
+                          content: Text('${AppLocalizations.of(context)?.accountDeposited ?? 'Счет пополнен на'} \$${amount.toStringAsFixed(2)}'),
                           backgroundColor: BankingColors.success500,
                         ),
                       );
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Недостаточно средств'),
+                        SnackBar(
+                          content: Text(AppLocalizations.of(context)?.insufficientFundsGeneral ?? 'Недостаточно средств'),
                           backgroundColor: BankingColors.error500,
                         ),
                       );
                     }
                   }
                 },
-                child: const Text('Пополнить'),
+                child: Text(AppLocalizations.of(context)?.deposit ?? 'Пополнить'),
               ),
             ],
           ),
@@ -681,7 +681,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
     // Show feedback when action is tapped
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Действие "${_getLocalizedActionTitle(actionId, AppLocalizations.of(context)!)}" выбрано'),
+        content: Text('${AppLocalizations.of(context)?.actionSelected ?? 'Действие'} "${_getLocalizedActionTitle(actionId, AppLocalizations.of(context)!)}" ${AppLocalizations.of(context)?.actionSelected == 'Action selected' ? 'selected' : 'выбрано'}'),
         duration: const Duration(seconds: 1),
       ),
     );
@@ -730,7 +730,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
   void _onViewAllNotifications() {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: const Text('Открыть экран всех уведомлений'),
+        content: Text(AppLocalizations.of(context)?.openAllNotifications ?? 'Открыть экран всех уведомлений'),
         duration: const Duration(seconds: 1),
       ),
     );
@@ -781,7 +781,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
   void _onTransactionTap(Transaction transaction) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Открыта транзакция "${transaction.title}"'),
+        content: Text('${AppLocalizations.of(context)?.transactionOpened ?? 'Открыта транзакция'} "${transaction.title}"'),
         duration: const Duration(seconds: 1),
       ),
     );
@@ -791,8 +791,8 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
 
   void _onViewAllCharts() {
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Открыть полный график расходов'),
+      SnackBar(
+        content: Text(AppLocalizations.of(context)?.openFullChart ?? 'Открыть полный график расходов'),
         duration: Duration(seconds: 1),
       ),
     );
@@ -802,8 +802,8 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
 
   void _onViewAllTransactions() {
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Открыть все транзакции'),
+      SnackBar(
+        content: Text(AppLocalizations.of(context)?.openAllTransactions ?? 'Открыть все транзакции'),
         duration: Duration(seconds: 1),
       ),
     );

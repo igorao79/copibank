@@ -6,6 +6,7 @@ import '../foundation/colors.dart';
 import '../foundation/tokens.dart';
 import '../components/buttons.dart';
 import '../components/inputs.dart';
+import '../../l10n/app_localizations.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -65,7 +66,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Ошибка сохранения данных: $e'),
+          content: Text('${AppLocalizations.of(context)?.dataSaveError ?? 'Ошибка сохранения данных'}: $e'),
           backgroundColor: BankingColors.error500,
         ),
       );

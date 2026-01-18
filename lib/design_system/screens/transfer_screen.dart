@@ -8,6 +8,7 @@ import '../foundation/tokens.dart';
 import '../components/buttons.dart';
 import '../components/svg_background.dart';
 import '../utils/app_state.dart';
+import '../../l10n/app_localizations.dart';
 
 class TransferScreen extends StatefulWidget {
   final Account? selectedAccount;
@@ -86,21 +87,21 @@ class _TransferScreenState extends State<TransferScreen> with TickerProviderStat
   bool _validateTransfer() {
     if (_selectedUser == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Выберите получателя')),
+        SnackBar(content: Text(AppLocalizations.of(context)?.selectRecipient ?? 'Выберите получателя')),
       );
       return false;
     }
 
     if (_selectedAccount == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Выберите карту для перевода')),
+        SnackBar(content: Text(AppLocalizations.of(context)?.selectCard ?? 'Выберите карту для перевода')),
       );
       return false;
     }
 
     if (_selectedAccount!.type != 'debit_card') {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Переводы возможны только с дебетовых карт')),
+        SnackBar(content: Text(AppLocalizations.of(context)?.debitOnly ?? 'Переводы возможны только с дебетовых карт')),
       );
       return false;
     }
@@ -108,14 +109,14 @@ class _TransferScreenState extends State<TransferScreen> with TickerProviderStat
     final amount = double.tryParse(_amountController.text.replaceAll(',', '.'));
     if (amount == null || amount <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Введите корректную сумму')),
+        SnackBar(content: Text(AppLocalizations.of(context)?.enterValidAmount ?? 'Введите корректную сумму')),
       );
       return false;
     }
 
     if (amount > _selectedAccount!.balance) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Недостаточно средств на карте')),
+        SnackBar(content: Text(AppLocalizations.of(context)?.insufficientCardFunds ?? 'Недостаточно средств на карте')),
       );
       return false;
     }
@@ -194,7 +195,7 @@ class _TransferScreenState extends State<TransferScreen> with TickerProviderStat
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Ошибка при выполнении перевода')),
+        SnackBar(content: Text(AppLocalizations.of(context)?.transferError ?? 'Ошибка при выполнении перевода')),
       );
     } finally {
       if (mounted) {
@@ -298,7 +299,7 @@ class _TransferScreenState extends State<TransferScreen> with TickerProviderStat
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Ошибка при получении перевода')),
+          SnackBar(content: Text(AppLocalizations.of(context)?.receiveError ?? 'Ошибка при получении перевода')),
         );
       }
     } finally {

@@ -740,8 +740,8 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> with TickerProvid
       Navigator.of(context).pop(); // Close modal
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Недостаточно средств на накопительном счете'),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)?.insufficientFunds ?? 'Недостаточно средств на накопительном счете'),
           backgroundColor: BankingColors.error500,
         ),
       );

@@ -680,8 +680,8 @@ class _ApplyScreenState extends State<ApplyScreen> with TickerProviderStateMixin
       // Нет доступных карт для привязки стикера
       Navigator.of(context).pop();
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Нет доступных карт для привязки стикера. Сначала оформите карту.'),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)?.noCardsForSticker ?? 'Нет доступных карт для привязки стикера. Сначала оформите карту.'),
           backgroundColor: Colors.orange,
         ),
       );
@@ -837,7 +837,7 @@ class _DebitCardApplicationModalState extends State<DebitCardApplicationModal> w
                           borderRadius: BorderRadius.circular(BankingTokens.radius12),
                         ),
                       ),
-                      child: const Text('Оформить карту'),
+                      child: Text(AppLocalizations.of(context)?.applyCard ?? 'Оформить карту'),
                     ),
                   ),
                 ],
@@ -979,7 +979,7 @@ class _CreditCardApplicationModalState extends State<CreditCardApplicationModal>
                           borderRadius: BorderRadius.circular(BankingTokens.radius12),
                         ),
                       ),
-                      child: const Text('Оформить карту'),
+                      child: Text(AppLocalizations.of(context)?.applyCard ?? 'Оформить карту'),
                     ),
                   ),
                 ],
@@ -1176,7 +1176,7 @@ class _PaymentStickerApplicationModalState extends State<PaymentStickerApplicati
                           borderRadius: BorderRadius.circular(BankingTokens.radius12),
                         ),
                       ),
-                      child: const Text('Оформить стикер'),
+                      child: Text(AppLocalizations.of(context)?.applySticker ?? 'Оформить стикер'),
                     ),
                   ),
                 ],
@@ -1451,7 +1451,7 @@ class _SavingsAccountApplicationModalState extends State<SavingsAccountApplicati
                           borderRadius: BorderRadius.circular(BankingTokens.radius12),
                         ),
                       ),
-                      child: const Text('Открыть счет'),
+                      child: Text(AppLocalizations.of(context)?.openAccount ?? 'Открыть счет'),
                     ),
                   ),
                 ],

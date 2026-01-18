@@ -4,6 +4,7 @@ import '../foundation/colors.dart';
 import '../foundation/typography.dart';
 import '../foundation/tokens.dart';
 import '../utils/app_state.dart';
+import '../../l10n/app_localizations.dart';
 
 class CashbackSelectionScreen extends StatefulWidget {
   const CashbackSelectionScreen({super.key});
@@ -158,7 +159,7 @@ class _CashbackSelectionScreenState extends State<CashbackSelectionScreen> {
                           _showSuccessDialog();
                         } catch (e) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Ошибка: $e')),
+                            SnackBar(content: Text('${AppLocalizations.of(context)?.error ?? 'Ошибка'}: $e')),
                           );
                         }
                       },
