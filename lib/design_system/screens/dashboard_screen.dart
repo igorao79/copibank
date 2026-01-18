@@ -11,6 +11,7 @@ import '../foundation/typography.dart';
 import '../foundation/tokens.dart';
 import '../foundation/icons.dart';
 import '../utils/app_state.dart';
+import '../utils/assets_constants.dart';
 import '../../l10n/app_localizations.dart';
 import 'profile_screen.dart';
 import 'card_details_screen.dart';
@@ -29,6 +30,8 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
   late Animation<double> _fadeAnimation;
   late AnimationController _themeButtonController;
   late Animation<double> _themeButtonAnimation;
+  late AnimationController _contentController;
+  late Animation<double> _contentAnimation;
 
   @override
   void initState() {
@@ -50,6 +53,21 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
       CurvedAnimation(parent: _themeButtonController, curve: Curves.easeInOut),
     );
 
+    _contentController = AnimationController(
+      duration: const Duration(milliseconds: 800),
+      vsync: this,
+    );
+    _contentAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _contentController, curve: Curves.easeOut),
+    );
+
+    // Анимируем появление контента после небольшой задержки (имитация после ввода пинкода)
+    Future.delayed(const Duration(milliseconds: 200), () {
+      if (mounted) {
+        _contentController.forward();
+      }
+    });
+
     // Ensure user data is loaded
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final appState = context.read<AppState>();
@@ -63,6 +81,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
   void dispose() {
     _fadeController.dispose();
     _themeButtonController.dispose();
+    _contentController.dispose();
     super.dispose();
   }
 
@@ -224,12 +243,14 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
         ),
         body: FadeTransition(
         opacity: _fadeAnimation,
-        child: appState.accounts.isEmpty
-          ? // Для пользователей без карт - центрируем по всему экрану
-            Center(
-              child: _buildWelcomeSection(localizations),
-            )
-          : SingleChildScrollView(
+        child: FadeTransition(
+          opacity: _contentAnimation,
+          child: appState.accounts.isEmpty
+            ? // Для пользователей без карт - центрируем по всему экрану
+              Center(
+                child: _buildWelcomeSection(localizations),
+              )
+            : SingleChildScrollView(
               padding: EdgeInsets.only(
                 left: BankingTokens.screenHorizontalPadding,
                 right: BankingTokens.screenHorizontalPadding,
@@ -283,7 +304,8 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                 ),
               ),
             ),
-      ),
+          ),
+        ),
         bottomNavigationBar: _buildBottomNavigation(appState, localizations),
       ),
     );
@@ -495,6 +517,17 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
+        // Bank Logo
+        SizedBox(
+          height: 80,
+          width: 80,
+          child: Image.asset(
+            WebpAssets.logoBank,
+            fit: BoxFit.contain,
+          ),
+        ),
+        const SizedBox(height: BankingTokens.space16),
+
         // Success Text
         Text(
           localizations.loginSuccess,

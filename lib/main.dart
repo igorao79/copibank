@@ -36,8 +36,8 @@ class _BankingAppState extends State<BankingApp> {
   }
 
   Future<void> _initializeApp() async {
-    // Показываем splash screen минимум 1.5 секунды
-    await Future.delayed(const Duration(milliseconds: 1500));
+    // Показываем splash screen минимум 3 секунды
+    await Future.delayed(const Duration(milliseconds: 3000));
 
     // Инициализируем данные приложения
     await _appState.init();
@@ -79,14 +79,10 @@ class _BankingAppState extends State<BankingApp> {
       );
     }
 
-    // Show loading while initializing
+    // Go directly to BankingAppHome after splash - it will handle PIN logic
     if (!_isInitialized) {
       return const MaterialApp(
-        home: Scaffold(
-          body: Center(
-            child: CircularProgressIndicator(),
-          ),
-        ),
+        home: BankingAppHome(),
         debugShowCheckedModeBanner: false,
       );
     }
@@ -130,99 +126,58 @@ class BankingAppHome extends StatefulWidget {
 }
 
 class _BankingAppHomeState extends State<BankingAppHome> {
-  bool? _isOnboardingCompleted;
-  bool? _isPinVerified;
+  bool _isReady = false;
+  Widget? _targetScreen;
 
   @override
   void initState() {
     super.initState();
-    _checkOnboardingStatus();
+    _prepareApp();
   }
 
-  Future<void> _checkOnboardingStatus() async {
+  Future<void> _prepareApp() async {
     final prefs = await SharedPreferences.getInstance();
-    final isCompleted = prefs.getBool('onboarding_completed') ?? false;
-    print('DEBUG: Onboarding completed: $isCompleted');
-    setState(() {
-      _isOnboardingCompleted = isCompleted;
-    });
-  }
+    final isOnboardingCompleted = prefs.getBool('onboarding_completed') ?? false;
 
-  Future<void> _showPinSetupIfNeeded(BuildContext context, AppState appState) async {
-    // Если PIN-код еще не установлен, показываем экран установки
-    if (!appState.hasPinCode) {
-      final result = await Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (context) => const PinInputScreen(isSetupMode: true),
-          fullscreenDialog: true,
-        ),
-      );
-      if (result == true) {
-        setState(() {
-          _isPinVerified = true;
-        });
-      }
+    if (!isOnboardingCompleted) {
+      // Готовим onboarding
+      setState(() {
+        _targetScreen = const OnboardingScreen();
+        _isReady = true;
+      });
     } else {
-      // Если PIN-код установлен, показываем экран ввода
-      final result = await Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (context) => const PinInputScreen(isSetupMode: false),
-          fullscreenDialog: true,
-        ),
-      );
-      if (result == true) {
-        setState(() {
-          _isPinVerified = true;
-        });
-      }
+      // Готовим PIN screen
+      final appState = context.read<AppState>();
+      setState(() {
+        _targetScreen = PinInputScreen(
+          isSetupMode: !appState.hasPinCode,
+          onSuccess: () {
+            setState(() {
+              _targetScreen = _buildMainApp();
+            });
+          },
+        );
+        _isReady = true;
+      });
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    // Показываем загрузку пока проверяем статус onboarding
-    if (_isOnboardingCompleted == null) {
-      return const Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
-    }
-
-    // Если onboarding не завершен, показываем экран onboarding
-    if (!_isOnboardingCompleted!) {
-      return const OnboardingScreen();
-    }
-
-    // Если onboarding завершен, проверяем PIN-код
+  Widget _buildMainApp() {
     return Consumer<AppState>(
       builder: (context, appState, child) {
-        // Если PIN еще не проверен, показываем экран PIN
-        if (_isPinVerified != true) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            _showPinSetupIfNeeded(context, appState);
-          });
-          return const Scaffold(
-            body: Center(
-              child: CircularProgressIndicator(),
-            ),
-          );
-        }
-
-        // Если PIN проверен, показываем основной экран приложения
         Widget currentScreen;
         switch (appState.selectedTabIndex) {
           case 0:
-            currentScreen = const DashboardScreen(); // Мой банк
+            currentScreen = const DashboardScreen();
             break;
           case 1:
-            currentScreen = const TransactionsScreen(); // История
+            currentScreen = const TransactionsScreen();
             break;
           case 2:
-            currentScreen = const ChatsScreen(); // Чаты
+            currentScreen = const ChatsScreen();
             break;
           case 3:
-            currentScreen = const ApplyScreen(); // Оформить
+            currentScreen = const ApplyScreen();
             break;
           default:
             currentScreen = const DashboardScreen();
@@ -230,5 +185,15 @@ class _BankingAppHomeState extends State<BankingAppHome> {
         return currentScreen;
       },
     );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!_isReady || _targetScreen == null) {
+      // Показываем только пока готовим
+      return const SizedBox.shrink();
+    }
+
+    return _targetScreen!;
   }
 }

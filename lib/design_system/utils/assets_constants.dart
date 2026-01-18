@@ -22,3 +22,8 @@ class SvgAssets {
 class PngAssets {
   static const String logoBank = 'assets/logobank.png';
 }
+
+/// WebP asset paths
+class WebpAssets {
+  static const String logoBank = 'assets/logobank.webp';
+}

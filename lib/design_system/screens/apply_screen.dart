@@ -21,9 +21,12 @@ class ApplyScreen extends StatefulWidget {
   State<ApplyScreen> createState() => _ApplyScreenState();
 }
 
-class _ApplyScreenState extends State<ApplyScreen> with TickerProviderStateMixin {
+class _ApplyScreenState extends State<ApplyScreen>
+    with TickerProviderStateMixin {
   late AnimationController _fadeController;
   late Animation<double> _fadeAnimation;
+  late AnimationController _notificationController;
+  late Animation<double> _notificationAnimation;
 
   @override
   void initState() {
@@ -36,11 +39,27 @@ class _ApplyScreenState extends State<ApplyScreen> with TickerProviderStateMixin
       CurvedAnimation(parent: _fadeController, curve: Curves.easeInOut),
     );
     _fadeController.forward();
+
+    _notificationController = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+    _notificationAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _notificationController, curve: Curves.easeOut),
+    );
+
+    // Показываем уведомление о подарке через 1 секунду после загрузки страницы
+    Future.delayed(const Duration(seconds: 1), () {
+      if (mounted) {
+        _showReferralNotification();
+      }
+    });
   }
 
   @override
   void dispose() {
     _fadeController.dispose();
+    _notificationController.dispose();
     super.dispose();
   }
 
@@ -55,25 +74,25 @@ class _ApplyScreenState extends State<ApplyScreen> with TickerProviderStateMixin
         backgroundColor: Colors.transparent,
         extendBody: true,
         appBar: AppBar(
-        title: GestureDetector(
-          onTap: () => _navigateToProfile(),
-          child: Row(
-            children: [
-              Icon(
-                Icons.account_circle,
-                color: BankingColors.primary500,
-                size: 28,
-              ),
-              const SizedBox(width: 8),
-              Text(
-                appState.userName,
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+          title: GestureDetector(
+            onTap: () => _navigateToProfile(),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.account_circle,
                   color: BankingColors.primary500,
+                  size: 28,
                 ),
-              ),
-            ],
+                const SizedBox(width: 8),
+                Text(
+                  appState.userName,
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    color: BankingColors.primary500,
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
           backgroundColor: Colors.transparent,
           elevation: 0,
           actions: [
@@ -88,111 +107,122 @@ class _ApplyScreenState extends State<ApplyScreen> with TickerProviderStateMixin
             Container(
               margin: const EdgeInsets.only(right: 8),
               child: Badge(
-              label: appState.unreadNotificationsCount > 0
-                  ? Text(
-                      appState.unreadNotificationsCount.toString(),
-                      style: const TextStyle(fontSize: 9),
-                    )
-                  : null,
-              smallSize: 14,
+                label: appState.unreadNotificationsCount > 0
+                    ? Text(
+                        appState.unreadNotificationsCount.toString(),
+                        style: const TextStyle(fontSize: 9),
+                      )
+                    : null,
+                smallSize: 14,
                 child: PopupMenuButton<String>(
-                icon: Icon(
-                  isDark ? BankingIcons.notification : BankingIcons.notificationFilled,
-                  color: BankingColors.primary500,
-                ),
-              onSelected: (value) {
-                if (value == 'view_all') {
-                  _onViewAllNotifications();
-                }
-              },
-              onOpened: () {
-                appState.markAllNotificationsAsRead();
-              },
-                itemBuilder: (BuildContext context) {
-                  final notifications = appState.notifications;
-                  final unreadCount = notifications.where((n) => !n.isRead).length;
+                  icon: Icon(
+                    isDark
+                        ? BankingIcons.notification
+                        : BankingIcons.notificationFilled,
+                    color: BankingColors.primary500,
+                  ),
+                  onSelected: (value) {
+                    if (value == 'view_all') {
+                      _onViewAllNotifications();
+                    }
+                  },
+                  onOpened: () {
+                    appState.markAllNotificationsAsRead();
+                  },
+                  itemBuilder: (BuildContext context) {
+                    final notifications = appState.notifications;
+                    final unreadCount = notifications
+                        .where((n) => !n.isRead)
+                        .length;
 
-                  return [
-                    // Header with unread count
-                    PopupMenuItem<String>(
-                      enabled: false,
-                      child: Text(
-                        unreadCount > 0
-                          ? '${localizations.notificationsHeader} (${unreadCount} ${localizations.unreadNotifications})'
-                          : localizations.notificationsHeader,
-                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    const PopupMenuDivider(),
-                    // Notifications list
-                    ...notifications.take(3).map((notification) {
-                      return PopupMenuItem<String>(
-                        enabled: false,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    notification.title,
-                                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                      fontWeight: notification.isRead ? FontWeight.normal : FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                                if (!notification.isRead)
-                                  Container(
-                                    width: 8,
-                                    height: 8,
-                                    decoration: BoxDecoration(
-                                      color: BankingColors.primary500,
-                                      shape: BoxShape.circle,
-                                    ),
-                                  ),
-                              ],
-                            ),
-                            Text(
-                              notification.message,
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: Theme.of(context).brightness == Brightness.dark
-                                    ? BankingColors.neutral400
-                                    : BankingColors.neutral600,
-                              ),
-                            ),
-                            Text(
-                              notification.timeAgo,
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: Theme.of(context).brightness == Brightness.dark
-                                    ? BankingColors.neutral500
-                                    : BankingColors.neutral500,
-                                fontSize: 10,
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    }),
-                    if (notifications.length > 3)
-                      const PopupMenuDivider(),
-                    if (notifications.length > 3)
+                    return [
                       PopupMenuItem<String>(
-                        value: 'view_all',
-                        child: Row(
-                          children: [
-                            Icon(Icons.expand_more, size: 16),
-                            const SizedBox(width: 8),
-                            Text(localizations.viewAllNotifications),
-                          ],
+                        enabled: false,
+                        child: Text(
+                          unreadCount > 0
+                              ? '${localizations.notificationsHeader} (${unreadCount} ${localizations.unreadNotifications})'
+                              : localizations.notificationsHeader,
+                          style: Theme.of(context).textTheme.titleSmall
+                              ?.copyWith(fontWeight: FontWeight.bold),
                         ),
                       ),
-                  ];
-                },
+                      const PopupMenuDivider(),
+                      ...notifications.take(3).map((notification) {
+                        return PopupMenuItem<String>(
+                          enabled: false,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      notification.title,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodyMedium
+                                          ?.copyWith(
+                                            fontWeight: notification.isRead
+                                                ? FontWeight.normal
+                                                : FontWeight.bold,
+                                          ),
+                                    ),
+                                  ),
+                                  if (!notification.isRead)
+                                    Container(
+                                      width: 8,
+                                      height: 8,
+                                      decoration: BoxDecoration(
+                                        color: BankingColors.primary500,
+                                        shape: BoxShape.circle,
+                                      ),
+                                    ),
+                                ],
+                              ),
+                              Text(
+                                notification.message,
+                                style: Theme.of(context).textTheme.bodySmall
+                                    ?.copyWith(
+                                      color:
+                                          Theme.of(context).brightness ==
+                                              Brightness.dark
+                                          ? BankingColors.neutral400
+                                          : BankingColors.neutral600,
+                                    ),
+                              ),
+                              Text(
+                                notification.timeAgo,
+                                style: Theme.of(context).textTheme.bodySmall
+                                    ?.copyWith(
+                                      color:
+                                          Theme.of(context).brightness ==
+                                              Brightness.dark
+                                          ? BankingColors.neutral500
+                                          : BankingColors.neutral500,
+                                      fontSize: 10,
+                                    ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }),
+                      if (notifications.length > 3) const PopupMenuDivider(),
+                      if (notifications.length > 3)
+                        PopupMenuItem<String>(
+                          value: 'view_all',
+                          child: Row(
+                            children: [
+                              Icon(Icons.expand_more, size: 16),
+                              const SizedBox(width: 8),
+                              Text(localizations.viewAllNotifications),
+                            ],
+                          ),
+                        ),
+                    ];
+                  },
+                ),
               ),
             ),
-          ),
           ],
         ),
         body: FadeTransition(
@@ -202,12 +232,12 @@ class _ApplyScreenState extends State<ApplyScreen> with TickerProviderStateMixin
               left: BankingTokens.screenHorizontalPadding,
               right: BankingTokens.screenHorizontalPadding,
               top: BankingTokens.screenVerticalPadding,
-              bottom: BankingTokens.bottomNavigationHeight + BankingTokens.space48,
+              bottom:
+                  BankingTokens.bottomNavigationHeight + BankingTokens.space48,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Cards Animation
                 Center(
                   child: SizedBox(
                     height: 150,
@@ -217,9 +247,6 @@ class _ApplyScreenState extends State<ApplyScreen> with TickerProviderStateMixin
                       fit: BoxFit.contain,
                       repeat: false,
                       animate: true,
-                      onLoaded: (composition) {
-                        // Анимация останется в финальном состоянии после завершения
-                      },
                     ),
                   ),
                 ),
@@ -232,7 +259,6 @@ class _ApplyScreenState extends State<ApplyScreen> with TickerProviderStateMixin
                 ),
                 const SizedBox(height: BankingTokens.space24),
 
-                // Карты и платежные средства
                 Text(
                   'Карты и платежные средства',
                   style: BankingTypography.heading3,
@@ -240,53 +266,63 @@ class _ApplyScreenState extends State<ApplyScreen> with TickerProviderStateMixin
                 ),
                 const SizedBox(height: BankingTokens.space16),
 
-                // Дебетовая карта
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: BankingTokens.space8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: BankingTokens.space8,
+                  ),
                   child: _buildFullWidthProductButton(
                     title: 'Дебетовая карта',
-                    description: 'Бесплатное обслуживание • Кэшбэк до 5% • Международные платежи',
+                    description:
+                        'Бесплатное обслуживание • Кэшбэк до 5% • Международные платежи',
                     icon: Icons.credit_card,
                     isDisabled: _getDebitCardCount(appState) >= 2,
-                    onTap: _getDebitCardCount(appState) >= 2 ? null : () => _showDebitCardModal(context, appState),
+                    onTap: _getDebitCardCount(appState) >= 2
+                        ? null
+                        : () => _showDebitCardModal(context, appState),
                   ),
                 ),
                 const SizedBox(height: BankingTokens.space16),
 
-                // Кредитная карта
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: BankingTokens.space8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: BankingTokens.space8,
+                  ),
                   child: _buildFullWidthProductButton(
                     title: 'Кредитная карта',
-                    description: 'Льготный период до 120 дней • Кредитный лимит до 500 000 ₽ • Беспроцентный период',
+                    description:
+                        'Льготный период до 120 дней • Кредитный лимит до 500 000 ₽ • Беспроцентный период',
                     icon: Icons.credit_card,
                     isDisabled: _getCreditCardCount(appState) >= 2,
-                    onTap: _getCreditCardCount(appState) >= 2 ? null : () => _showCreditCardModal(context, appState),
+                    onTap: _getCreditCardCount(appState) >= 2
+                        ? null
+                        : () => _showCreditCardModal(context, appState),
                   ),
                 ),
                 const SizedBox(height: BankingTokens.space16),
 
-                // Платежный стикер
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: BankingTokens.space8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: BankingTokens.space8,
+                  ),
                   child: _buildFullWidthProductButton(
                     title: 'Платежный стикер',
-                    description: 'Бесконтактная оплата • Привязка к карте • Мгновенные платежи',
+                    description:
+                        'Бесконтактная оплата • Привязка к карте • Мгновенные платежи',
                     icon: Icons.sticky_note_2,
                     isDisabled: !appState.canOrderSticker,
-                    onTap: appState.canOrderSticker ? () => _showPaymentStickerModal(context, appState) : null,
+                    onTap: appState.canOrderSticker
+                        ? () => _showPaymentStickerModal(context, appState)
+                        : null,
                   ),
                 ),
                 const SizedBox(height: BankingTokens.space32),
 
-                // Разделитель
                 Divider(
                   color: BankingColors.neutral300,
                   thickness: 1,
                   height: BankingTokens.space32,
                 ),
 
-                // Накопительные продукты
                 Text(
                   'Накопительные продукты',
                   style: BankingTypography.heading3,
@@ -294,15 +330,19 @@ class _ApplyScreenState extends State<ApplyScreen> with TickerProviderStateMixin
                 ),
                 const SizedBox(height: BankingTokens.space16),
 
-                // Накопительный счет
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: BankingTokens.space8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: BankingTokens.space8,
+                  ),
                   child: _buildFullWidthProductButton(
                     title: 'Накопительный счет',
-                    description: '5% годовых • Накопление сбережений • Без комиссий',
+                    description:
+                        '5% годовых • Накопление сбережений • Без комиссий',
                     icon: Icons.savings,
                     isDisabled: !appState.canOpenSavingsAccount,
-                    onTap: appState.canOpenSavingsAccount ? () => _openSavingsAccount(context, appState) : null,
+                    onTap: appState.canOpenSavingsAccount
+                        ? () => _openSavingsAccount(context, appState)
+                        : null,
                   ),
                 ),
 
@@ -312,13 +352,17 @@ class _ApplyScreenState extends State<ApplyScreen> with TickerProviderStateMixin
                     padding: const EdgeInsets.all(BankingTokens.space16),
                     decoration: BoxDecoration(
                       color: BankingColors.warning50,
-                      borderRadius: BorderRadius.circular(BankingTokens.borderRadiusMedium),
+                      borderRadius: BorderRadius.circular(
+                        BankingTokens.borderRadiusMedium,
+                      ),
                       border: Border.all(color: BankingColors.warning200),
                     ),
                     child: Text(
                       'Для оформления платежного стикера необходимо иметь хотя бы одну карту',
                       style: Theme.of(context).textTheme.labelSmall!.copyWith(
-                        color: isDark ? BankingColors.warning200 : BankingColors.warning500,
+                        color: isDark
+                            ? BankingColors.warning200
+                            : BankingColors.warning500,
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -333,7 +377,10 @@ class _ApplyScreenState extends State<ApplyScreen> with TickerProviderStateMixin
     );
   }
 
-  Widget _buildBottomNavigation(AppState appState, AppLocalizations localizations) {
+  Widget _buildBottomNavigation(
+    AppState appState,
+    AppLocalizations localizations,
+  ) {
     final items = <BottomNavigationBarItem>[
       BottomNavigationBarItem(
         icon: Icon(Icons.account_balance),
@@ -341,12 +388,13 @@ class _ApplyScreenState extends State<ApplyScreen> with TickerProviderStateMixin
       ),
     ];
 
-    // Добавляем историю только если есть карты
     if (appState.accounts.isNotEmpty) {
-      items.add(BottomNavigationBarItem(
-        icon: Icon(Icons.history),
-        label: localizations.history,
-      ));
+      items.add(
+        BottomNavigationBarItem(
+          icon: Icon(Icons.history),
+          label: localizations.history,
+        ),
+      );
     }
 
     items.addAll([
@@ -360,7 +408,6 @@ class _ApplyScreenState extends State<ApplyScreen> with TickerProviderStateMixin
       ),
     ]);
 
-    // Вычисляем currentIndex для BottomNavigationBar
     int currentNavIndex;
     final hasHistory = appState.accounts.isNotEmpty;
     if (hasHistory) {
@@ -368,13 +415,13 @@ class _ApplyScreenState extends State<ApplyScreen> with TickerProviderStateMixin
     } else {
       switch (appState.selectedTabIndex) {
         case 0:
-          currentNavIndex = 0; // Мой банк
+          currentNavIndex = 0;
           break;
         case 2:
-          currentNavIndex = 1; // Чаты
+          currentNavIndex = 1;
           break;
         case 3:
-          currentNavIndex = 2; // Оформить
+          currentNavIndex = 2;
           break;
         default:
           currentNavIndex = 0;
@@ -390,20 +437,19 @@ class _ApplyScreenState extends State<ApplyScreen> with TickerProviderStateMixin
 
   void _onBottomNavigationTap(int index, AppState appState) {
     final hasHistory = appState.accounts.isNotEmpty;
-    // Корректируем индекс для соответствия main.dart логике
     int correctedIndex;
     if (hasHistory) {
       correctedIndex = index;
     } else {
       switch (index) {
         case 0:
-          correctedIndex = 0; // Мой банк
+          correctedIndex = 0;
           break;
         case 1:
-          correctedIndex = 2; // Чаты
+          correctedIndex = 2;
           break;
         case 2:
-          correctedIndex = 3; // Оформить
+          correctedIndex = 3;
           break;
         default:
           correctedIndex = 0;
@@ -413,7 +459,6 @@ class _ApplyScreenState extends State<ApplyScreen> with TickerProviderStateMixin
   }
 
   void _onViewAllNotifications() {
-    // TODO: Navigate to full notifications screen
     print('Открыть экран всех уведомлений');
   }
 
@@ -441,7 +486,9 @@ class _ApplyScreenState extends State<ApplyScreen> with TickerProviderStateMixin
           elevation: 2,
           shadowColor: BankingColors.neutral900.withOpacity(0.1),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(BankingTokens.borderRadiusMedium),
+            borderRadius: BorderRadius.circular(
+              BankingTokens.borderRadiusMedium,
+            ),
           ),
           padding: const EdgeInsets.all(BankingTokens.space16),
         ),
@@ -465,7 +512,9 @@ class _ApplyScreenState extends State<ApplyScreen> with TickerProviderStateMixin
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       color: isDisabled
                           ? BankingColors.neutral400
-                          : (isDark ? BankingColors.neutral50 : BankingColors.neutral900),
+                          : (isDark
+                                ? BankingColors.neutral50
+                                : BankingColors.neutral900),
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -475,7 +524,9 @@ class _ApplyScreenState extends State<ApplyScreen> with TickerProviderStateMixin
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: isDisabled
                           ? BankingColors.neutral400
-                          : (isDark ? BankingColors.neutral300 : BankingColors.neutral600),
+                          : (isDark
+                                ? BankingColors.neutral300
+                                : BankingColors.neutral600),
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -514,11 +565,15 @@ class _ApplyScreenState extends State<ApplyScreen> with TickerProviderStateMixin
   }
 
   int _getDebitCardCount(AppState appState) {
-    return appState.accounts.where((account) => account.type == 'debit_card').length;
+    return appState.accounts
+        .where((account) => account.type == 'debit_card')
+        .length;
   }
 
   int _getCreditCardCount(AppState appState) {
-    return appState.accounts.where((account) => account.type == 'credit_card').length;
+    return appState.accounts
+        .where((account) => account.type == 'credit_card')
+        .length;
   }
 
   void _showDebitCardModal(BuildContext context, AppState appState) {
@@ -556,7 +611,6 @@ class _ApplyScreenState extends State<ApplyScreen> with TickerProviderStateMixin
   }
 
   void _onDebitCardAccepted(BuildContext context, AppState appState) {
-    // Генерируем данные карты
     final cardNumber = _generateCardNumber();
     final expireDate = _generateExpireDate();
     final cvc = _generateCVC();
@@ -566,12 +620,11 @@ class _ApplyScreenState extends State<ApplyScreen> with TickerProviderStateMixin
     print('  expireDate: $expireDate');
     print('  cvc: $cvc');
 
-    // Добавляем дебетовую карту в список аккаунтов
     final newAccount = Account(
       id: 'debit_${DateTime.now().millisecondsSinceEpoch}',
       name: 'Дебетовая карта',
       type: 'debit_card',
-      balance: 5000.00, // Always start with $5,000
+      balance: 5000.00,
       currency: 'USD',
       color: const Color(0xFF2196F3),
       isPrimary: appState.accounts.isEmpty,
@@ -583,17 +636,24 @@ class _ApplyScreenState extends State<ApplyScreen> with TickerProviderStateMixin
 
     print('DEBUG: ApplyScreen - Account created with cardNumber: ${newAccount.cardNumber}');
 
-    appState.addAccount(newAccount);
+    final isFirstCard = appState.accounts.isEmpty;
 
-    // Сохраняем данные в SharedPreferences
+    appState.addAccount(newAccount);
     _saveCardToSharedPreferences(newAccount);
 
-    // Закрываем модальное окно и показываем успех
     Navigator.of(context).pop();
     _showSuccessModal(context, 'Дебетовая карта оформлена!', 'debit_card');
+
+    if (isFirstCard) {
+      print('DEBUG: First card added, showing referral notification');
+      Future.delayed(const Duration(milliseconds: 1500), () {
+        if (mounted) {
+          _showReferralNotification();
+        }
+      });
+    }
   }
 
-  // Методы генерации данных карты
   String _generateCardNumber() {
     final random = Random();
     return List.generate(16, (_) => random.nextInt(10).toString()).join();
@@ -625,7 +685,6 @@ class _ApplyScreenState extends State<ApplyScreen> with TickerProviderStateMixin
   }
 
   void _onCreditCardAccepted(BuildContext context, AppState appState) {
-    // Генерируем данные карты
     final cardNumber = _generateCardNumber();
     final expireDate = _generateExpireDate();
     final cvc = _generateCVC();
@@ -635,12 +694,11 @@ class _ApplyScreenState extends State<ApplyScreen> with TickerProviderStateMixin
     print('  expireDate: $expireDate');
     print('  cvc: $cvc');
 
-    // Добавляем кредитную карту в список аккаунтов
     final newAccount = Account(
       id: 'credit_${DateTime.now().millisecondsSinceEpoch}',
       name: 'Кредитная карта',
       type: 'credit_card',
-      balance: 10000.00, // Credit limit
+      balance: 10000.00,
       currency: 'USD',
       color: BankingColors.secondary500,
       isPrimary: false,
@@ -653,25 +711,21 @@ class _ApplyScreenState extends State<ApplyScreen> with TickerProviderStateMixin
     print('DEBUG: ApplyScreen - Credit account created with cardNumber: ${newAccount.cardNumber}');
 
     appState.addAccount(newAccount);
-
-    // Сохраняем данные в SharedPreferences
     _saveCardToSharedPreferences(newAccount);
 
-    // Закрываем модальное окно и показываем успех
     Navigator.of(context).pop();
     _showSuccessModal(context, 'Кредитная карта оформлена!', 'credit_card');
   }
 
   void _onPaymentStickerAccepted(BuildContext context, AppState appState) {
-    // Привязываем стикер к первой доступной карте
-    final availableCards = appState.accounts.where((account) => !account.hasSticker).toList();
+    final availableCards = appState.accounts
+        .where((account) => !account.hasSticker)
+        .toList();
 
     if (availableCards.isNotEmpty) {
-      // Привязываем стикер к первой доступной карте
       final targetCard = availableCards.first;
       appState.attachSticker(targetCard.id);
 
-      // Добавляем уведомление об оформлении стикера
       final stickerNotification = NotificationItem(
         id: 'sticker_${DateTime.now().millisecondsSinceEpoch}',
         title: 'Платежный стикер оформлен!',
@@ -682,28 +736,36 @@ class _ApplyScreenState extends State<ApplyScreen> with TickerProviderStateMixin
       appState.addNotification(stickerNotification);
 
       Navigator.of(context).pop();
-      _showSuccessModal(context, 'Платежный стикер привязан к карте ${targetCard.cardNumber ?? '**** **** **** ****'}!', 'payment_sticker');
+      _showSuccessModal(
+        context,
+        'Платежный стикер привязан к карте ${targetCard.cardNumber ?? '**** **** **** ****'}!',
+        'payment_sticker',
+      );
     } else {
-      // Нет доступных карт для привязки стикера
       Navigator.of(context).pop();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(AppLocalizations.of(context)?.noCardsForSticker ?? 'Нет доступных карт для привязки стикера. Сначала оформите карту.'),
+          content: Text(
+            AppLocalizations.of(context)?.noCardsForSticker ??
+                'Нет доступных карт для привязки стикера. Сначала оформите карту.',
+          ),
           backgroundColor: Colors.orange,
         ),
       );
     }
   }
 
-  void _showSuccessModal(BuildContext context, String message, String productType) {
+  void _showSuccessModal(
+    BuildContext context,
+    String message,
+    String productType,
+  ) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => SuccessModal(
-        message: message,
-        productType: productType,
-      ),
+      builder: (context) =>
+          SuccessModal(message: message, productType: productType),
     );
   }
 
@@ -713,19 +775,239 @@ class _ApplyScreenState extends State<ApplyScreen> with TickerProviderStateMixin
       MaterialPageRoute(builder: (context) => const ProfileScreen()),
     );
   }
+
+  // ✅ РЕФЕРАЛЬНОЕ УВЕДОМЛЕНИЕ
+  void _showReferralNotification() {
+    print('DEBUG: _showReferralNotification called');
+    final overlay = Overlay.of(context);
+    late OverlayEntry overlayEntry;
+
+    overlayEntry = OverlayEntry(
+      builder: (context) => Positioned(
+        top: MediaQuery.of(context).padding.top + 60,
+        left: 16,
+        right: 16,
+        child: AnimatedBuilder(
+          animation: _notificationAnimation,
+          builder: (context, child) => Opacity(
+            opacity: _notificationAnimation.value,
+            child: Material(
+              color: Colors.transparent,
+              child: GestureDetector(
+                onTap: () {
+                  _hideReferralNotification(overlayEntry);
+                  _showReferralDialog();
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: BankingColors.primary500,
+                    borderRadius: BorderRadius.circular(BankingTokens.radius12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.2),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: const Icon(
+                          Icons.card_giftcard,
+                          color: Colors.white,
+                          size: 24,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '🎁 Получи подарок!',
+                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Text(
+                              'Приведи друга и получи \$1,000!',
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: Colors.white.withOpacity(0.9),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      // Кнопка закрыть с увеличенной областью клика
+                      GestureDetector(
+                        onTap: () => _hideReferralNotification(overlayEntry),
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          child: Icon(
+                            Icons.close,
+                            color: Colors.white.withOpacity(0.7),
+                            size: 20,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    overlay.insert(overlayEntry);
+    _notificationController.forward();
+
+    Future.delayed(const Duration(seconds: 5), () {
+      if (overlayEntry.mounted) {
+        _hideReferralNotification(overlayEntry);
+      }
+    });
+  }
+
+  void _hideReferralNotification(OverlayEntry overlayEntry) {
+    _notificationController.reverse().then((_) {
+      if (overlayEntry.mounted) {
+        overlayEntry.remove();
+      }
+    });
+  }
+
+  // ✅ РЕФЕРАЛЬНЫЙ ДИАЛОГ
+  void _showReferralDialog() {
+    final appState = context.read<AppState>();
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(BankingTokens.radius16),
+          ),
+          child: Container(
+            padding: const EdgeInsets.all(BankingTokens.space24),
+            constraints: const BoxConstraints(maxWidth: 400),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 80,
+                  height: 80,
+                  decoration: BoxDecoration(
+                    color: BankingColors.primary100,
+                    borderRadius: BorderRadius.circular(40),
+                  ),
+                  child: Icon(
+                    Icons.card_giftcard,
+                    color: BankingColors.primary500,
+                    size: 40,
+                  ),
+                ),
+                const SizedBox(height: BankingTokens.space16),
+                Text(
+                  'Приведи друга и получи \$1,000!',
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: BankingColors.primary500,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: BankingTokens.space16),
+                Text(
+                  'Отправь другу эту ссылку. Если он оформит карту в нашем приложении, ты получишь \$1,000 на свой счет!',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: BankingTokens.space24),
+                Container(
+                  padding: const EdgeInsets.all(BankingTokens.space12),
+                  decoration: BoxDecoration(
+                    color: BankingColors.neutral100,
+                    borderRadius: BorderRadius.circular(BankingTokens.radius8),
+                    border: Border.all(color: BankingColors.neutral300),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          'https://banki2.app/referral?user=${appState.userName}',
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            fontFamily: 'monospace',
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Ссылка скопирована!')),
+                          );
+                        },
+                        icon: const Icon(Icons.copy),
+                        iconSize: 20,
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: BankingTokens.space24),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        child: const Text('Позже'),
+                      ),
+                    ),
+                    const SizedBox(width: BankingTokens.space12),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Ссылка отправлена!')),
+                          );
+                          Navigator.of(context).pop();
+                        },
+                        child: const Text('Отправить'),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
 }
 
-// Модальное окно для оформления дебетовой карты
+// Остальные классы без изменений...
+
 class DebitCardApplicationModal extends StatefulWidget {
   final VoidCallback onAccept;
 
   const DebitCardApplicationModal({super.key, required this.onAccept});
 
   @override
-  State<DebitCardApplicationModal> createState() => _DebitCardApplicationModalState();
+  State<DebitCardApplicationModal> createState() =>
+      _DebitCardApplicationModalState();
 }
 
-class _DebitCardApplicationModalState extends State<DebitCardApplicationModal> with TickerProviderStateMixin {
+class _DebitCardApplicationModalState extends State<DebitCardApplicationModal>
+    with TickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
 
@@ -765,7 +1047,6 @@ class _DebitCardApplicationModalState extends State<DebitCardApplicationModal> w
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Иконка дебетовой карты
               Container(
                 width: 80,
                 height: 80,
@@ -781,17 +1062,17 @@ class _DebitCardApplicationModalState extends State<DebitCardApplicationModal> w
               ),
               const SizedBox(height: BankingTokens.space24),
 
-              // Заголовок
               Text(
                 'Дебетовая карта',
                 style: BankingTypography.heading2.copyWith(
-                  color: isDark ? BankingColors.neutral100 : BankingColors.neutral900,
+                  color: isDark
+                      ? BankingColors.neutral100
+                      : BankingColors.neutral900,
                 ),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: BankingTokens.space16),
 
-              // Описание
               Flexible(
                 child: SingleChildScrollView(
                   child: Text(
@@ -810,7 +1091,6 @@ class _DebitCardApplicationModalState extends State<DebitCardApplicationModal> w
               ),
               const SizedBox(height: BankingTokens.space32),
 
-              // Кнопки
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
@@ -818,16 +1098,22 @@ class _DebitCardApplicationModalState extends State<DebitCardApplicationModal> w
                     child: OutlinedButton(
                       onPressed: () => Navigator.of(context).pop(),
                       style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: BankingTokens.space16),
+                        padding: const EdgeInsets.symmetric(
+                          vertical: BankingTokens.space16,
+                        ),
                         side: BorderSide(color: BankingColors.neutral400),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(BankingTokens.radius12),
+                          borderRadius: BorderRadius.circular(
+                            BankingTokens.radius12,
+                          ),
                         ),
                       ),
                       child: Text(
                         'Отмена',
                         style: BankingTypography.bodyMedium.copyWith(
-                          color: isDark ? BankingColors.neutral200 : BankingColors.neutral700,
+                          color: isDark
+                              ? BankingColors.neutral200
+                              : BankingColors.neutral700,
                         ),
                       ),
                     ),
@@ -837,14 +1123,21 @@ class _DebitCardApplicationModalState extends State<DebitCardApplicationModal> w
                     child: ElevatedButton(
                       onPressed: widget.onAccept,
                       style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: BankingTokens.space16),
+                        padding: const EdgeInsets.symmetric(
+                          vertical: BankingTokens.space16,
+                        ),
                         backgroundColor: BankingColors.primary500,
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(BankingTokens.radius12),
+                          borderRadius: BorderRadius.circular(
+                            BankingTokens.radius12,
+                          ),
                         ),
                       ),
-                      child: Text(AppLocalizations.of(context)?.applyCard ?? 'Оформить карту'),
+                      child: Text(
+                        AppLocalizations.of(context)?.applyCard ??
+                            'Оформить карту',
+                      ),
                     ),
                   ),
                 ],
@@ -857,17 +1150,18 @@ class _DebitCardApplicationModalState extends State<DebitCardApplicationModal> w
   }
 }
 
-// Модальное окно для оформления кредитной карты
 class CreditCardApplicationModal extends StatefulWidget {
   final VoidCallback onAccept;
 
   const CreditCardApplicationModal({super.key, required this.onAccept});
 
   @override
-  State<CreditCardApplicationModal> createState() => _CreditCardApplicationModalState();
+  State<CreditCardApplicationModal> createState() =>
+      _CreditCardApplicationModalState();
 }
 
-class _CreditCardApplicationModalState extends State<CreditCardApplicationModal> with TickerProviderStateMixin {
+class _CreditCardApplicationModalState extends State<CreditCardApplicationModal>
+    with TickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
 
@@ -907,7 +1201,6 @@ class _CreditCardApplicationModalState extends State<CreditCardApplicationModal>
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Иконка кредитной карты
               Container(
                 width: 80,
                 height: 80,
@@ -923,17 +1216,17 @@ class _CreditCardApplicationModalState extends State<CreditCardApplicationModal>
               ),
               const SizedBox(height: BankingTokens.space24),
 
-              // Заголовок
               Text(
                 'Кредитная карта',
                 style: BankingTypography.heading2.copyWith(
-                  color: isDark ? BankingColors.neutral100 : BankingColors.neutral900,
+                  color: isDark
+                      ? BankingColors.neutral100
+                      : BankingColors.neutral900,
                 ),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: BankingTokens.space16),
 
-              // Описание
               Flexible(
                 child: SingleChildScrollView(
                   child: Text(
@@ -952,7 +1245,6 @@ class _CreditCardApplicationModalState extends State<CreditCardApplicationModal>
               ),
               const SizedBox(height: BankingTokens.space32),
 
-              // Кнопки
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
@@ -960,16 +1252,22 @@ class _CreditCardApplicationModalState extends State<CreditCardApplicationModal>
                     child: OutlinedButton(
                       onPressed: () => Navigator.of(context).pop(),
                       style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: BankingTokens.space16),
+                        padding: const EdgeInsets.symmetric(
+                          vertical: BankingTokens.space16,
+                        ),
                         side: BorderSide(color: BankingColors.neutral400),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(BankingTokens.radius12),
+                          borderRadius: BorderRadius.circular(
+                            BankingTokens.radius12,
+                          ),
                         ),
                       ),
                       child: Text(
                         'Отмена',
                         style: BankingTypography.bodyMedium.copyWith(
-                          color: isDark ? BankingColors.neutral200 : BankingColors.neutral700,
+                          color: isDark
+                              ? BankingColors.neutral200
+                              : BankingColors.neutral700,
                         ),
                       ),
                     ),
@@ -979,14 +1277,21 @@ class _CreditCardApplicationModalState extends State<CreditCardApplicationModal>
                     child: ElevatedButton(
                       onPressed: widget.onAccept,
                       style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: BankingTokens.space16),
+                        padding: const EdgeInsets.symmetric(
+                          vertical: BankingTokens.space16,
+                        ),
                         backgroundColor: BankingColors.secondary500,
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(BankingTokens.radius12),
+                          borderRadius: BorderRadius.circular(
+                            BankingTokens.radius12,
+                          ),
                         ),
                       ),
-                      child: Text(AppLocalizations.of(context)?.applyCard ?? 'Оформить карту'),
+                      child: Text(
+                        AppLocalizations.of(context)?.applyCard ??
+                            'Оформить карту',
+                      ),
                     ),
                   ),
                 ],
@@ -997,10 +1302,8 @@ class _CreditCardApplicationModalState extends State<CreditCardApplicationModal>
       ),
     );
   }
-
 }
 
-// Модальное окно для оформления платежного стикера
 class PaymentStickerApplicationModal extends StatefulWidget {
   final List<Account> accounts;
   final VoidCallback onAccept;
@@ -1012,10 +1315,13 @@ class PaymentStickerApplicationModal extends StatefulWidget {
   });
 
   @override
-  State<PaymentStickerApplicationModal> createState() => _PaymentStickerApplicationModalState();
+  State<PaymentStickerApplicationModal> createState() =>
+      _PaymentStickerApplicationModalState();
 }
 
-class _PaymentStickerApplicationModalState extends State<PaymentStickerApplicationModal> with TickerProviderStateMixin {
+class _PaymentStickerApplicationModalState
+    extends State<PaymentStickerApplicationModal>
+    with TickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
   Account? selectedAccount;
@@ -1056,7 +1362,6 @@ class _PaymentStickerApplicationModalState extends State<PaymentStickerApplicati
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Иконка платежного стикера
               Container(
                 width: 80,
                 height: 80,
@@ -1072,17 +1377,17 @@ class _PaymentStickerApplicationModalState extends State<PaymentStickerApplicati
               ),
               const SizedBox(height: BankingTokens.space24),
 
-              // Заголовок
               Text(
                 'Платежный стикер',
                 style: BankingTypography.heading2.copyWith(
-                  color: isDark ? BankingColors.neutral100 : BankingColors.neutral900,
+                  color: isDark
+                      ? BankingColors.neutral100
+                      : BankingColors.neutral900,
                 ),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: BankingTokens.space16),
 
-              // Описание
               Flexible(
                 child: SingleChildScrollView(
                   child: Column(
@@ -1100,14 +1405,17 @@ class _PaymentStickerApplicationModalState extends State<PaymentStickerApplicati
                       ),
                       const SizedBox(height: BankingTokens.space16),
 
-                      // Выбор карты
                       Container(
                         constraints: const BoxConstraints(maxHeight: 200),
                         decoration: BoxDecoration(
                           border: Border.all(
-                            color: isDark ? BankingColors.neutral600 : BankingColors.neutral300,
+                            color: isDark
+                                ? BankingColors.neutral600
+                                : BankingColors.neutral300,
                           ),
-                          borderRadius: BorderRadius.circular(BankingTokens.borderRadiusMedium),
+                          borderRadius: BorderRadius.circular(
+                            BankingTokens.borderRadiusMedium,
+                          ),
                         ),
                         child: SingleChildScrollView(
                           child: Column(
@@ -1140,7 +1448,9 @@ class _PaymentStickerApplicationModalState extends State<PaymentStickerApplicati
                       Text(
                         'Стоимость: 0 ₽\nДоставка: Бесплатно\nСрок изготовления: 3-5 рабочих дней',
                         style: BankingTypography.bodySmall.copyWith(
-                          color: isDark ? BankingColors.neutral400 : BankingColors.neutral600,
+                          color: isDark
+                              ? BankingColors.neutral400
+                              : BankingColors.neutral600,
                         ),
                       ),
                     ],
@@ -1149,7 +1459,6 @@ class _PaymentStickerApplicationModalState extends State<PaymentStickerApplicati
               ),
               const SizedBox(height: BankingTokens.space32),
 
-              // Кнопки
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
@@ -1157,16 +1466,22 @@ class _PaymentStickerApplicationModalState extends State<PaymentStickerApplicati
                     child: OutlinedButton(
                       onPressed: () => Navigator.of(context).pop(),
                       style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: BankingTokens.space16),
+                        padding: const EdgeInsets.symmetric(
+                          vertical: BankingTokens.space16,
+                        ),
                         side: BorderSide(color: BankingColors.neutral400),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(BankingTokens.radius12),
+                          borderRadius: BorderRadius.circular(
+                            BankingTokens.radius12,
+                          ),
                         ),
                       ),
                       child: Text(
                         'Отмена',
                         style: BankingTypography.bodyMedium.copyWith(
-                          color: isDark ? BankingColors.neutral200 : BankingColors.neutral700,
+                          color: isDark
+                              ? BankingColors.neutral200
+                              : BankingColors.neutral700,
                         ),
                       ),
                     ),
@@ -1174,16 +1489,25 @@ class _PaymentStickerApplicationModalState extends State<PaymentStickerApplicati
                   const SizedBox(width: BankingTokens.space16),
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: selectedAccount != null ? widget.onAccept : null,
+                      onPressed: selectedAccount != null
+                          ? widget.onAccept
+                          : null,
                       style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: BankingTokens.space16),
+                        padding: const EdgeInsets.symmetric(
+                          vertical: BankingTokens.space16,
+                        ),
                         backgroundColor: BankingColors.info500,
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(BankingTokens.radius12),
+                          borderRadius: BorderRadius.circular(
+                            BankingTokens.radius12,
+                          ),
                         ),
                       ),
-                      child: Text(AppLocalizations.of(context)?.applySticker ?? 'Оформить стикер'),
+                      child: Text(
+                        AppLocalizations.of(context)?.applySticker ??
+                            'Оформить стикер',
+                      ),
                     ),
                   ),
                 ],
@@ -1196,7 +1520,6 @@ class _PaymentStickerApplicationModalState extends State<PaymentStickerApplicati
   }
 }
 
-// Модальное окно успеха
 class SuccessModal extends StatefulWidget {
   final String message;
   final String productType;
@@ -1211,7 +1534,8 @@ class SuccessModal extends StatefulWidget {
   State<SuccessModal> createState() => _SuccessModalState();
 }
 
-class _SuccessModalState extends State<SuccessModal> with TickerProviderStateMixin {
+class _SuccessModalState extends State<SuccessModal>
+    with TickerProviderStateMixin {
   late AnimationController _scaleController;
   late Animation<double> _scaleAnimation;
   late AnimationController _contentController;
@@ -1221,7 +1545,6 @@ class _SuccessModalState extends State<SuccessModal> with TickerProviderStateMix
   void initState() {
     super.initState();
 
-    // Анимация появления модального окна
     _scaleController = AnimationController(
       duration: const Duration(milliseconds: 400),
       vsync: this,
@@ -1230,7 +1553,6 @@ class _SuccessModalState extends State<SuccessModal> with TickerProviderStateMix
       CurvedAnimation(parent: _scaleController, curve: Curves.elasticOut),
     );
 
-    // Анимация появления контента
     _contentController = AnimationController(
       duration: const Duration(milliseconds: 600),
       vsync: this,
@@ -1264,7 +1586,9 @@ class _SuccessModalState extends State<SuccessModal> with TickerProviderStateMix
           padding: const EdgeInsets.all(BankingTokens.space24),
           decoration: BoxDecoration(
             color: isDark ? BankingColors.neutral800 : BankingColors.neutral0,
-            borderRadius: BorderRadius.circular(BankingTokens.borderRadiusLarge),
+            borderRadius: BorderRadius.circular(
+              BankingTokens.borderRadiusLarge,
+            ),
             boxShadow: BankingTokens.getShadow(16),
           ),
           child: FadeTransition(
@@ -1272,18 +1596,13 @@ class _SuccessModalState extends State<SuccessModal> with TickerProviderStateMix
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Lottie анимация успеха
                 SizedBox(
                   height: 120,
                   width: 120,
-                  child: Lottie.asset(
-                    LottieAssets.success,
-                    repeat: false,
-                  ),
+                  child: Lottie.asset(LottieAssets.success, repeat: false),
                 ),
                 const SizedBox(height: BankingTokens.space16),
 
-                // Заголовок успеха
                 Text(
                   'Успех!',
                   style: BankingTypography.heading2.copyWith(
@@ -1293,7 +1612,6 @@ class _SuccessModalState extends State<SuccessModal> with TickerProviderStateMix
                 ),
                 const SizedBox(height: BankingTokens.space8),
 
-                // Сообщение
                 Text(
                   widget.message,
                   style: BankingTypography.bodyRegular,
@@ -1301,18 +1619,22 @@ class _SuccessModalState extends State<SuccessModal> with TickerProviderStateMix
                 ),
                 const SizedBox(height: BankingTokens.space12),
 
-                // Дополнительная информация (только для продуктов, не для пополнения)
                 if (widget.productType != 'deposit')
                   Text(
-                    'Ваша ${widget.productType == 'debit_card' ? 'дебетовая карта' : widget.productType == 'credit_card' ? 'кредитная карта' : 'платежный стикер'} будет готова в течение 3-5 рабочих дней.',
+                    'Ваша ${widget.productType == 'debit_card'
+                        ? 'дебетовая карта'
+                        : widget.productType == 'credit_card'
+                        ? 'кредитная карта'
+                        : 'платежный стикер'} будет готова в течение 3-5 рабочих дней.',
                     style: BankingTypography.caption.copyWith(
-                      color: isDark ? BankingColors.neutral300 : BankingColors.neutral600,
+                      color: isDark
+                          ? BankingColors.neutral300
+                          : BankingColors.neutral600,
                     ),
                     textAlign: TextAlign.center,
                   ),
                 const SizedBox(height: BankingTokens.space24),
 
-                // Кнопка закрытия
                 BankingButton(
                   text: 'Понятно',
                   variant: BankingButtonVariant.primary,
@@ -1331,16 +1653,16 @@ class _SuccessModalState extends State<SuccessModal> with TickerProviderStateMix
 class SavingsAccountApplicationModal extends StatefulWidget {
   final VoidCallback onAccept;
 
-  const SavingsAccountApplicationModal({
-    super.key,
-    required this.onAccept,
-  });
+  const SavingsAccountApplicationModal({super.key, required this.onAccept});
 
   @override
-  State<SavingsAccountApplicationModal> createState() => _SavingsAccountApplicationModalState();
+  State<SavingsAccountApplicationModal> createState() =>
+      _SavingsAccountApplicationModalState();
 }
 
-class _SavingsAccountApplicationModalState extends State<SavingsAccountApplicationModal> with TickerProviderStateMixin {
+class _SavingsAccountApplicationModalState
+    extends State<SavingsAccountApplicationModal>
+    with TickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
 
@@ -1380,7 +1702,6 @@ class _SavingsAccountApplicationModalState extends State<SavingsAccountApplicati
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Иконка накопительного счета
               Container(
                 width: 80,
                 height: 80,
@@ -1396,35 +1717,34 @@ class _SavingsAccountApplicationModalState extends State<SavingsAccountApplicati
               ),
               const SizedBox(height: BankingTokens.space24),
 
-              // Заголовок
               Text(
                 'Накопительный счет',
                 style: BankingTypography.heading2.copyWith(
-                  color: isDark ? BankingColors.neutral100 : BankingColors.neutral900,
+                  color: isDark
+                      ? BankingColors.neutral100
+                      : BankingColors.neutral900,
                 ),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: BankingTokens.space16),
 
-              // Описание
-                  Flexible(
-                    child: SingleChildScrollView(
-                      child: Text(
-                        'Накопительный счет позволяет вам копить деньги под 5% годовых.\n\n'
-                        '• Процентная ставка: 5% годовых\n'
-                        '• Начисление процентов: ежемесячно\n'
-                        '• Снятие средств: в любое время\n'
-                        '• Минимальный взнос: от 100₽\n'
-                        '• Без комиссий за обслуживание\n\n'
-                        'Вы сможете пополнять счет и следить за ростом ваших сбережений.',
-                        textAlign: TextAlign.left,
-                        style: BankingTypography.bodyRegular,
-                      ),
-                    ),
+              Flexible(
+                child: SingleChildScrollView(
+                  child: Text(
+                    'Накопительный счет позволяет вам копить деньги под 5% годовых.\n\n'
+                    '• Процентная ставка: 5% годовых\n'
+                    '• Начисление процентов: ежемесячно\n'
+                    '• Снятие средств: в любое время\n'
+                    '• Минимальный взнос: от 100₽\n'
+                    '• Без комиссий за обслуживание\n\n'
+                    'Вы сможете пополнять счет и следить за ростом ваших сбережений.',
+                    textAlign: TextAlign.left,
+                    style: BankingTypography.bodyRegular,
                   ),
+                ),
+              ),
               const SizedBox(height: BankingTokens.space32),
 
-              // Кнопки
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
@@ -1432,16 +1752,22 @@ class _SavingsAccountApplicationModalState extends State<SavingsAccountApplicati
                     child: OutlinedButton(
                       onPressed: () => Navigator.of(context).pop(),
                       style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: BankingTokens.space16),
+                        padding: const EdgeInsets.symmetric(
+                          vertical: BankingTokens.space16,
+                        ),
                         side: BorderSide(color: BankingColors.neutral400),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(BankingTokens.radius12),
+                          borderRadius: BorderRadius.circular(
+                            BankingTokens.radius12,
+                          ),
                         ),
                       ),
                       child: Text(
                         'Отмена',
                         style: BankingTypography.bodyMedium.copyWith(
-                          color: isDark ? BankingColors.neutral200 : BankingColors.neutral700,
+                          color: isDark
+                              ? BankingColors.neutral200
+                              : BankingColors.neutral700,
                         ),
                       ),
                     ),
@@ -1451,14 +1777,21 @@ class _SavingsAccountApplicationModalState extends State<SavingsAccountApplicati
                     child: ElevatedButton(
                       onPressed: widget.onAccept,
                       style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: BankingTokens.space16),
+                        padding: const EdgeInsets.symmetric(
+                          vertical: BankingTokens.space16,
+                        ),
                         backgroundColor: BankingColors.primary500,
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(BankingTokens.radius12),
+                          borderRadius: BorderRadius.circular(
+                            BankingTokens.radius12,
+                          ),
                         ),
                       ),
-                      child: Text(AppLocalizations.of(context)?.openAccount ?? 'Открыть счет'),
+                      child: Text(
+                        AppLocalizations.of(context)?.openAccount ??
+                            'Открыть счет',
+                      ),
                     ),
                   ),
                 ],
@@ -1470,4 +1803,3 @@ class _SavingsAccountApplicationModalState extends State<SavingsAccountApplicati
     );
   }
 }
-
