@@ -266,8 +266,8 @@ class _ApplyScreenState extends State<ApplyScreen> with TickerProviderStateMixin
                     title: 'Платежный стикер',
                     description: 'Бесконтактная оплата • Привязка к карте • Мгновенные платежи',
                     icon: Icons.sticky_note_2,
-                    isDisabled: appState.accounts.isEmpty,
-                    onTap: appState.accounts.isNotEmpty ? () => _showPaymentStickerModal(context, appState) : null,
+                    isDisabled: !appState.canOrderSticker,
+                    onTap: appState.canOrderSticker ? () => _showPaymentStickerModal(context, appState) : null,
                   ),
                 ),
                 const SizedBox(height: BankingTokens.space32),
@@ -1294,14 +1294,15 @@ class _SuccessModalState extends State<SuccessModal> with TickerProviderStateMix
                 ),
                 const SizedBox(height: BankingTokens.space12),
 
-                // Дополнительная информация
-                Text(
-                  'Ваша ${widget.productType == 'debit_card' ? 'дебетовая карта' : widget.productType == 'credit_card' ? 'кредитная карта' : 'платежный стикер'} будет готова в течение 3-5 рабочих дней.',
-                  style: BankingTypography.caption.copyWith(
-                    color: isDark ? BankingColors.neutral300 : BankingColors.neutral600,
+                // Дополнительная информация (только для продуктов, не для пополнения)
+                if (widget.productType != 'deposit')
+                  Text(
+                    'Ваша ${widget.productType == 'debit_card' ? 'дебетовая карта' : widget.productType == 'credit_card' ? 'кредитная карта' : 'платежный стикер'} будет готова в течение 3-5 рабочих дней.',
+                    style: BankingTypography.caption.copyWith(
+                      color: isDark ? BankingColors.neutral300 : BankingColors.neutral600,
+                    ),
+                    textAlign: TextAlign.center,
                   ),
-                  textAlign: TextAlign.center,
-                ),
                 const SizedBox(height: BankingTokens.space24),
 
                 // Кнопка закрытия

@@ -440,12 +440,6 @@ class AppState extends ChangeNotifier {
       color: const Color(0xFF0077FF),
     ),
     QuickAction(
-      id: 'topup',
-      title: 'Top Up',
-      icon: Icons.add_circle,
-      color: const Color(0xFFFFC107),
-    ),
-    QuickAction(
       id: 'scan',
       title: 'Scan QR',
       icon: Icons.qr_code_scanner,
@@ -568,6 +562,8 @@ class AppState extends ChangeNotifier {
 
   bool get canOpenSavingsAccount => _accounts.isNotEmpty && _savingsAccount == null;
 
+  bool get canOrderSticker => _accounts.any((account) => !account.hasSticker);
+
   Future<bool> openSavingsAccount() async {
     if (!canOpenSavingsAccount) return false;
 
@@ -666,6 +662,69 @@ class AppState extends ChangeNotifier {
       id: 'savings_deposit_$transactionId',
       title: 'Счет пополнен',
       message: 'Зачислено ${amount.toStringAsFixed(2)}\$ на накопительный счет',
+      timestamp: DateTime.now(),
+      isRead: false,
+      type: NotificationType.transaction,
+    );
+    _notifications.insert(0, notification);
+
+    notifyListeners();
+    return true;
+  }
+
+  Future<bool> depositFromSavingsToCard(Account account, double amount) async {
+    if (_savingsAccount == null || _savingsAccount!.balance < amount || amount <= 0) return false;
+
+    // Update savings account
+    final updatedSavingsAccount = SavingsAccount(
+      id: _savingsAccount!.id,
+      balance: _savingsAccount!.balance - amount,
+      interestRate: _savingsAccount!.interestRate,
+      createdDate: _savingsAccount!.createdDate,
+    );
+    _savingsAccount = updatedSavingsAccount;
+
+    // Update card account
+    final accountIndex = _accounts.indexOf(account);
+    if (accountIndex == -1) return false;
+
+    final updatedAccount = Account(
+      id: account.id,
+      name: account.name,
+      type: account.type,
+      balance: account.balance + amount,
+      currency: account.currency,
+      color: account.color,
+      isPrimary: account.isPrimary,
+      cardNumber: account.cardNumber,
+      expireDate: account.expireDate,
+      cvc: account.cvc,
+      hasSticker: account.hasSticker,
+    );
+    _accounts[accountIndex] = updatedAccount;
+
+    // Save to SharedPreferences
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setDouble('savings_account_balance', _savingsAccount!.balance);
+    await prefs.setDouble('card_${account.id}_balance', updatedAccount.balance);
+
+    // Add transaction
+    final transactionId = 'savings_to_card_${DateTime.now().millisecondsSinceEpoch}';
+    final transaction = Transaction(
+      id: transactionId,
+      title: 'Пополнение карты с накопительного счета',
+      amount: amount,
+      date: DateTime.now(),
+      category: 'Deposit',
+      icon: Icons.add_circle,
+    );
+    addTransaction(transaction);
+
+    // Add notification
+    final notification = NotificationItem(
+      id: 'deposit_$transactionId',
+      title: 'Карта пополнена',
+      message: 'Зачислено \$${amount.toStringAsFixed(2)} с накопительного счета',
       timestamp: DateTime.now(),
       isRead: false,
       type: NotificationType.transaction,

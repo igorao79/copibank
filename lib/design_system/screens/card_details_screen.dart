@@ -9,6 +9,7 @@ import '../components/buttons.dart';
 import '../utils/app_state.dart';
 import '../../l10n/app_localizations.dart';
 import 'transfer_screen.dart';
+import 'apply_screen.dart';
 
 class CardDetailsScreen extends StatefulWidget {
   final Account account;
@@ -25,6 +26,8 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> with TickerProvid
   late AnimationController _flipController;
   late Animation<double> _flipAnimation;
   bool _isCardFlipped = false;
+  bool _isCvcVisibleInInfo = false; // For CVC in card information section
+  bool _isCvcVisibleOnCard = false; // For CVC on the visual card
 
   @override
   void initState() {
@@ -238,7 +241,11 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> with TickerProvid
                             ],
                           ),
                           child: isFlipped
-                              ? _buildCardBack() // Back side of card
+                              ? Transform(
+                                  transform: Matrix4.rotationY(3.14159), // Rotate back to readable
+                                  alignment: Alignment.center,
+                                  child: _buildCardBack(), // Back side of card
+                                )
                               : _buildCardFront(), // Front side of card
                         ),
                       ),
@@ -267,6 +274,9 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> with TickerProvid
                             onPressed: _toggleCardFlip,
                             padding: const EdgeInsets.all(8),
                             constraints: const BoxConstraints(),
+                            highlightColor: Colors.transparent,
+                            splashColor: Colors.transparent,
+                            hoverColor: Colors.transparent,
                           ),
                         ),
                       ),
@@ -308,9 +318,21 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> with TickerProvid
               const SizedBox(height: BankingTokens.space24),
 
               // Action Buttons
-              Row(
+              Column(
                 children: [
-                  Expanded(
+                  // Пополнить button
+                  SizedBox(
+                    width: double.infinity,
+                    child: BankingButtons.secondary(
+                      text: 'Пополнить',
+                      onPressed: () => _onDepositPressed(),
+                      icon: Icons.add_circle,
+                    ),
+                  ),
+                  const SizedBox(height: BankingTokens.space16),
+                  // Transfer button
+                  SizedBox(
+                    width: double.infinity,
                     child: BankingButtons.primary(
                       text: 'Перевод',
                       onPressed: () => _onTransferPressed(),
@@ -343,7 +365,7 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> with TickerProvid
 
                     _buildInfoRow('Номер карты', _formatCardNumber(widget.account.cardNumber ?? '**** **** **** ****')),
                     _buildInfoRow('Срок действия', widget.account.expireDate ?? 'MM/YY'),
-                    _buildInfoRow('CVC', widget.account.cvc ?? '***'),
+                    _buildCVCRow(),
                     _buildInfoRow('Тип карты', widget.account.type == 'debit_card' ? 'Дебетовая' : 'Кредитная'),
                     if (widget.account.hasSticker)
                       _buildInfoRow('Стикер', 'Привязан'),
@@ -555,15 +577,35 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> with TickerProvid
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(BankingTokens.radius4),
               ),
-              child: Center(
-                child: Text(
-                  widget.account.cvc ?? '***',
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'monospace',
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // CVC Text
+                  Text(
+                    _isCvcVisibleOnCard ? (widget.account.cvc ?? '***') : '***',
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'monospace',
+                    ),
                   ),
-                ),
+                  const SizedBox(width: 4),
+                  // Eye icon button next to CVC
+                  IconButton(
+                    onPressed: _toggleCVCVisibilityOnCard,
+                    icon: Icon(
+                      _isCvcVisibleOnCard ? Icons.visibility_off : Icons.visibility,
+                      size: 16,
+                      color: Colors.black.withOpacity(0.7),
+                    ),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                    splashRadius: 16,
+                    highlightColor: Colors.transparent,
+                    splashColor: Colors.transparent,
+                  ),
+                ],
               ),
             ),
           ),
@@ -612,6 +654,62 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> with TickerProvid
     );
   }
 
+  Widget _buildCVCRow() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: BankingTokens.space12),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            'CVC',
+            style: BankingTypography.bodyRegular.copyWith(
+              color: isDark ? BankingColors.neutral400 : BankingColors.neutral600,
+            ),
+          ),
+          Row(
+            children: [
+              Text(
+                _isCvcVisibleInInfo ? (widget.account.cvc ?? '***') : '***',
+                style: BankingTypography.bodyRegular.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: isDark ? BankingColors.neutral100 : BankingColors.neutral900,
+                  fontFamily: 'monospace',
+                ),
+              ),
+              const SizedBox(width: BankingTokens.space8),
+              IconButton(
+                onPressed: _toggleCVCVisibilityInInfo,
+                icon: Icon(
+                  _isCvcVisibleInInfo ? Icons.visibility_off : Icons.visibility,
+                  size: 20,
+                  color: BankingColors.primary500,
+                ),
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+                splashRadius: 20,
+                highlightColor: Colors.transparent,
+                splashColor: Colors.transparent,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _toggleCVCVisibilityInInfo() {
+    setState(() {
+      _isCvcVisibleInInfo = !_isCvcVisibleInInfo;
+    });
+  }
+
+  void _toggleCVCVisibilityOnCard() {
+    setState(() {
+      _isCvcVisibleOnCard = !_isCvcVisibleOnCard;
+    });
+  }
+
   void _onTransferPressed() {
     Navigator.of(context).push(
       MaterialPageRoute(
@@ -620,8 +718,330 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> with TickerProvid
     );
   }
 
+  void _onDepositPressed() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => CardDepositModal(
+        account: widget.account,
+        onDeposit: (amount) => _depositToCard(amount),
+      ),
+    );
+  }
+
+  Future<void> _depositToCard(double amount) async {
+    final appState = context.read<AppState>();
+    final success = await appState.depositFromSavingsToCard(widget.account, amount);
+
+    if (success) {
+      // Show success animation
+      await _showSuccessAnimation();
+      Navigator.of(context).pop(); // Close modal
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Недостаточно средств на накопительном счете'),
+          backgroundColor: BankingColors.error500,
+        ),
+      );
+    }
+  }
+
+  Future<void> _showSuccessAnimation() async {
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => const SuccessModal(
+        message: 'Карта успешно пополнена!',
+        productType: 'deposit',
+      ),
+    );
+  }
+
   void _navigateToProfile() {
     Navigator.of(context).pushNamed('/profile');
+  }
+
+  String _formatCardNumber(String cardNumber) {
+    if (cardNumber.length >= 16) {
+      final cleanNumber = cardNumber.replaceAll(' ', '');
+      if (cleanNumber.length == 16) {
+        return '${cleanNumber.substring(0, 4)} ${cleanNumber.substring(4, 8)} ${cleanNumber.substring(8, 12)} ${cleanNumber.substring(12, 16)}';
+      }
+    }
+    return cardNumber;
+  }
+}
+
+class CardDepositModal extends StatefulWidget {
+  final Account account;
+  final Function(double) onDeposit;
+
+  const CardDepositModal({
+    super.key,
+    required this.account,
+    required this.onDeposit,
+  });
+
+  @override
+  State<CardDepositModal> createState() => _CardDepositModalState();
+}
+
+class _CardDepositModalState extends State<CardDepositModal> with TickerProviderStateMixin {
+  late AnimationController _animationController;
+  late Animation<double> _scaleAnimation;
+  final TextEditingController _amountController = TextEditingController();
+  double _enteredAmount = 0.0;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      duration: BankingTokens.durationNormal,
+      vsync: this,
+    );
+    _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.elasticOut),
+    );
+    _animationController.forward();
+
+    // Add listener to amount controller
+    _amountController.addListener(_updateEnteredAmount);
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    _amountController.dispose();
+    super.dispose();
+  }
+
+  void _updateEnteredAmount() {
+    setState(() {
+      _enteredAmount = double.tryParse(_amountController.text.replaceAll(',', '.')) ?? 0.0;
+    });
+  }
+
+  bool _canDeposit(AppState appState) {
+    final savingsBalance = appState.savingsAccount?.balance ?? 0.0;
+    return _enteredAmount > 0 && _enteredAmount <= savingsBalance;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final appState = context.watch<AppState>();
+
+    return ScaleTransition(
+      scale: _scaleAnimation,
+      child: Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(BankingTokens.radius20),
+        ),
+        backgroundColor: isDark ? BankingColors.neutral800 : Colors.white,
+        child: Container(
+          padding: const EdgeInsets.all(BankingTokens.space24),
+          constraints: const BoxConstraints(maxWidth: 400),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Иконка пополнения
+              Container(
+                width: 80,
+                height: 80,
+                decoration: BoxDecoration(
+                  color: BankingColors.success100,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.add_circle,
+                  color: BankingColors.success600,
+                  size: 40,
+                ),
+              ),
+              const SizedBox(height: BankingTokens.space24),
+
+              // Заголовок
+              Text(
+                'Пополнение карты',
+                style: BankingTypography.heading2.copyWith(
+                  color: isDark ? BankingColors.neutral100 : BankingColors.neutral900,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: BankingTokens.space16),
+
+              // Информация о карте
+              Container(
+                padding: const EdgeInsets.all(BankingTokens.space16),
+                decoration: BoxDecoration(
+                  color: isDark ? BankingColors.neutral700 : BankingColors.neutral50,
+                  borderRadius: BorderRadius.circular(BankingTokens.radius12),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.credit_card,
+                      color: BankingColors.primary500,
+                      size: 24,
+                    ),
+                    const SizedBox(width: BankingTokens.space12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            widget.account.name,
+                            style: BankingTypography.bodyMedium.copyWith(
+                              fontWeight: FontWeight.w600,
+                              color: isDark ? BankingColors.neutral100 : BankingColors.neutral900,
+                            ),
+                          ),
+                          Text(
+                            _formatCardNumber(widget.account.cardNumber ?? '**** **** **** ****'),
+                            style: BankingTypography.caption.copyWith(
+                              color: isDark ? BankingColors.neutral400 : BankingColors.neutral600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: BankingTokens.space24),
+
+              // "Откуда?"
+              Text(
+                'Откуда?',
+                style: BankingTypography.bodyLarge.copyWith(
+                  color: isDark ? BankingColors.neutral100 : BankingColors.neutral900,
+                  fontWeight: FontWeight.w600,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: BankingTokens.space16),
+
+              // Накопительный счет
+              Container(
+                padding: const EdgeInsets.all(BankingTokens.space16),
+                decoration: BoxDecoration(
+                  color: BankingColors.primary100,
+                  borderRadius: BorderRadius.circular(BankingTokens.radius12),
+                  border: Border.all(
+                    color: BankingColors.primary200,
+                    width: 2,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: BankingColors.primary500,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.savings,
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                    ),
+                    const SizedBox(width: BankingTokens.space12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Накопительный счет',
+                            style: BankingTypography.bodyMedium.copyWith(
+                              fontWeight: FontWeight.w600,
+                              color: BankingColors.primary700,
+                            ),
+                          ),
+                          Text(
+                            'Доступно: \$${appState.savingsAccount?.balance.toStringAsFixed(2) ?? '0.00'}',
+                            style: BankingTypography.caption.copyWith(
+                              color: BankingColors.primary600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Icon(
+                      Icons.check_circle,
+                      color: BankingColors.primary500,
+                      size: 24,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: BankingTokens.space24),
+
+              // Сумма
+              TextField(
+                controller: _amountController,
+                keyboardType: TextInputType.numberWithOptions(decimal: true),
+                decoration: InputDecoration(
+                  labelText: 'Сумма пополнения',
+                  prefixText: '\$ ',
+                  hintText: '0.00',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(BankingTokens.radius12),
+                  ),
+                ),
+              ),
+              const SizedBox(height: BankingTokens.space32),
+
+              // Кнопка пополнить
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: _canDeposit(appState) ? () {
+                    widget.onDeposit(_enteredAmount);
+                  } : null,
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: BankingTokens.space16),
+                    backgroundColor: _canDeposit(appState)
+                        ? BankingColors.success500
+                        : BankingColors.neutral400,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(BankingTokens.radius12),
+                    ),
+                  ),
+                  child: Text(
+                    _enteredAmount > 0 && _enteredAmount > (appState.savingsAccount?.balance ?? 0.0)
+                        ? 'Недостаточно средств'
+                        : 'Пополнить',
+                  ),
+                ),
+              ),
+              const SizedBox(height: BankingTokens.space16),
+
+              // Кнопка отмена (центрированная)
+              Center(
+                child: TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: BankingTokens.space12, horizontal: BankingTokens.space24),
+                  ),
+                  child: Text(
+                    'Отмена',
+                    style: BankingTypography.bodyMedium.copyWith(
+                      color: isDark ? BankingColors.neutral400 : BankingColors.neutral600,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   String _formatCardNumber(String cardNumber) {

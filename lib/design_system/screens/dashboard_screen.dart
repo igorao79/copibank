@@ -242,16 +242,16 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                     // Balance Section
                     _buildBalanceSection(appState, localizations),
 
+                    const SizedBox(height: BankingTokens.space32),
+
+                    // Accounts/Cards Section
+                    _buildAccountsSection(appState, localizations),
+
                     const SizedBox(height: BankingTokens.space24),
 
                     // Savings Account Section
                     if (appState.savingsAccount != null)
                       _buildSavingsSection(appState),
-
-                    const SizedBox(height: BankingTokens.space32),
-
-                    // Accounts/Cards Section
-                    _buildAccountsSection(appState, localizations),
 
                     const SizedBox(height: BankingTokens.space32),
 
@@ -323,15 +323,15 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            BankingColors.success100,
-            BankingColors.success50,
+            BankingColors.primary100,
+            BankingColors.primary50,
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(BankingTokens.radius12),
         border: Border.all(
-          color: BankingColors.success200,
+          color: BankingColors.primary200,
           width: 1,
         ),
       ),
@@ -341,7 +341,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: BankingColors.success500,
+              color: BankingColors.primary500,
               borderRadius: BorderRadius.circular(BankingTokens.radius12),
             ),
             child: const Icon(
