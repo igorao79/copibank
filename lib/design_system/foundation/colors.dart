@@ -67,6 +67,7 @@ class BankingColors {
   static const Color success300 = Color(0xFF75B798);
   static const Color success400 = Color(0xFF479F76);
   static const Color success500 = Color(0xFF198754); // Main success
+  static const Color success600 = Color(0xFF146C43);
 
   // Warning (Orange/Amber)
   static const Color warning50 = Color(0xFFFFF8E1);
@@ -95,6 +96,7 @@ class BankingColors {
   static const Color info300 = Color(0xFF64B5F6);
   static const Color info400 = Color(0xFF42A5F5);
   static const Color info500 = Color(0xFF2196F3); // Main info
+  static const Color info600 = Color(0xFF1E88E5);
 
   // ===========================================================================
   // SPECIAL BANKING COLORS

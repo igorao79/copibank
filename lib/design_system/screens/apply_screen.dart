@@ -195,7 +195,7 @@ class _ApplyScreenState extends State<ApplyScreen> with TickerProviderStateMixin
               left: BankingTokens.screenHorizontalPadding,
               right: BankingTokens.screenHorizontalPadding,
               top: BankingTokens.screenVerticalPadding,
-              bottom: BankingTokens.bottomNavigationHeight + BankingTokens.space16,
+              bottom: BankingTokens.bottomNavigationHeight + BankingTokens.space48,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -224,6 +224,14 @@ class _ApplyScreenState extends State<ApplyScreen> with TickerProviderStateMixin
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: BankingTokens.space24),
+
+                // Карты и платежные средства
+                Text(
+                  'Карты и платежные средства',
+                  style: BankingTypography.heading3,
+                  textAlign: TextAlign.left,
+                ),
+                const SizedBox(height: BankingTokens.space16),
 
                 // Дебетовая карта
                 Padding(
@@ -260,6 +268,34 @@ class _ApplyScreenState extends State<ApplyScreen> with TickerProviderStateMixin
                     icon: Icons.sticky_note_2,
                     isDisabled: appState.accounts.isEmpty,
                     onTap: appState.accounts.isNotEmpty ? () => _showPaymentStickerModal(context, appState) : null,
+                  ),
+                ),
+                const SizedBox(height: BankingTokens.space32),
+
+                // Разделитель
+                Divider(
+                  color: BankingColors.neutral300,
+                  thickness: 1,
+                  height: BankingTokens.space32,
+                ),
+
+                // Накопительные продукты
+                Text(
+                  'Накопительные продукты',
+                  style: BankingTypography.heading3,
+                  textAlign: TextAlign.left,
+                ),
+                const SizedBox(height: BankingTokens.space16),
+
+                // Накопительный счет
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: BankingTokens.space8),
+                  child: _buildFullWidthProductButton(
+                    title: 'Накопительный счет',
+                    description: '5% годовых • Накопление сбережений • Без комиссий',
+                    icon: Icons.savings,
+                    isDisabled: !appState.canOpenSavingsAccount,
+                    onTap: appState.canOpenSavingsAccount ? () => _openSavingsAccount(context, appState) : null,
                   ),
                 ),
 
@@ -385,7 +421,7 @@ class _ApplyScreenState extends State<ApplyScreen> with TickerProviderStateMixin
 
     return SizedBox(
       width: double.infinity,
-      height: 80,
+      height: 88,
       child: ElevatedButton(
         onPressed: isDisabled ? null : onTap,
         style: ElevatedButton.styleFrom(
@@ -451,6 +487,23 @@ class _ApplyScreenState extends State<ApplyScreen> with TickerProviderStateMixin
         ),
       ),
     );
+  }
+
+  void _openSavingsAccount(BuildContext context, AppState appState) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => SavingsAccountApplicationModal(
+        onAccept: () => _onSavingsAccountAccepted(context, appState),
+      ),
+    );
+  }
+
+  void _onSavingsAccountAccepted(BuildContext context, AppState appState) {
+    appState.openSavingsAccount();
+    Navigator.of(context).pop();
+    _showSuccessModal(context, 'Накопительный счет открыт!', 'savings_account');
   }
 
   int _getDebitCardCount(AppState appState) {
@@ -666,29 +719,25 @@ class DebitCardApplicationModal extends StatefulWidget {
 }
 
 class _DebitCardApplicationModalState extends State<DebitCardApplicationModal> with TickerProviderStateMixin {
-  late AnimationController _slideController;
-  late Animation<Offset> _slideAnimation;
+  late AnimationController _animationController;
+  late Animation<double> _scaleAnimation;
 
   @override
   void initState() {
     super.initState();
-    _slideController = AnimationController(
-      duration: const Duration(milliseconds: 300),
+    _animationController = AnimationController(
+      duration: BankingTokens.durationNormal,
       vsync: this,
     );
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 1),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _slideController,
-      curve: Curves.easeOut,
-    ));
-    _slideController.forward();
+    _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.elasticOut),
+    );
+    _animationController.forward();
   }
 
   @override
   void dispose() {
-    _slideController.dispose();
+    _animationController.dispose();
     super.dispose();
   }
 
@@ -696,111 +745,107 @@ class _DebitCardApplicationModalState extends State<DebitCardApplicationModal> w
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return SlideTransition(
-      position: _slideAnimation,
-      child: Container(
-        margin: const EdgeInsets.all(BankingTokens.space16),
-        decoration: BoxDecoration(
-          color: isDark ? BankingColors.neutral800 : BankingColors.neutral0,
-          borderRadius: BorderRadius.circular(BankingTokens.borderRadiusLarge),
+    return ScaleTransition(
+      scale: _scaleAnimation,
+      child: Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(BankingTokens.radius20),
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Заголовок
-            Container(
-              padding: const EdgeInsets.all(BankingTokens.space16),
-              decoration: BoxDecoration(
-                color: BankingColors.primary500,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(BankingTokens.borderRadiusLarge),
-                  topRight: Radius.circular(BankingTokens.borderRadiusLarge),
+        backgroundColor: isDark ? BankingColors.neutral800 : Colors.white,
+        child: Container(
+          padding: const EdgeInsets.all(BankingTokens.space24),
+          constraints: const BoxConstraints(maxWidth: 400),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Иконка дебетовой карты
+              Container(
+                width: 80,
+                height: 80,
+                decoration: BoxDecoration(
+                  color: BankingColors.primary100,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.credit_card,
+                  color: BankingColors.primary600,
+                  size: 40,
                 ),
               ),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.credit_card,
-                    color: BankingColors.neutral0,
-                    size: BankingTokens.iconSizeLarge,
+              const SizedBox(height: BankingTokens.space24),
+
+              // Заголовок
+              Text(
+                'Дебетовая карта',
+                style: BankingTypography.heading2.copyWith(
+                  color: isDark ? BankingColors.neutral100 : BankingColors.neutral900,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: BankingTokens.space16),
+
+              // Описание
+              Flexible(
+                child: SingleChildScrollView(
+                  child: Text(
+                    'Дебетовая карта для повседневных расчетов.\n\n'
+                    '• Бесплатное обслуживание\n'
+                    '• Кэшбэк до 5% на выбранные категории\n'
+                    '• Бесплатное снятие до 100 000 ₽/месяц\n'
+                    '• Международные платежи без комиссии\n'
+                    '• Контактная и бесконтактная оплата\n'
+                    '• Мобильное приложение с полным функционалом\n\n'
+                    'Карта будет доставлена в течение 3-5 рабочих дней.',
+                    textAlign: TextAlign.left,
+                    style: BankingTypography.bodyRegular,
                   ),
-                  const SizedBox(width: BankingTokens.space12),
+                ),
+              ),
+              const SizedBox(height: BankingTokens.space32),
+
+              // Кнопки
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
                   Expanded(
-                    child: Text(
-                      'Условия дебетовой карты',
-                      style: BankingTypography.heading4.copyWith(
-                        color: BankingColors.neutral0,
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: BankingTokens.space16),
+                        side: BorderSide(color: BankingColors.neutral400),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(BankingTokens.radius12),
+                        ),
+                      ),
+                      child: Text(
+                        'Отмена',
+                        style: BankingTypography.bodyMedium.copyWith(
+                          color: isDark ? BankingColors.neutral200 : BankingColors.neutral700,
+                        ),
                       ),
                     ),
                   ),
-                ],
-              ),
-            ),
-
-            // Содержимое
-            Padding(
-              padding: const EdgeInsets.all(BankingTokens.space16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildCondition('Стоимость обслуживания', '0 ₽/месяц'),
-                  const SizedBox(height: BankingTokens.space12),
-                  _buildCondition('Кэшбэк', 'До 5% на категории'),
-                  const SizedBox(height: BankingTokens.space12),
-                  _buildCondition('Снятие наличных', 'До 100 000 ₽/месяц бесплатно'),
-                  const SizedBox(height: BankingTokens.space12),
-                  _buildCondition('Международные платежи', 'Без комиссии'),
-                  const SizedBox(height: BankingTokens.space24),
-
-                  Text(
-                    'При оформлении карты вы соглашаетесь с условиями использования и подтверждаете, что вам есть 18 лет.',
-                    style: BankingTypography.bodySmall.copyWith(
-                      color: isDark ? BankingColors.neutral100 : BankingColors.neutral600,
+                  const SizedBox(width: BankingTokens.space16),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: widget.onAccept,
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: BankingTokens.space16),
+                        backgroundColor: BankingColors.primary500,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(BankingTokens.radius12),
+                        ),
+                      ),
+                      child: const Text('Оформить карту'),
                     ),
                   ),
-                  const SizedBox(height: BankingTokens.space24),
-
-                  BankingButton(
-                    text: 'Принять условия',
-                    variant: BankingButtonVariant.primary,
-                    onPressed: widget.onAccept,
-                    fullWidth: true,
-                  ),
-                  const SizedBox(height: BankingTokens.space12),
-                  BankingButton(
-                    text: 'Отмена',
-                    variant: BankingButtonVariant.secondary,
-                    onPressed: () => Navigator.of(context).pop(),
-                    fullWidth: true,
-                  ),
                 ],
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
-    );
-  }
-
-  Widget _buildCondition(String title, String value) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          title,
-          style: BankingTypography.bodyRegular.copyWith(
-            color: isDark ? BankingColors.neutral200 : BankingColors.neutral700,
-          ),
-        ),
-        Text(
-          value,
-          style: BankingTypography.bodyRegular.semiBold.copyWith(
-            color: isDark ? BankingColors.neutral100 : BankingColors.neutral900,
-          ),
-        ),
-      ],
     );
   }
 }
@@ -816,29 +861,25 @@ class CreditCardApplicationModal extends StatefulWidget {
 }
 
 class _CreditCardApplicationModalState extends State<CreditCardApplicationModal> with TickerProviderStateMixin {
-  late AnimationController _slideController;
-  late Animation<Offset> _slideAnimation;
+  late AnimationController _animationController;
+  late Animation<double> _scaleAnimation;
 
   @override
   void initState() {
     super.initState();
-    _slideController = AnimationController(
-      duration: const Duration(milliseconds: 300),
+    _animationController = AnimationController(
+      duration: BankingTokens.durationNormal,
       vsync: this,
     );
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 1),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _slideController,
-      curve: Curves.easeOut,
-    ));
-    _slideController.forward();
+    _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.elasticOut),
+    );
+    _animationController.forward();
   }
 
   @override
   void dispose() {
-    _slideController.dispose();
+    _animationController.dispose();
     super.dispose();
   }
 
@@ -846,113 +887,110 @@ class _CreditCardApplicationModalState extends State<CreditCardApplicationModal>
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return SlideTransition(
-      position: _slideAnimation,
-      child: Container(
-        margin: const EdgeInsets.all(BankingTokens.space16),
-        decoration: BoxDecoration(
-          color: isDark ? BankingColors.neutral800 : BankingColors.neutral0,
-          borderRadius: BorderRadius.circular(BankingTokens.borderRadiusLarge),
+    return ScaleTransition(
+      scale: _scaleAnimation,
+      child: Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(BankingTokens.radius20),
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Заголовок
-            Container(
-              padding: const EdgeInsets.all(BankingTokens.space16),
-              decoration: BoxDecoration(
-                color: BankingColors.secondary500,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(BankingTokens.borderRadiusLarge),
-                  topRight: Radius.circular(BankingTokens.borderRadiusLarge),
+        backgroundColor: isDark ? BankingColors.neutral800 : Colors.white,
+        child: Container(
+          padding: const EdgeInsets.all(BankingTokens.space24),
+          constraints: const BoxConstraints(maxWidth: 400),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Иконка кредитной карты
+              Container(
+                width: 80,
+                height: 80,
+                decoration: BoxDecoration(
+                  color: BankingColors.secondary100,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.credit_card,
+                  color: BankingColors.secondary600,
+                  size: 40,
                 ),
               ),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.credit_card,
-                    color: BankingColors.neutral0,
-                    size: BankingTokens.iconSizeLarge,
+              const SizedBox(height: BankingTokens.space24),
+
+              // Заголовок
+              Text(
+                'Кредитная карта',
+                style: BankingTypography.heading2.copyWith(
+                  color: isDark ? BankingColors.neutral100 : BankingColors.neutral900,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: BankingTokens.space16),
+
+              // Описание
+              Flexible(
+                child: SingleChildScrollView(
+                  child: Text(
+                    'Кредитная карта с выгодными условиями кредитования.\n\n'
+                    '• Кредитный лимит до 500 000 ₽\n'
+                    '• Льготный период до 120 дней\n'
+                    '• Процентная ставка от 15% годовых\n'
+                    '• Стоимость обслуживания 590 ₽/год\n'
+                    '• Кэшбэк на покупки\n'
+                    '• Бесплатные SMS-уведомления\n\n'
+                    'Карта будет доставлена в течение 3-7 рабочих дней после одобрения.',
+                    textAlign: TextAlign.left,
+                    style: BankingTypography.bodyRegular,
                   ),
-                  const SizedBox(width: BankingTokens.space12),
+                ),
+              ),
+              const SizedBox(height: BankingTokens.space32),
+
+              // Кнопки
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
                   Expanded(
-                    child: Text(
-                      'Условия кредитной карты',
-                      style: BankingTypography.heading4.copyWith(
-                        color: BankingColors.neutral0,
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: BankingTokens.space16),
+                        side: BorderSide(color: BankingColors.neutral400),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(BankingTokens.radius12),
+                        ),
+                      ),
+                      child: Text(
+                        'Отмена',
+                        style: BankingTypography.bodyMedium.copyWith(
+                          color: isDark ? BankingColors.neutral200 : BankingColors.neutral700,
+                        ),
                       ),
                     ),
                   ),
-                ],
-              ),
-            ),
-
-            // Содержимое
-            Padding(
-              padding: const EdgeInsets.all(BankingTokens.space16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildCondition('Кредитный лимит', 'До 500 000 ₽'),
-                  const SizedBox(height: BankingTokens.space12),
-                  _buildCondition('Льготный период', 'До 120 дней'),
-                  const SizedBox(height: BankingTokens.space12),
-                  _buildCondition('Процентная ставка', 'От 15% годовых'),
-                  const SizedBox(height: BankingTokens.space12),
-                  _buildCondition('Стоимость обслуживания', '590 ₽/год'),
-                  const SizedBox(height: BankingTokens.space24),
-
-                  Text(
-                    'При оформлении карты вы соглашаетесь с условиями кредитования и подтверждаете свою платежеспособность.',
-                    style: BankingTypography.bodySmall.copyWith(
-                      color: isDark ? BankingColors.neutral100 : BankingColors.neutral600,
+                  const SizedBox(width: BankingTokens.space16),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: widget.onAccept,
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: BankingTokens.space16),
+                        backgroundColor: BankingColors.secondary500,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(BankingTokens.radius12),
+                        ),
+                      ),
+                      child: const Text('Оформить карту'),
                     ),
                   ),
-                  const SizedBox(height: BankingTokens.space24),
-
-                  BankingButton(
-                    text: 'Принять условия',
-                    variant: BankingButtonVariant.primary,
-                    onPressed: widget.onAccept,
-                    fullWidth: true,
-                  ),
-                  const SizedBox(height: BankingTokens.space12),
-                  BankingButton(
-                    text: 'Отмена',
-                    variant: BankingButtonVariant.secondary,
-                    onPressed: () => Navigator.of(context).pop(),
-                    fullWidth: true,
-                  ),
                 ],
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildCondition(String title, String value) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          title,
-          style: BankingTypography.bodyRegular.copyWith(
-            color: isDark ? BankingColors.neutral200 : BankingColors.neutral700,
-          ),
-        ),
-        Text(
-          value,
-          style: BankingTypography.bodyRegular.semiBold.copyWith(
-            color: isDark ? BankingColors.neutral100 : BankingColors.neutral900,
-          ),
-        ),
-      ],
-    );
-  }
 }
 
 // Модальное окно для оформления платежного стикера
@@ -971,30 +1009,26 @@ class PaymentStickerApplicationModal extends StatefulWidget {
 }
 
 class _PaymentStickerApplicationModalState extends State<PaymentStickerApplicationModal> with TickerProviderStateMixin {
-  late AnimationController _slideController;
-  late Animation<Offset> _slideAnimation;
+  late AnimationController _animationController;
+  late Animation<double> _scaleAnimation;
   Account? selectedAccount;
 
   @override
   void initState() {
     super.initState();
-    _slideController = AnimationController(
-      duration: const Duration(milliseconds: 300),
+    _animationController = AnimationController(
+      duration: BankingTokens.durationNormal,
       vsync: this,
     );
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 1),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _slideController,
-      curve: Curves.easeOut,
-    ));
-    _slideController.forward();
+    _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.elasticOut),
+    );
+    _animationController.forward();
   }
 
   @override
   void dispose() {
-    _slideController.dispose();
+    _animationController.dispose();
     super.dispose();
   }
 
@@ -1002,118 +1036,153 @@ class _PaymentStickerApplicationModalState extends State<PaymentStickerApplicati
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return SlideTransition(
-      position: _slideAnimation,
-      child: Container(
-        margin: const EdgeInsets.all(BankingTokens.space16),
-        decoration: BoxDecoration(
-          color: isDark ? BankingColors.neutral800 : BankingColors.neutral0,
-          borderRadius: BorderRadius.circular(BankingTokens.borderRadiusLarge),
+    return ScaleTransition(
+      scale: _scaleAnimation,
+      child: Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(BankingTokens.radius20),
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Заголовок
-            Container(
-              padding: const EdgeInsets.all(BankingTokens.space16),
-              decoration: BoxDecoration(
-                color: BankingColors.info500,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(BankingTokens.borderRadiusLarge),
-                  topRight: Radius.circular(BankingTokens.borderRadiusLarge),
+        backgroundColor: isDark ? BankingColors.neutral800 : Colors.white,
+        child: Container(
+          padding: const EdgeInsets.all(BankingTokens.space24),
+          constraints: const BoxConstraints(maxWidth: 400),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Иконка платежного стикера
+              Container(
+                width: 80,
+                height: 80,
+                decoration: BoxDecoration(
+                  color: BankingColors.info100,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.sticky_note_2,
+                  color: BankingColors.info600,
+                  size: 40,
                 ),
               ),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.sticky_note_2,
-                    color: BankingColors.neutral0,
-                    size: BankingTokens.iconSizeLarge,
+              const SizedBox(height: BankingTokens.space24),
+
+              // Заголовок
+              Text(
+                'Платежный стикер',
+                style: BankingTypography.heading2.copyWith(
+                  color: isDark ? BankingColors.neutral100 : BankingColors.neutral900,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: BankingTokens.space16),
+
+              // Описание
+              Flexible(
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      Text(
+                        'Бесконтактная оплата без телефона в кармане.\n\n'
+                        '• NFC-технология для быстрой оплаты\n'
+                        '• Привязка к существующей карте\n'
+                        '• Работает с любыми NFC-терминалами\n'
+                        '• Безопасная технология шифрования\n'
+                        '• Легко прикрепляется к телефону\n\n'
+                        'Выберите карту для привязки стикера:',
+                        textAlign: TextAlign.left,
+                        style: BankingTypography.bodyRegular,
+                      ),
+                      const SizedBox(height: BankingTokens.space16),
+
+                      // Выбор карты
+                      Container(
+                        constraints: const BoxConstraints(maxHeight: 200),
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: isDark ? BankingColors.neutral600 : BankingColors.neutral300,
+                          ),
+                          borderRadius: BorderRadius.circular(BankingTokens.borderRadiusMedium),
+                        ),
+                        child: SingleChildScrollView(
+                          child: Column(
+                            children: widget.accounts.map((account) {
+                              return RadioListTile<Account>(
+                                title: Text(
+                                  '${account.name} •••• ${account.cardNumber?.substring(account.cardNumber!.length - 4) ?? account.id.substring(account.id.length - 4)}',
+                                  style: BankingTypography.bodyRegular,
+                                ),
+                                subtitle: Text(
+                                  '\$${account.balance.toStringAsFixed(2)}',
+                                  style: BankingTypography.caption,
+                                ),
+                                value: account,
+                                groupValue: selectedAccount,
+                                onChanged: (value) {
+                                  setState(() {
+                                    selectedAccount = value;
+                                  });
+                                },
+                                activeColor: BankingColors.info500,
+                              );
+                            }).toList(),
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: BankingTokens.space16),
+
+                      Text(
+                        'Стоимость: 0 ₽\nДоставка: Бесплатно\nСрок изготовления: 3-5 рабочих дней',
+                        style: BankingTypography.bodySmall.copyWith(
+                          color: isDark ? BankingColors.neutral400 : BankingColors.neutral600,
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: BankingTokens.space12),
+                ),
+              ),
+              const SizedBox(height: BankingTokens.space32),
+
+              // Кнопки
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
                   Expanded(
-                    child: Text(
-                      'Оформление платежного стикера',
-                      style: BankingTypography.heading4.copyWith(
-                        color: BankingColors.neutral0,
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: BankingTokens.space16),
+                        side: BorderSide(color: BankingColors.neutral400),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(BankingTokens.radius12),
+                        ),
                       ),
+                      child: Text(
+                        'Отмена',
+                        style: BankingTypography.bodyMedium.copyWith(
+                          color: isDark ? BankingColors.neutral200 : BankingColors.neutral700,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: BankingTokens.space16),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: selectedAccount != null ? widget.onAccept : null,
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: BankingTokens.space16),
+                        backgroundColor: BankingColors.info500,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(BankingTokens.radius12),
+                        ),
+                      ),
+                      child: const Text('Оформить стикер'),
                     ),
                   ),
                 ],
               ),
-            ),
-
-            // Содержимое
-            Padding(
-              padding: const EdgeInsets.all(BankingTokens.space16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Выберите карту для привязки стикера:',
-                    style: BankingTypography.bodyRegular,
-                  ),
-                  const SizedBox(height: BankingTokens.space16),
-
-                  // Выбор карты
-                  Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color: isDark ? BankingColors.neutral600 : BankingColors.neutral300,
-                      ),
-                      borderRadius: BorderRadius.circular(BankingTokens.borderRadiusMedium),
-                    ),
-                    child: Column(
-                      children: widget.accounts.map((account) {
-                        return RadioListTile<Account>(
-                          title: Text(
-                            '${account.name} •••• ${account.id.substring(account.id.length - 4)}',
-                            style: BankingTypography.bodyRegular,
-                          ),
-                          subtitle: Text(
-                            account.formattedBalance,
-                            style: BankingTypography.caption,
-                          ),
-                          value: account,
-                          groupValue: selectedAccount,
-                          onChanged: (value) {
-                            setState(() {
-                              selectedAccount = value;
-                            });
-                          },
-                          activeColor: BankingColors.primary500,
-                        );
-                      }).toList(),
-                    ),
-                  ),
-
-                  const SizedBox(height: BankingTokens.space24),
-
-                  Text(
-                    'Стоимость: 0 ₽\nДоставка: Бесплатно\nСрок изготовления: 3-5 рабочих дней',
-                    style: BankingTypography.bodySmall.copyWith(
-                      color: isDark ? BankingColors.neutral100 : BankingColors.neutral600,
-                    ),
-                  ),
-                  const SizedBox(height: BankingTokens.space24),
-
-                  BankingButton(
-                    text: 'Оформить стикер',
-                    variant: BankingButtonVariant.primary,
-                    onPressed: selectedAccount != null ? widget.onAccept : null,
-                    fullWidth: true,
-                  ),
-                  const SizedBox(height: BankingTokens.space12),
-                  BankingButton(
-                    text: 'Отмена',
-                    variant: BankingButtonVariant.secondary,
-                    onPressed: () => Navigator.of(context).pop(),
-                    fullWidth: true,
-                  ),
-                ],
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -1249,5 +1318,148 @@ class _SuccessModalState extends State<SuccessModal> with TickerProviderStateMix
       ),
     );
   }
-
 }
+
+class SavingsAccountApplicationModal extends StatefulWidget {
+  final VoidCallback onAccept;
+
+  const SavingsAccountApplicationModal({
+    super.key,
+    required this.onAccept,
+  });
+
+  @override
+  State<SavingsAccountApplicationModal> createState() => _SavingsAccountApplicationModalState();
+}
+
+class _SavingsAccountApplicationModalState extends State<SavingsAccountApplicationModal> with TickerProviderStateMixin {
+  late AnimationController _animationController;
+  late Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      duration: BankingTokens.durationNormal,
+      vsync: this,
+    );
+    _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.elasticOut),
+    );
+    _animationController.forward();
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return ScaleTransition(
+      scale: _scaleAnimation,
+      child: Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(BankingTokens.radius20),
+        ),
+        backgroundColor: isDark ? BankingColors.neutral800 : Colors.white,
+        child: Container(
+          padding: const EdgeInsets.all(BankingTokens.space24),
+          constraints: const BoxConstraints(maxWidth: 400),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Иконка накопительного счета
+              Container(
+                width: 80,
+                height: 80,
+                decoration: BoxDecoration(
+                  color: BankingColors.primary100,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.savings,
+                  color: BankingColors.primary600,
+                  size: 40,
+                ),
+              ),
+              const SizedBox(height: BankingTokens.space24),
+
+              // Заголовок
+              Text(
+                'Накопительный счет',
+                style: BankingTypography.heading2.copyWith(
+                  color: isDark ? BankingColors.neutral100 : BankingColors.neutral900,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: BankingTokens.space16),
+
+              // Описание
+                  Flexible(
+                    child: SingleChildScrollView(
+                      child: Text(
+                        'Накопительный счет позволяет вам копить деньги под 5% годовых.\n\n'
+                        '• Процентная ставка: 5% годовых\n'
+                        '• Начисление процентов: ежемесячно\n'
+                        '• Снятие средств: в любое время\n'
+                        '• Минимальный взнос: от 100₽\n'
+                        '• Без комиссий за обслуживание\n\n'
+                        'Вы сможете пополнять счет и следить за ростом ваших сбережений.',
+                        textAlign: TextAlign.left,
+                        style: BankingTypography.bodyRegular,
+                      ),
+                    ),
+                  ),
+              const SizedBox(height: BankingTokens.space32),
+
+              // Кнопки
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: BankingTokens.space16),
+                        side: BorderSide(color: BankingColors.neutral400),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(BankingTokens.radius12),
+                        ),
+                      ),
+                      child: Text(
+                        'Отмена',
+                        style: BankingTypography.bodyMedium.copyWith(
+                          color: isDark ? BankingColors.neutral200 : BankingColors.neutral700,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: BankingTokens.space16),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: widget.onAccept,
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: BankingTokens.space16),
+                        backgroundColor: BankingColors.primary500,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(BankingTokens.radius12),
+                        ),
+                      ),
+                      child: const Text('Открыть счет'),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+

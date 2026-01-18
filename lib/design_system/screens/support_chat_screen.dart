@@ -51,6 +51,11 @@ class _SupportChatScreenState extends State<SupportChatScreen> with TickerProvid
       CurvedAnimation(parent: _fadeController, curve: Curves.easeInOut),
     );
     _fadeController.forward();
+
+    // Mark support messages as read when entering chat
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<AppState>().markSupportMessagesAsRead();
+    });
   }
 
   @override

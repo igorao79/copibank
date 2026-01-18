@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'dart:async';
 import '../foundation/colors.dart';
 import '../foundation/typography.dart';
 import '../foundation/tokens.dart';
@@ -203,6 +205,79 @@ class _TransferScreenState extends State<TransferScreen> with TickerProviderStat
     }
   }
 
+  void _showSlidingNotification(double amount, String senderName) {
+    final overlay = Overlay.of(context);
+    late OverlayEntry overlayEntry;
+
+    overlayEntry = OverlayEntry(
+      builder: (context) => Positioned(
+        top: 50,
+        left: BankingTokens.space16,
+        right: BankingTokens.space16,
+        child: SlideTransition(
+          position: Tween<Offset>(
+            begin: const Offset(0, -1),
+            end: Offset.zero,
+          ).animate(
+            CurvedAnimation(
+              parent: AnimationController(
+                duration: const Duration(milliseconds: 500),
+                vsync: Navigator.of(context),
+              )..forward(),
+              curve: Curves.easeOut,
+            ),
+          ),
+          child: Material(
+            color: Colors.transparent,
+            child: Container(
+              padding: const EdgeInsets.all(BankingTokens.space16),
+              decoration: BoxDecoration(
+                color: BankingColors.success500,
+                borderRadius: BorderRadius.circular(BankingTokens.radius12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.2),
+                    blurRadius: 8,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.check_circle,
+                    color: Colors.white,
+                    size: 28,
+                  ),
+                  const SizedBox(width: BankingTokens.space12),
+                  Expanded(
+                    child: Text(
+                      'Зачислено ${amount.toStringAsFixed(2)}\$ от $senderName',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    overlay.insert(overlayEntry);
+
+    // Auto-remove after 4 seconds with fade out animation
+    Timer(const Duration(seconds: 4), () {
+      if (overlayEntry.mounted) {
+        overlayEntry.remove();
+      }
+    });
+  }
+
   Future<void> _receiveRandomTransfer() async {
     setState(() {
       _isProcessing = true;
@@ -212,42 +287,13 @@ class _TransferScreenState extends State<TransferScreen> with TickerProviderStat
       final appState = context.read<AppState>();
       await appState.receiveRandomTransfer();
 
-      // Show green success notification with last transaction info
+      // Show smooth sliding notification with last transaction info
       if (mounted && appState.transactions.isNotEmpty) {
         final lastTransaction = appState.transactions.first;
         final amount = lastTransaction.amount.abs();
         final senderName = lastTransaction.title.replaceAll('Получен перевод от ', '');
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Row(
-              children: [
-                Icon(
-                  Icons.check_circle,
-                  color: Colors.white,
-                  size: 24,
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    'Зачислено ${amount.toStringAsFixed(2)}\$ от $senderName',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            backgroundColor: BankingColors.success500,
-            duration: const Duration(seconds: 4),
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(BankingTokens.radius8),
-            ),
-            margin: const EdgeInsets.all(BankingTokens.space16),
-          ),
-        );
+        _showSlidingNotification(amount, senderName);
       }
     } catch (e) {
       if (mounted) {

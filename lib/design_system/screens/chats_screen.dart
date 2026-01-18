@@ -255,7 +255,7 @@ class _ChatsScreenState extends State<ChatsScreen> with TickerProviderStateMixin
                 icon: Icons.support_agent,
                 lastMessage: 'Здравствуйте! Как мы можем помочь?',
                 time: '12:45',
-                unreadCount: 1,
+                unreadCount: appState.unreadSupportMessages,
                 onTap: () => _onChatTap('support'),
                 showArrow: true,
               ),

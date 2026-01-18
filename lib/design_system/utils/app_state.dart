@@ -84,6 +84,25 @@ class AppState extends ChangeNotifier {
     final stickerKeys = prefs.getKeys().where((key) => key.startsWith('sticker_')).toList();
     print('DEBUG: Found sticker keys: $stickerKeys');
 
+    // Load savings account
+    final savingsId = prefs.getString('savings_account_id');
+    if (savingsId != null) {
+      final savingsBalance = prefs.getDouble('savings_account_balance') ?? 0.0;
+      final savingsRate = prefs.getDouble('savings_account_rate') ?? 0.05;
+      final savingsCreatedStr = prefs.getString('savings_account_created');
+      final savingsCreated = savingsCreatedStr != null
+          ? DateTime.parse(savingsCreatedStr)
+          : DateTime.now();
+
+      _savingsAccount = SavingsAccount(
+        id: savingsId,
+        balance: savingsBalance,
+        interestRate: savingsRate,
+        createdDate: savingsCreated,
+      );
+      print('DEBUG: Loaded savings account: $savingsId, balance: $savingsBalance');
+    }
+
     // Load cards data
   final cardIds = prefs.getStringList('user_cards') ?? [];
   print('DEBUG: Found ${cardIds.length} cards in SharedPreferences');
@@ -532,6 +551,131 @@ class AppState extends ChangeNotifier {
     return _notifications.where((n) => !n.isRead).length;
   }
 
+  // Support chat messages
+  int _unreadSupportMessages = 1; // Start with 1 unread message
+
+  int get unreadSupportMessages => _unreadSupportMessages;
+
+  void markSupportMessagesAsRead() {
+    _unreadSupportMessages = 0;
+    notifyListeners();
+  }
+
+  // Savings account
+  SavingsAccount? _savingsAccount;
+
+  SavingsAccount? get savingsAccount => _savingsAccount;
+
+  bool get canOpenSavingsAccount => _accounts.isNotEmpty && _savingsAccount == null;
+
+  Future<bool> openSavingsAccount() async {
+    if (!canOpenSavingsAccount) return false;
+
+    _savingsAccount = SavingsAccount(
+      id: 'savings_${DateTime.now().millisecondsSinceEpoch}',
+      balance: 0.0,
+      interestRate: 0.05, // 5% annual interest
+      createdDate: DateTime.now(),
+    );
+
+    // Save to SharedPreferences
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('savings_account_id', _savingsAccount!.id);
+    await prefs.setDouble('savings_account_balance', _savingsAccount!.balance);
+    await prefs.setDouble('savings_account_rate', _savingsAccount!.interestRate);
+    await prefs.setString('savings_account_created', _savingsAccount!.createdDate.toIso8601String());
+
+    // Add notification
+    final notification = NotificationItem(
+      id: 'savings_${_savingsAccount!.id}',
+      title: 'Накопительный счет открыт!',
+      message: 'Теперь вы можете копить деньги под 5% годовых',
+      timestamp: DateTime.now(),
+      isRead: false,
+      type: NotificationType.transaction,
+    );
+    _notifications.insert(0, notification);
+
+    notifyListeners();
+    return true;
+  }
+
+  Future<bool> depositToSavings(double amount) async {
+    if (_savingsAccount == null || amount <= 0) return false;
+
+    // Check if user has enough money in any account
+    final totalBalance = _accounts.fold<double>(0, (sum, account) => sum + account.balance);
+    if (totalBalance < amount) return false;
+
+    // Find account with sufficient balance (prefer debit cards)
+    final debitAccounts = _accounts.where((acc) => acc.type == 'debit_card' && acc.balance >= amount).toList();
+    Account? sourceAccount;
+
+    if (debitAccounts.isNotEmpty) {
+      sourceAccount = debitAccounts.first;
+    } else {
+      // Find any account with sufficient balance
+      sourceAccount = _accounts.firstWhere((acc) => acc.balance >= amount);
+    }
+
+    // Update source account
+    final sourceIndex = _accounts.indexOf(sourceAccount);
+    final updatedSourceAccount = Account(
+      id: sourceAccount.id,
+      name: sourceAccount.name,
+      type: sourceAccount.type,
+      balance: sourceAccount.balance - amount,
+      currency: sourceAccount.currency,
+      color: sourceAccount.color,
+      isPrimary: sourceAccount.isPrimary,
+      cardNumber: sourceAccount.cardNumber,
+      expireDate: sourceAccount.expireDate,
+      cvc: sourceAccount.cvc,
+      hasSticker: sourceAccount.hasSticker,
+    );
+    _accounts[sourceIndex] = updatedSourceAccount;
+
+    // Update savings account
+    final updatedSavingsAccount = SavingsAccount(
+      id: _savingsAccount!.id,
+      balance: _savingsAccount!.balance + amount,
+      interestRate: _savingsAccount!.interestRate,
+      createdDate: _savingsAccount!.createdDate,
+    );
+    _savingsAccount = updatedSavingsAccount;
+
+    // Save to SharedPreferences
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setDouble('savings_account_balance', _savingsAccount!.balance);
+    await prefs.setDouble('card_${sourceAccount.id}_balance', updatedSourceAccount.balance);
+
+    // Add transaction
+    final transactionId = 'savings_deposit_${DateTime.now().millisecondsSinceEpoch}';
+    final transaction = Transaction(
+      id: transactionId,
+      title: 'Пополнение накопительного счета',
+      amount: -amount,
+      date: DateTime.now(),
+      category: 'Savings',
+      icon: Icons.savings,
+    );
+    addTransaction(transaction);
+
+    // Add notification
+    final notification = NotificationItem(
+      id: 'savings_deposit_$transactionId',
+      title: 'Счет пополнен',
+      message: 'Зачислено ${amount.toStringAsFixed(2)}\$ на накопительный счет',
+      timestamp: DateTime.now(),
+      isRead: false,
+      type: NotificationType.transaction,
+    );
+    _notifications.insert(0, notification);
+
+    notifyListeners();
+    return true;
+  }
+
   // Sticker methods
   Future<void> attachSticker(String accountId) async {
     final accountIndex = _accounts.indexWhere((account) => account.id == accountId);
@@ -788,4 +932,31 @@ class TransferUser {
     required this.avatarUrl,
     required this.phoneNumber,
   });
+}
+
+/// Savings Account Model
+/// Model for savings account with interest calculation
+class SavingsAccount {
+  final String id;
+  final double balance;
+  final double interestRate; // Annual interest rate (e.g., 0.05 for 5%)
+  final DateTime createdDate;
+
+  const SavingsAccount({
+    required this.id,
+    required this.balance,
+    required this.interestRate,
+    required this.createdDate,
+  });
+
+  // Calculate projected balance after given months
+  double getProjectedBalance(int months) {
+    final monthlyRate = interestRate / 12;
+    return balance * (1 + monthlyRate * months);
+  }
+
+  // Get monthly income projection
+  double getMonthlyIncome(int months) {
+    return getProjectedBalance(months) - balance;
+  }
 }

@@ -18,20 +18,24 @@ class _CashbackSelectionScreenState extends State<CashbackSelectionScreen> {
   @override
   Widget build(BuildContext context) {
     final appState = context.watch<AppState>();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: isDark ? BankingColors.neutral900 : Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: isDark ? BankingColors.neutral900 : Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.close, color: BankingColors.neutral700),
+          icon: Icon(
+            Icons.close,
+            color: isDark ? BankingColors.neutral200 : BankingColors.neutral700,
+          ),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
           'Выберите категории кэшбэка',
           style: BankingTypography.heading3.copyWith(
-            color: BankingColors.neutral700,
+            color: isDark ? BankingColors.neutral100 : BankingColors.neutral700,
           ),
         ),
       ),
@@ -43,7 +47,7 @@ class _CashbackSelectionScreenState extends State<CashbackSelectionScreen> {
             Text(
               'Выберите до 3 категорий, где хотите получать кэшбэк',
               style: BankingTypography.bodyRegular.copyWith(
-                color: BankingColors.neutral600,
+                color: isDark ? BankingColors.neutral400 : BankingColors.neutral600,
               ),
             ),
             const SizedBox(height: BankingTokens.space8),
@@ -84,7 +88,7 @@ class _CashbackSelectionScreenState extends State<CashbackSelectionScreen> {
                       decoration: BoxDecoration(
                         color: isSelected
                             ? category.color.withOpacity(0.1)
-                            : Colors.white,
+                            : isDark ? BankingColors.neutral800 : Colors.white,
                         border: Border.all(
                           color: isSelected
                               ? category.color
@@ -121,7 +125,7 @@ class _CashbackSelectionScreenState extends State<CashbackSelectionScreen> {
                               fontWeight: FontWeight.w600,
                               color: isDisabled
                                   ? BankingColors.neutral400
-                                  : BankingColors.neutral700,
+                                  : isDark ? BankingColors.neutral100 : BankingColors.neutral700,
                             ),
                             textAlign: TextAlign.center,
                           ),
@@ -193,8 +197,9 @@ class _CashbackSelectionScreenState extends State<CashbackSelectionScreen> {
           Navigator.of(context).pop();
         });
 
+        final isDark = Theme.of(context).brightness == Brightness.dark;
         return Dialog(
-          backgroundColor: Colors.white,
+          backgroundColor: isDark ? BankingColors.neutral800 : Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(BankingTokens.radius16),
           ),
@@ -220,7 +225,7 @@ class _CashbackSelectionScreenState extends State<CashbackSelectionScreen> {
                 Text(
                   'Кэшбэк настроен!',
                   style: BankingTypography.heading2.copyWith(
-                    color: BankingColors.neutral700,
+                    color: isDark ? BankingColors.neutral100 : BankingColors.neutral700,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -228,7 +233,7 @@ class _CashbackSelectionScreenState extends State<CashbackSelectionScreen> {
                 Text(
                   'Теперь вы будете получать кэшбэк\nв выбранных категориях',
                   style: BankingTypography.bodyRegular.copyWith(
-                    color: BankingColors.neutral600,
+                    color: isDark ? BankingColors.neutral400 : BankingColors.neutral600,
                   ),
                   textAlign: TextAlign.center,
                 ),

@@ -138,6 +138,14 @@ class BankingTypography {
     fontFamily: 'Berlin',
   );
 
+  static TextStyle get bodyMedium => const TextStyle(
+    fontSize: fontSizeBase,
+    fontWeight: fontWeightRegular,
+    height: lineHeightNormal,
+    letterSpacing: letterSpacingNormal,
+    fontFamily: 'Berlin',
+  );
+
   // ===========================================================================
   // UTILITY STYLES (Labels, captions, metadata)
   // ===========================================================================

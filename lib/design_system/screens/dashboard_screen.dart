@@ -242,6 +242,12 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                     // Balance Section
                     _buildBalanceSection(appState, localizations),
 
+                    const SizedBox(height: BankingTokens.space24),
+
+                    // Savings Account Section
+                    if (appState.savingsAccount != null)
+                      _buildSavingsSection(appState),
+
                     const SizedBox(height: BankingTokens.space32),
 
                     // Accounts/Cards Section
@@ -305,6 +311,153 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
           },
         ),
       ],
+    );
+  }
+
+  Widget _buildSavingsSection(AppState appState) {
+    final savings = appState.savingsAccount!;
+    final monthlyIncome = savings.getMonthlyIncome(1);
+
+    return Container(
+      padding: const EdgeInsets.all(BankingTokens.space16),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            BankingColors.success100,
+            BankingColors.success50,
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(BankingTokens.radius12),
+        border: Border.all(
+          color: BankingColors.success200,
+          width: 1,
+        ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: BankingColors.success500,
+              borderRadius: BorderRadius.circular(BankingTokens.radius12),
+            ),
+            child: const Icon(
+              Icons.savings,
+              color: Colors.white,
+              size: 24,
+            ),
+          ),
+          const SizedBox(width: BankingTokens.space16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Накопительный счет',
+                  style: BankingTypography.bodyLarge.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: BankingColors.neutral900,
+                  ),
+                ),
+                const SizedBox(height: BankingTokens.space4),
+                Text(
+                  '\$${savings.balance.toStringAsFixed(2)}',
+                  style: BankingTypography.amountMedium.copyWith(
+                    color: BankingColors.neutral700,
+                  ),
+                ),
+                const SizedBox(height: BankingTokens.space4),
+                Text(
+                  'Через месяц: +\$${monthlyIncome.toStringAsFixed(2)}',
+                  style: BankingTypography.caption.copyWith(
+                    color: BankingColors.success600,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          IconButton(
+            onPressed: () => _showSavingsDepositDialog(appState),
+            icon: Icon(
+              Icons.add_circle,
+              color: BankingColors.success600,
+              size: 28,
+            ),
+            tooltip: 'Пополнить счет',
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showSavingsDepositDialog(AppState appState) {
+    final TextEditingController amountController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState) => AlertDialog(
+            title: const Text('Пополнение накопительного счета'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: amountController,
+                  keyboardType: TextInputType.numberWithOptions(decimal: true),
+                  decoration: const InputDecoration(
+                    labelText: 'Сумма',
+                    prefixText: '\$ ',
+                    hintText: '0.00',
+                  ),
+                ),
+                const SizedBox(height: BankingTokens.space16),
+                Text(
+                  'Доступно: \$${appState.balance.toStringAsFixed(2)}',
+                  style: BankingTypography.caption.copyWith(
+                    color: BankingColors.neutral600,
+                  ),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('Отмена'),
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  final amount = double.tryParse(amountController.text.replaceAll(',', '.'));
+                  if (amount != null && amount > 0) {
+                    final success = await appState.depositToSavings(amount);
+                    if (success) {
+                      Navigator.of(context).pop();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Счет пополнен на \$${amount.toStringAsFixed(2)}'),
+                          backgroundColor: BankingColors.success500,
+                        ),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Недостаточно средств'),
+                          backgroundColor: BankingColors.error500,
+                        ),
+                      );
+                    }
+                  }
+                },
+                child: const Text('Пополнить'),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
