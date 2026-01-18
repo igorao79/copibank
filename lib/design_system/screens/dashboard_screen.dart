@@ -14,6 +14,7 @@ import '../utils/app_state.dart';
 import '../../l10n/app_localizations.dart';
 import 'profile_screen.dart';
 import 'card_details_screen.dart';
+import 'cashback_selection_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -247,6 +248,12 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
 
                     const SizedBox(height: BankingTokens.space32),
 
+                    // Cashback Section
+                    if (appState.accounts.isNotEmpty)
+                      _buildCashbackSection(appState, localizations),
+
+                    const SizedBox(height: BankingTokens.space32),
+
                     // Quick Actions
                     _buildQuickActions(appState, localizations),
 
@@ -367,15 +374,15 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
   }
 
   Widget _buildChartSection(AppLocalizations localizations) {
-    // Sample chart data
+    // Sample chart data with more realistic spending pattern
     final chartData = [
-      ChartDataPoint(label: 'Mon', value: 1200, color: BankingColors.primary500),
-      ChartDataPoint(label: 'Tue', value: 1800, color: BankingColors.primary500),
-      ChartDataPoint(label: 'Wed', value: 1400, color: BankingColors.primary500),
-      ChartDataPoint(label: 'Thu', value: 2200, color: BankingColors.primary500),
-      ChartDataPoint(label: 'Fri', value: 1600, color: BankingColors.primary500),
-      ChartDataPoint(label: 'Sat', value: 1900, color: BankingColors.primary500),
-      ChartDataPoint(label: 'Sun', value: 2100, color: BankingColors.primary500),
+      ChartDataPoint(label: 'Пн', value: 850, color: BankingColors.primary500),
+      ChartDataPoint(label: 'Вт', value: 1250, color: BankingColors.primary500),
+      ChartDataPoint(label: 'Ср', value: 680, color: BankingColors.primary500),
+      ChartDataPoint(label: 'Чт', value: 1450, color: BankingColors.primary500),
+      ChartDataPoint(label: 'Пт', value: 2100, color: BankingColors.primary500),
+      ChartDataPoint(label: 'Сб', value: 3200, color: BankingColors.primary500),
+      ChartDataPoint(label: 'Вс', value: 1800, color: BankingColors.primary500),
     ];
 
     return Column(
@@ -751,11 +758,18 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                             fontWeight: FontWeight.w600,
                           ),
                         ),
-                        Text(
-                          account.cardNumber ?? '**** **** **** ****',
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Colors.grey[600],
-                          ),
+                        Builder(
+                          builder: (context) {
+                            print('DEBUG: Dashboard displaying card ${account.id}:');
+                            print('  cardNumber: ${account.cardNumber}');
+                            print('  formattedBalance: ${account.formattedBalance}');
+                            return Text(
+                              account.cardNumber ?? '**** **** **** ****',
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: Colors.grey[600],
+                              ),
+                            );
+                          },
                         ),
                       ],
                     ),
@@ -782,6 +796,184 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
       MaterialPageRoute(
         builder: (context) => CardDetailsScreen(account: account),
       ),
+    );
+  }
+
+  Widget _buildCashbackSection(AppState appState, AppLocalizations localizations) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Мой кэшбэк',
+          style: BankingTypography.heading3,
+        ),
+        const SizedBox(height: BankingTokens.space16),
+        Container(
+          padding: const EdgeInsets.all(BankingTokens.space24),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(BankingTokens.radius16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: appState.hasSelectedCashbackCategories
+              ? _buildSelectedCashbackCategories(appState)
+              : _buildCashbackSetup(appState),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCashbackSetup(AppState appState) {
+    return Column(
+      children: [
+        Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(BankingTokens.space12),
+              decoration: BoxDecoration(
+                color: BankingColors.primary100,
+                borderRadius: BorderRadius.circular(BankingTokens.radius12),
+              ),
+              child: Icon(
+                Icons.local_offer,
+                color: BankingColors.primary500,
+                size: 24,
+              ),
+            ),
+            const SizedBox(width: BankingTokens.space16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Настройте кэшбэк',
+                  style: BankingTypography.bodyRegular.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                  ),
+                  const SizedBox(height: BankingTokens.space4),
+                  Text(
+                    'Выберите до 3 категорий и получайте кэшбэк до 5%',
+                    style: BankingTypography.caption.copyWith(
+                      color: BankingColors.neutral600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              Icons.arrow_forward_ios,
+              color: BankingColors.neutral400,
+              size: 16,
+            ),
+          ],
+        ),
+        const SizedBox(height: BankingTokens.space16),
+        SizedBox(
+          width: double.infinity,
+          child: ElevatedButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const CashbackSelectionScreen(),
+                ),
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: BankingColors.primary500,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: BankingTokens.space12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(BankingTokens.radius12),
+              ),
+            ),
+            child: Text(
+              'Выбрать категории',
+              style: BankingTypography.button,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSelectedCashbackCategories(AppState appState) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Активные категории кэшбэка',
+          style: BankingTypography.bodySmall.copyWith(
+            fontWeight: FontWeight.w600,
+            color: BankingColors.neutral700,
+          ),
+        ),
+        const SizedBox(height: BankingTokens.space16),
+        Wrap(
+          spacing: BankingTokens.space12,
+          runSpacing: BankingTokens.space12,
+          children: appState.selectedCashbackCategories.map((category) {
+            return Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: BankingTokens.space12,
+                vertical: BankingTokens.space8,
+              ),
+              decoration: BoxDecoration(
+                color: category.color.withOpacity(0.1),
+                border: Border.all(
+                  color: category.color.withOpacity(0.3),
+                  width: 1,
+                ),
+                borderRadius: BorderRadius.circular(BankingTokens.radius16),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    category.icon,
+                    size: 16,
+                    color: BankingColors.neutral700,
+                  ),
+                  const SizedBox(width: BankingTokens.space8),
+                  Text(
+                    category.name,
+                    style: BankingTypography.caption.copyWith(
+                      fontWeight: FontWeight.w500,
+                      color: BankingColors.neutral700,
+                    ),
+                  ),
+                  const SizedBox(width: BankingTokens.space8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: BankingTokens.space8,
+                      vertical: BankingTokens.space4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: category.color,
+                      borderRadius: BorderRadius.circular(BankingTokens.radius8),
+                    ),
+                    child: Text(
+                      '${category.percentage}%',
+                      style: BankingTypography.caption.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 10,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }).toList(),
+        ),
+      ],
     );
   }
 }

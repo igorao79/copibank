@@ -87,31 +87,38 @@ class BankingLineChart extends StatelessWidget {
                   bottomTitles: AxisTitles(
                     sideTitles: SideTitles(
                       showTitles: true,
-                      reservedSize: 30,
+                      reservedSize: 35,
                       interval: 1,
                       getTitlesWidget: (value, meta) {
                         if (value.toInt() >= 0 && value.toInt() < data.length) {
-                          return Text(
-                            data[value.toInt()].label,
-                            style: BankingTypography.caption.copyWith(
-                              color: isDark ? BankingColors.neutral200 : BankingColors.neutral500,
+                          return Padding(
+                            padding: const EdgeInsets.only(top: 8),
+                            child: Text(
+                              data[value.toInt()].label,
+                              style: BankingTypography.caption.copyWith(
+                                color: isDark ? BankingColors.neutral300 : BankingColors.neutral600,
+                                fontWeight: FontWeight.w500,
+                                fontSize: 12,
+                              ),
                             ),
                           );
                         }
-                        return const Text('');
+                        return const SizedBox.shrink();
                       },
                     ),
                   ),
                   leftTitles: AxisTitles(
                     sideTitles: SideTitles(
                       showTitles: true,
-                      interval: 1,
-                      reservedSize: 40,
+                      interval: data.isNotEmpty ? (data.map((e) => e.value).reduce((a, b) => a > b ? a : b) / 4) : 500,
+                      reservedSize: 50,
                       getTitlesWidget: (value, meta) {
+                        if (value == 0) return const SizedBox.shrink();
                         return Text(
-                          value.toStringAsFixed(0),
+                          '\$${(value / 1000).toStringAsFixed(1)}k',
                           style: BankingTypography.caption.copyWith(
-                            color: isDark ? BankingColors.neutral200 : BankingColors.neutral500,
+                            color: isDark ? BankingColors.neutral400 : BankingColors.neutral500,
+                            fontSize: 11,
                           ),
                         );
                       },
@@ -135,27 +142,50 @@ class BankingLineChart extends StatelessWidget {
                       return FlSpot(entry.key.toDouble(), entry.value.value);
                     }).toList(),
                     isCurved: true,
-                    color: BankingColors.primary500,
-                    barWidth: 3,
+                    gradient: LinearGradient(
+                      colors: [
+                        BankingColors.primary600,
+                        BankingColors.primary500,
+                        BankingColors.primary400,
+                      ],
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
+                    ),
+                    barWidth: 4,
                     isStrokeCapRound: true,
                     dotData: FlDotData(
                       show: showDots,
                       getDotPainter: (spot, percent, barData, index) {
                         return FlDotCirclePainter(
-                          radius: 4,
+                          radius: 6,
                           color: BankingColors.primary500,
-                          strokeWidth: 2,
+                          strokeWidth: 3,
                           strokeColor: isDark ? BankingColors.neutral800 : BankingColors.neutral0,
                         );
                       },
                     ),
                     belowBarData: BarAreaData(
                       show: true,
-                      color: BankingColors.primary500.withOpacity(0.1),
+                      gradient: LinearGradient(
+                        colors: [
+                          BankingColors.primary500.withOpacity(0.3),
+                          BankingColors.primary500.withOpacity(0.05),
+                        ],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                      ),
+                    ),
+                    aboveBarData: BarAreaData(
+                      show: false,
                     ),
                   ),
                 ],
+                lineTouchData: LineTouchData(
+                  enabled: true,
+                ),
               ),
+              duration: animationDuration,
+              curve: Curves.easeInOutCubic,
             ),
           ),
         ],
@@ -626,7 +656,7 @@ class BankingFintech {
       data: data,
       title: title,
       height: height,
-      showGrid: true,
+      showGrid: false,
       showDots: true,
     );
   }

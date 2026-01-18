@@ -1,5 +1,7 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:lottie/lottie.dart';
 import '../foundation/colors.dart';
 import '../foundation/typography.dart';
@@ -484,37 +486,104 @@ class _ApplyScreenState extends State<ApplyScreen> with TickerProviderStateMixin
   }
 
   void _onDebitCardAccepted(BuildContext context, AppState appState) {
+    // Генерируем данные карты
+    final cardNumber = _generateCardNumber();
+    final expireDate = _generateExpireDate();
+    final cvc = _generateCVC();
+
+    print('DEBUG: ApplyScreen - Generated card data:');
+    print('  cardNumber: $cardNumber');
+    print('  expireDate: $expireDate');
+    print('  cvc: $cvc');
+
     // Добавляем дебетовую карту в список аккаунтов
     final newAccount = Account(
       id: 'debit_${DateTime.now().millisecondsSinceEpoch}',
       name: 'Дебетовая карта',
-      type: 'Дебетовая карта',
-      balance: 0.0,
-      currency: 'RUB',
-      isPrimary: false,
-      color: BankingColors.primary500,
+      type: 'debit_card',
+      balance: 5000.00, // Always start with $5,000
+      currency: 'USD',
+      color: const Color(0xFF2196F3),
+      isPrimary: appState.accounts.isEmpty,
+      cardNumber: cardNumber,
+      expireDate: expireDate,
+      cvc: cvc,
     );
 
+    print('DEBUG: ApplyScreen - Account created with cardNumber: ${newAccount.cardNumber}');
+
     appState.addAccount(newAccount);
+
+    // Сохраняем данные в SharedPreferences
+    _saveCardToSharedPreferences(newAccount);
 
     // Закрываем модальное окно и показываем успех
     Navigator.of(context).pop();
     _showSuccessModal(context, 'Дебетовая карта оформлена!', 'debit_card');
   }
 
+  // Методы генерации данных карты
+  String _generateCardNumber() {
+    final random = Random();
+    return List.generate(16, (_) => random.nextInt(10).toString()).join();
+  }
+
+  String _generateExpireDate() {
+    final now = DateTime.now();
+    final month = (1 + Random().nextInt(12)).toString().padLeft(2, '0');
+    final year = (now.year + 1 + Random().nextInt(4)).toString().substring(2);
+    return '$month/$year';
+  }
+
+  String _generateCVC() {
+    final random = Random();
+    return List.generate(3, (_) => random.nextInt(10).toString()).join();
+  }
+
+  Future<void> _saveCardToSharedPreferences(Account account) async {
+    final prefs = await SharedPreferences.getInstance();
+    final existingCards = prefs.getStringList('user_cards') ?? [];
+    existingCards.add(account.id);
+    await prefs.setString('card_${account.id}_number', account.cardNumber ?? '');
+    await prefs.setString('card_${account.id}_expire', account.expireDate ?? '');
+    await prefs.setString('card_${account.id}_cvc', account.cvc ?? '');
+    await prefs.setDouble('card_${account.id}_balance', account.balance);
+    await prefs.setStringList('user_cards', existingCards);
+
+    print('DEBUG: ApplyScreen - Card saved to SharedPreferences: ${account.id}');
+  }
+
   void _onCreditCardAccepted(BuildContext context, AppState appState) {
+    // Генерируем данные карты
+    final cardNumber = _generateCardNumber();
+    final expireDate = _generateExpireDate();
+    final cvc = _generateCVC();
+
+    print('DEBUG: ApplyScreen - Generated credit card data:');
+    print('  cardNumber: $cardNumber');
+    print('  expireDate: $expireDate');
+    print('  cvc: $cvc');
+
     // Добавляем кредитную карту в список аккаунтов
     final newAccount = Account(
       id: 'credit_${DateTime.now().millisecondsSinceEpoch}',
       name: 'Кредитная карта',
-      type: 'Кредитная карта',
-      balance: 0.0,
-      currency: 'RUB',
-      isPrimary: false,
+      type: 'credit_card',
+      balance: 10000.00, // Credit limit
+      currency: 'USD',
       color: BankingColors.secondary500,
+      isPrimary: false,
+      cardNumber: cardNumber,
+      expireDate: expireDate,
+      cvc: cvc,
     );
 
+    print('DEBUG: ApplyScreen - Credit account created with cardNumber: ${newAccount.cardNumber}');
+
     appState.addAccount(newAccount);
+
+    // Сохраняем данные в SharedPreferences
+    _saveCardToSharedPreferences(newAccount);
 
     // Закрываем модальное окно и показываем успех
     Navigator.of(context).pop();

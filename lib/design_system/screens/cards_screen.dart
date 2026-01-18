@@ -43,6 +43,8 @@ class _CardsScreenState extends State<CardsScreen> with TickerProviderStateMixin
         appState.init(); // Reload data if needed
       }
     });
+
+    // Show referral notification only after adding a card, not on page load
   }
 
   @override
@@ -83,6 +85,7 @@ class _CardsScreenState extends State<CardsScreen> with TickerProviderStateMixin
             ],
           ),
         ),
+        backgroundColor: Colors.white,
         actions: [
           IconButton(
             icon: Icon(
@@ -564,68 +567,145 @@ class _CardsScreenState extends State<CardsScreen> with TickerProviderStateMixin
   }
 
   Future<void> _addNewCard() async {
+    print('DEBUG: _addNewCard() method STARTED!');
     final appState = context.read<AppState>();
+    print('DEBUG: appState obtained');
 
     // Generate card data
+    print('DEBUG: About to generate card number...');
     final cardNumber = _generateCardNumber();
-    final expireDate = _generateExpireDate();
-    final cvc = _generateCVC();
+    print('DEBUG: cardNumber generated: "$cardNumber"');
 
-    print('DEBUG: Generated card data - number: $cardNumber, expire: $expireDate, cvc: $cvc');
+    print('DEBUG: About to generate expire date...');
+    final expireDate = _generateExpireDate();
+    print('DEBUG: expireDate generated: "$expireDate"');
+
+    print('DEBUG: About to generate CVC...');
+    final cvc = _generateCVC();
+    print('DEBUG: cvc generated: "$cvc"');
+
+    print('DEBUG: Generated card data - number: "$cardNumber" (length: ${cardNumber.length}), expire: "$expireDate", cvc: "$cvc"');
+    print('DEBUG: cardNumber is empty: ${cardNumber.isEmpty}, length: ${cardNumber.length}');
+    print('DEBUG: Right before creating Account - cardNumber: "$cardNumber"');
 
     // Create new account/card
+    print('DEBUG: Creating Account with explicit values:');
+    print('  cardNumber: "$cardNumber"');
+    print('  expireDate: "$expireDate"');
+    print('  cvc: "$cvc"');
+
+    final accountId = 'debit_${DateTime.now().millisecondsSinceEpoch}';
+    final accountName = 'Дебетовая карта';
+    final accountType = 'debit_card';
+    final accountBalance = 5000.00;
+    final accountCurrency = 'USD';
+    final accountColor = const Color(0xFF2196F3);
+    final accountIsPrimary = appState.accounts.isEmpty;
+
+    print('DEBUG: Prepared variables:');
+    print('  accountId: $accountId');
+    print('  accountCardNumber: "$cardNumber"');
+
     final newAccount = Account(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
-      name: 'Дебетовая карта',
-      type: 'debit_card',
-      balance: 5000.00, // Always start with $5,000
-      currency: 'USD',
-      color: const Color(0xFF2196F3), // Blue color for cards
-      isPrimary: appState.accounts.isEmpty, // First card is primary
+      id: accountId,
+      name: accountName,
+      type: accountType,
+      balance: accountBalance,
+      currency: accountCurrency,
+      color: accountColor,
+      isPrimary: accountIsPrimary,
       cardNumber: cardNumber, // Store the full card number
       expireDate: expireDate,
       cvc: cvc,
     );
 
+    print('DEBUG: Account object created:');
+    print('  id: ${newAccount.id}');
+    print('  cardNumber: ${newAccount.cardNumber}');
+    print('  expireDate: ${newAccount.expireDate}');
+    print('  cvc: ${newAccount.cvc}');
+    print('  balance: ${newAccount.balance}');
+
     print('DEBUG: Creating card with number: $cardNumber, expire: $expireDate, cvc: $cvc, balance: ${newAccount.balance}');
+    print('DEBUG: newAccount.cardNumber before addAccount: ${newAccount.cardNumber}');
     appState.addAccount(newAccount);
+    print('DEBUG: After addAccount - appState.accounts[0].cardNumber: ${appState.accounts.isNotEmpty ? appState.accounts[0].cardNumber : 'no accounts'}');
 
     // Force rebuild to show new card immediately
     setState(() {});
 
+    // Show referral notification after adding the first card
+    if (appState.accounts.length == 1) {
+      print('DEBUG: First card added, showing referral notification');
+      Future.delayed(const Duration(milliseconds: 500), () {
+        if (mounted) {
+          _showReferralNotification();
+        }
+      });
+    }
+
     // Save card data to SharedPreferences
     final prefs = await SharedPreferences.getInstance();
+
+    // Test SharedPreferences functionality
+    await prefs.setString('test_key', 'test_value');
+    final testValue = prefs.getString('test_key');
+    print('DEBUG: SharedPreferences test - set: test_value, get: $testValue');
+
     final existingCards = prefs.getStringList('user_cards') ?? [];
-    existingCards.add(newAccount.id);
-    await prefs.setString('card_${newAccount.id}_number', cardNumber);
-    await prefs.setString('card_${newAccount.id}_expire', expireDate);
-    await prefs.setString('card_${newAccount.id}_cvc', cvc);
-    await prefs.setDouble('card_${newAccount.id}_balance', 5000.00);
-    await prefs.setStringList('user_cards', existingCards);
+    print('DEBUG: Before saving - existing cards: $existingCards');
+
+    try {
+      existingCards.add(newAccount.id);
+      await prefs.setString('card_${newAccount.id}_number', cardNumber);
+      print('DEBUG: Saved card number');
+      await prefs.setString('card_${newAccount.id}_expire', expireDate);
+      print('DEBUG: Saved expire date');
+      await prefs.setString('card_${newAccount.id}_cvc', cvc);
+      print('DEBUG: Saved CVC');
+      await prefs.setDouble('card_${newAccount.id}_balance', 5000.00);
+      print('DEBUG: Saved balance');
+      await prefs.setStringList('user_cards', existingCards);
+      print('DEBUG: Saved cards list');
+    } catch (e) {
+      print('DEBUG: ERROR saving to SharedPreferences: $e');
+    }
 
     print('DEBUG: Card saved to SharedPreferences:');
     print('  ID: ${newAccount.id}');
     print('  Number: $cardNumber');
     print('  Expire: $expireDate');
     print('  CVC: $cvc');
-    print('  Balance: 5000.00');
-    print('  Cards list: $existingCards');
+    print('  Key used: card_${newAccount.id}_number');
 
     // Verify data was saved
     final savedNumber = prefs.getString('card_${newAccount.id}_number');
     final savedExpire = prefs.getString('card_${newAccount.id}_expire');
     final savedCvc = prefs.getString('card_${newAccount.id}_cvc');
     final savedBalance = prefs.getDouble('card_${newAccount.id}_balance');
+    final updatedCardsList = prefs.getStringList('user_cards');
+
+    print('DEBUG: Verification after saving:');
+    print('  Saved number: $savedNumber');
+    print('  Saved expire: $savedExpire');
+    print('  Saved CVC: $savedCvc');
+    print('  Saved balance: $savedBalance');
+    print('  Cards list: $updatedCardsList');
+
+    // Check all keys in SharedPreferences
+    final allKeys = prefs.getKeys();
+    final cardKeys = allKeys.where((key) => key.contains(newAccount.id)).toList();
+    print('DEBUG: All keys containing ${newAccount.id}: $cardKeys');
+    print('  Balance: 5000.00');
+    print('  Cards list: $existingCards');
     final savedCardsList = prefs.getStringList('user_cards');
 
     print('DEBUG: Verification - saved number: $savedNumber, expire: $savedExpire, cvc: $savedCvc, balance: $savedBalance');
     print('DEBUG: Verification - cards list: $savedCardsList');
 
-    final formattedCardNumber = '${cardNumber.substring(0, 4)} ${cardNumber.substring(4, 8)} ${cardNumber.substring(8, 12)} ${cardNumber.substring(12, 16)}';
-
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Карта успешно оформлена! Номер: $formattedCardNumber'),
+        content: Text('Карта успешно оформлена!'),
         duration: const Duration(seconds: 3),
       ),
     );
@@ -634,6 +714,200 @@ class _CardsScreenState extends State<CardsScreen> with TickerProviderStateMixin
   void _onViewAllNotifications() {
     // TODO: Navigate to full notifications screen
     print('Открыть экран всех уведомлений');
+  }
+
+  void _showReferralNotification() {
+    print('DEBUG: _showReferralNotification called');
+    final overlay = Overlay.of(context);
+    late OverlayEntry overlayEntry;
+
+    overlayEntry = OverlayEntry(
+      builder: (context) => Positioned(
+        top: MediaQuery.of(context).padding.top + 60,
+        left: 16,
+        right: 16,
+        child: Material(
+          color: Colors.transparent,
+          child: GestureDetector(
+            onTap: () {
+              overlayEntry.remove();
+              _showReferralDialog();
+            },
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: BankingColors.primary500,
+                borderRadius: BorderRadius.circular(BankingTokens.radius12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.2),
+                    blurRadius: 8,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: const Icon(
+                      Icons.card_giftcard,
+                      color: Colors.white,
+                      size: 24,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '🎁 Получи подарок!',
+                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          'Приведи друга и получи \$1,000!',
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Colors.white.withOpacity(0.9),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Icon(
+                    Icons.close,
+                    color: Colors.white.withOpacity(0.7),
+                    size: 20,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    overlay.insert(overlayEntry);
+
+    // Auto remove after 5 seconds
+    Future.delayed(const Duration(seconds: 5), () {
+      if (overlayEntry.mounted) {
+        overlayEntry.remove();
+      }
+    });
+  }
+
+  void _showReferralDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(BankingTokens.radius16),
+          ),
+          child: Container(
+            padding: const EdgeInsets.all(BankingTokens.space24),
+            constraints: const BoxConstraints(maxWidth: 400),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 80,
+                  height: 80,
+                  decoration: BoxDecoration(
+                    color: BankingColors.primary100,
+                    borderRadius: BorderRadius.circular(40),
+                  ),
+                  child: Icon(
+                    Icons.card_giftcard,
+                    color: BankingColors.primary500,
+                    size: 40,
+                  ),
+                ),
+                const SizedBox(height: BankingTokens.space16),
+                Text(
+                  'Приведи друга и получи \$1,000!',
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: BankingColors.primary500,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: BankingTokens.space16),
+                Text(
+                  'Отправь другу эту ссылку. Если он оформит карту в нашем приложении, ты получишь \$1,000 на свой счет!',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: BankingTokens.space24),
+                Container(
+                  padding: const EdgeInsets.all(BankingTokens.space12),
+                  decoration: BoxDecoration(
+                    color: BankingColors.neutral100,
+                    borderRadius: BorderRadius.circular(BankingTokens.radius8),
+                    border: Border.all(color: BankingColors.neutral300),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          'https://banki2.app/referral?user=${context.read<AppState>().userName}',
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            fontFamily: 'monospace',
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () {
+                          // TODO: Copy to clipboard
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Ссылка скопирована!')),
+                          );
+                        },
+                        icon: const Icon(Icons.copy),
+                        iconSize: 20,
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: BankingTokens.space24),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        child: const Text('Позже'),
+                      ),
+                    ),
+                    const SizedBox(width: BankingTokens.space12),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          // TODO: Share link
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Ссылка отправлена!')),
+                          );
+                          Navigator.of(context).pop();
+                        },
+                        child: const Text('Отправить'),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   void _navigateToProfile() {
