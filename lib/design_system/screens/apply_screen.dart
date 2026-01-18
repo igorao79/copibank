@@ -27,6 +27,7 @@ class _ApplyScreenState extends State<ApplyScreen>
   late Animation<double> _fadeAnimation;
   late AnimationController _notificationController;
   late Animation<double> _notificationAnimation;
+  OverlayEntry? _currentNotificationOverlay;
 
   @override
   void initState() {
@@ -58,6 +59,10 @@ class _ApplyScreenState extends State<ApplyScreen>
 
   @override
   void dispose() {
+    // Удаляем overlay уведомления при уходе со страницы
+    _currentNotificationOverlay?.remove();
+    _currentNotificationOverlay = null;
+
     _fadeController.dispose();
     _notificationController.dispose();
     super.dispose();
@@ -93,7 +98,7 @@ class _ApplyScreenState extends State<ApplyScreen>
               ],
             ),
           ),
-          backgroundColor: Colors.transparent,
+          backgroundColor: isDark ? BankingColors.neutral800 : Colors.white,
           elevation: 0,
           actions: [
             IconButton(
@@ -253,14 +258,14 @@ class _ApplyScreenState extends State<ApplyScreen>
                 const SizedBox(height: BankingTokens.space24),
 
                 Text(
-                  'Выберите продукт для оформления',
+                  localizations.selectProduct,
                   style: Theme.of(context).textTheme.titleLarge,
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: BankingTokens.space24),
 
                 Text(
-                  'Карты и платежные средства',
+                  localizations.cardsAndPaymentMeans,
                   style: BankingTypography.heading3,
                   textAlign: TextAlign.left,
                 ),
@@ -271,7 +276,7 @@ class _ApplyScreenState extends State<ApplyScreen>
                     horizontal: BankingTokens.space8,
                   ),
                   child: _buildFullWidthProductButton(
-                    title: 'Дебетовая карта',
+                    title: localizations.debitCard,
                     description:
                         'Бесплатное обслуживание • Кэшбэк до 5% • Международные платежи',
                     icon: Icons.credit_card,
@@ -288,7 +293,7 @@ class _ApplyScreenState extends State<ApplyScreen>
                     horizontal: BankingTokens.space8,
                   ),
                   child: _buildFullWidthProductButton(
-                    title: 'Кредитная карта',
+                    title: localizations.creditCard,
                     description:
                         'Льготный период до 120 дней • Кредитный лимит до 500 000 ₽ • Беспроцентный период',
                     icon: Icons.credit_card,
@@ -305,7 +310,7 @@ class _ApplyScreenState extends State<ApplyScreen>
                     horizontal: BankingTokens.space8,
                   ),
                   child: _buildFullWidthProductButton(
-                    title: 'Платежный стикер',
+                    title: localizations.paymentSticker,
                     description:
                         'Бесконтактная оплата • Привязка к карте • Мгновенные платежи',
                     icon: Icons.sticky_note_2,
@@ -324,7 +329,7 @@ class _ApplyScreenState extends State<ApplyScreen>
                 ),
 
                 Text(
-                  'Накопительные продукты',
+                  localizations.savingsProducts,
                   style: BankingTypography.heading3,
                   textAlign: TextAlign.left,
                 ),
@@ -335,7 +340,7 @@ class _ApplyScreenState extends State<ApplyScreen>
                     horizontal: BankingTokens.space8,
                   ),
                   child: _buildFullWidthProductButton(
-                    title: 'Накопительный счет',
+                    title: localizations.savingsAccount,
                     description:
                         '5% годовых • Накопление сбережений • Без комиссий',
                     icon: Icons.savings,
@@ -358,7 +363,7 @@ class _ApplyScreenState extends State<ApplyScreen>
                       border: Border.all(color: BankingColors.warning200),
                     ),
                     child: Text(
-                      'Для оформления платежного стикера необходимо иметь хотя бы одну карту',
+                      localizations.noCardsForSticker,
                       style: Theme.of(context).textTheme.labelSmall!.copyWith(
                         color: isDark
                             ? BankingColors.warning200
@@ -611,6 +616,7 @@ class _ApplyScreenState extends State<ApplyScreen>
   }
 
   void _onDebitCardAccepted(BuildContext context, AppState appState) {
+    final localizations = AppLocalizations.of(context)!;
     final cardNumber = _generateCardNumber();
     final expireDate = _generateExpireDate();
     final cvc = _generateCVC();
@@ -642,7 +648,7 @@ class _ApplyScreenState extends State<ApplyScreen>
     _saveCardToSharedPreferences(newAccount);
 
     Navigator.of(context).pop();
-    _showSuccessModal(context, 'Дебетовая карта оформлена!', 'debit_card');
+        _showSuccessModal(context, localizations.debitCard + ' оформлена!', 'debit_card');
 
     if (isFirstCard) {
       print('DEBUG: First card added, showing referral notification');
@@ -685,6 +691,7 @@ class _ApplyScreenState extends State<ApplyScreen>
   }
 
   void _onCreditCardAccepted(BuildContext context, AppState appState) {
+    final localizations = AppLocalizations.of(context)!;
     final cardNumber = _generateCardNumber();
     final expireDate = _generateExpireDate();
     final cvc = _generateCVC();
@@ -714,10 +721,11 @@ class _ApplyScreenState extends State<ApplyScreen>
     _saveCardToSharedPreferences(newAccount);
 
     Navigator.of(context).pop();
-    _showSuccessModal(context, 'Кредитная карта оформлена!', 'credit_card');
+        _showSuccessModal(context, localizations.creditCard + ' оформлена!', 'credit_card');
   }
 
   void _onPaymentStickerAccepted(BuildContext context, AppState appState) {
+    final localizations = AppLocalizations.of(context)!;
     final availableCards = appState.accounts
         .where((account) => !account.hasSticker)
         .toList();
@@ -728,7 +736,7 @@ class _ApplyScreenState extends State<ApplyScreen>
 
       final stickerNotification = NotificationItem(
         id: 'sticker_${DateTime.now().millisecondsSinceEpoch}',
-        title: 'Платежный стикер оформлен!',
+        title: localizations.applySticker + ' оформлен!',
         message: 'Стикер успешно привязан к вашей карте',
         timestamp: DateTime.now(),
         type: NotificationType.transaction,
@@ -745,10 +753,7 @@ class _ApplyScreenState extends State<ApplyScreen>
       Navigator.of(context).pop();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            AppLocalizations.of(context)?.noCardsForSticker ??
-                'Нет доступных карт для привязки стикера. Сначала оформите карту.',
-          ),
+          content: Text(localizations.noCardsForSticker),
           backgroundColor: Colors.orange,
         ),
       );
@@ -779,10 +784,16 @@ class _ApplyScreenState extends State<ApplyScreen>
   // ✅ РЕФЕРАЛЬНОЕ УВЕДОМЛЕНИЕ
   void _showReferralNotification() {
     print('DEBUG: _showReferralNotification called');
-    final overlay = Overlay.of(context);
-    late OverlayEntry overlayEntry;
+    final localizations = AppLocalizations.of(context)!;
 
-    overlayEntry = OverlayEntry(
+    // Удаляем предыдущее уведомление если оно существует
+    _currentNotificationOverlay?.remove();
+    _currentNotificationOverlay = null;
+
+    if (!mounted) return;
+
+    final overlay = Overlay.of(context);
+    _currentNotificationOverlay = OverlayEntry(
       builder: (context) => Positioned(
         top: MediaQuery.of(context).padding.top + 60,
         left: 16,
@@ -795,7 +806,9 @@ class _ApplyScreenState extends State<ApplyScreen>
               color: Colors.transparent,
               child: GestureDetector(
                 onTap: () {
-                  _hideReferralNotification(overlayEntry);
+                  if (_currentNotificationOverlay != null) {
+                    _hideReferralNotification(_currentNotificationOverlay!);
+                  }
                   _showReferralDialog();
                 },
                 child: Container(
@@ -831,25 +844,29 @@ class _ApplyScreenState extends State<ApplyScreen>
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              '🎁 Получи подарок!',
-                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Text(
-                              'Приведи друга и получи \$1,000!',
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: Colors.white.withOpacity(0.9),
-                              ),
-                            ),
+                        Text(
+                          localizations.getGift,
+                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          localizations.inviteFriend,
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Colors.white.withOpacity(0.9),
+                          ),
+                        ),
                           ],
                         ),
                       ),
                       // Кнопка закрыть с увеличенной областью клика
                       GestureDetector(
-                        onTap: () => _hideReferralNotification(overlayEntry),
+                        onTap: () {
+                          if (_currentNotificationOverlay != null) {
+                            _hideReferralNotification(_currentNotificationOverlay!);
+                          }
+                        },
                         child: Container(
                           padding: const EdgeInsets.all(8),
                           child: Icon(
@@ -869,12 +886,12 @@ class _ApplyScreenState extends State<ApplyScreen>
       ),
     );
 
-    overlay.insert(overlayEntry);
+    overlay.insert(_currentNotificationOverlay!);
     _notificationController.forward();
 
     Future.delayed(const Duration(seconds: 5), () {
-      if (overlayEntry.mounted) {
-        _hideReferralNotification(overlayEntry);
+      if (_currentNotificationOverlay != null && _currentNotificationOverlay!.mounted && mounted) {
+        _hideReferralNotification(_currentNotificationOverlay!);
       }
     });
   }
@@ -883,6 +900,7 @@ class _ApplyScreenState extends State<ApplyScreen>
     _notificationController.reverse().then((_) {
       if (overlayEntry.mounted) {
         overlayEntry.remove();
+        _currentNotificationOverlay = null;
       }
     });
   }
@@ -890,6 +908,7 @@ class _ApplyScreenState extends State<ApplyScreen>
   // ✅ РЕФЕРАЛЬНЫЙ ДИАЛОГ
   void _showReferralDialog() {
     final appState = context.read<AppState>();
+    final localizations = AppLocalizations.of(context)!;
 
     showDialog(
       context: context,
@@ -919,7 +938,7 @@ class _ApplyScreenState extends State<ApplyScreen>
                 ),
                 const SizedBox(height: BankingTokens.space16),
                 Text(
-                  'Приведи друга и получи \$1,000!',
+                  localizations.inviteFriend,
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: BankingColors.primary500,
@@ -953,7 +972,7 @@ class _ApplyScreenState extends State<ApplyScreen>
                       IconButton(
                         onPressed: () {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Ссылка скопирована!')),
+                            SnackBar(content: Text(localizations.linkCopied)),
                           );
                         },
                         icon: const Icon(Icons.copy),
@@ -968,7 +987,7 @@ class _ApplyScreenState extends State<ApplyScreen>
                     Expanded(
                       child: OutlinedButton(
                         onPressed: () => Navigator.of(context).pop(),
-                        child: const Text('Позже'),
+                        child: Text(localizations.later),
                       ),
                     ),
                     const SizedBox(width: BankingTokens.space12),
@@ -976,11 +995,11 @@ class _ApplyScreenState extends State<ApplyScreen>
                       child: ElevatedButton(
                         onPressed: () {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Ссылка отправлена!')),
+                            SnackBar(content: Text(localizations.linkSent)),
                           );
                           Navigator.of(context).pop();
                         },
-                        child: const Text('Отправить'),
+                        child: Text(localizations.send),
                       ),
                     ),
                   ],

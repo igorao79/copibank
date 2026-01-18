@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'dart:async';
 import '../foundation/colors.dart';
@@ -8,6 +9,7 @@ import '../foundation/tokens.dart';
 import '../components/buttons.dart';
 import '../components/svg_background.dart';
 import '../utils/app_state.dart';
+import '../utils/assets_constants.dart';
 import '../../l10n/app_localizations.dart';
 
 class TransferScreen extends StatefulWidget {
@@ -22,13 +24,23 @@ class TransferScreen extends StatefulWidget {
 class _TransferScreenState extends State<TransferScreen> with TickerProviderStateMixin {
   late AnimationController _fadeController;
   late Animation<double> _fadeAnimation;
+  late AppLocalizations localizations;
 
   TransferUser? _selectedUser;
   Account? _selectedAccount;
+  String? _selectedBank;
   final TextEditingController _amountController = TextEditingController();
   final TextEditingController _commentController = TextEditingController();
   bool _isProcessing = false;
   String? _amountError;
+
+  // Список банков для выбора
+  final List<String> _availableBanks = [
+    'Copibank',
+    'Сбербанк',
+    'Альфа Банк',
+    'ВТБ',
+  ];
 
   @override
   void initState() {
@@ -46,6 +58,9 @@ class _TransferScreenState extends State<TransferScreen> with TickerProviderStat
     if (widget.selectedAccount != null) {
       _selectedAccount = widget.selectedAccount;
     }
+
+    // Set default bank
+    _selectedBank = _availableBanks[0];
 
     // Add listener for amount validation
     _amountController.addListener(_validateAmount);
@@ -70,18 +85,142 @@ class _TransferScreenState extends State<TransferScreen> with TickerProviderStat
         _amountError = null;
       });
     }
+    // Обновляем состояние кнопки при изменении суммы
+    setState(() {});
   }
 
   void _onUserSelected(TransferUser user) {
     setState(() {
       _selectedUser = user;
+      // Пересчитываем валидность кнопки
     });
   }
 
   void _onAccountSelected(Account account) {
     setState(() {
       _selectedAccount = account;
+      // Пересчитываем валидность кнопки и очищаем ошибку суммы если она была
+      _amountError = null;
     });
+    // Пересчитываем ошибку суммы для новой карты
+    _validateAmount();
+  }
+
+  void _onBankSelected(String bank) {
+    setState(() {
+      _selectedBank = bank;
+    });
+  }
+
+  String _getBankLogo(String bank) {
+    switch (bank) {
+      case 'Copibank':
+        return WebpAssets.logoBank;
+      case 'Альфа Банк':
+        return BankAssets.alfa;
+      case 'Сбербанк':
+        return BankAssets.sber;
+      case 'ВТБ':
+        return BankAssets.vtb;
+      default:
+        return WebpAssets.logoBank; // fallback
+    }
+  }
+
+  void _showBankSelectionDialog() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(BankingTokens.radius16)),
+      ),
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(BankingTokens.space24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Выберите банк получателя',
+              style: BankingTypography.bodyLarge.copyWith(
+                fontWeight: FontWeight.w600,
+                color: BankingColors.neutral900,
+              ),
+            ),
+            const SizedBox(height: BankingTokens.space24),
+            ..._availableBanks.map((bank) {
+              final isSelected = _selectedBank == bank;
+              return GestureDetector(
+                onTap: () {
+                  _onBankSelected(bank);
+                  Navigator.of(context).pop();
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(BankingTokens.space16),
+                  margin: const EdgeInsets.only(bottom: BankingTokens.space8),
+                  decoration: BoxDecoration(
+                    color: isSelected ? BankingColors.primary50 : BankingColors.neutral50,
+                    border: Border.all(
+                      color: isSelected ? BankingColors.primary500 : BankingColors.neutral300,
+                      width: isSelected ? 2 : 1,
+                    ),
+                    borderRadius: BorderRadius.circular(BankingTokens.radius8),
+                  ),
+                  child: Row(
+                    children: [
+                      // Bank logo
+                      Container(
+                        width: 32,
+                        height: 32,
+                        child: Image.asset(
+                          _getBankLogo(bank),
+                          fit: BoxFit.contain,
+                        ),
+                      ),
+                      const SizedBox(width: BankingTokens.space12),
+                      Expanded(
+                        child: Text(
+                          bank,
+                          style: BankingTypography.bodyRegular.copyWith(
+                            fontWeight: FontWeight.w600,
+                            color: BankingColors.neutral900,
+                          ),
+                        ),
+                      ),
+                      if (isSelected)
+                        Icon(
+                          Icons.check_circle,
+                          color: BankingColors.primary500,
+                          size: 24,
+                        ),
+                    ],
+                  ),
+                ),
+              );
+            }).toList(),
+            const SizedBox(height: BankingTokens.space16),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () => Navigator.of(context).pop(),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: BankingColors.neutral100,
+                  foregroundColor: BankingColors.neutral700,
+                  padding: const EdgeInsets.symmetric(vertical: BankingTokens.space16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(BankingTokens.radius8),
+                  ),
+                ),
+                child: Text(
+                  'Отмена',
+                  style: BankingTypography.button,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   bool _validateTransfer() {
@@ -118,6 +257,24 @@ class _TransferScreenState extends State<TransferScreen> with TickerProviderStat
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(AppLocalizations.of(context)?.insufficientCardFunds ?? 'Недостаточно средств на карте')),
       );
+      return false;
+    }
+
+    return true;
+  }
+
+  bool _canTransfer() {
+    // Проверяем базовые условия для активации кнопки
+    if (_selectedUser == null || _selectedAccount == null) {
+      return false;
+    }
+
+    if (_selectedAccount!.type != 'debit_card') {
+      return false;
+    }
+
+    final amount = double.tryParse(_amountController.text.replaceAll(',', '.'));
+    if (amount == null || amount <= 0 || amount > _selectedAccount!.balance) {
       return false;
     }
 
@@ -174,7 +331,7 @@ class _TransferScreenState extends State<TransferScreen> with TickerProviderStat
                     ),
                     const SizedBox(height: BankingTokens.space16),
                     Text(
-                      'Перевод успешно совершен',
+                      localizations.success,
                       style: BankingTypography.bodyLarge.copyWith(
                         fontWeight: FontWeight.w600,
                         color: BankingColors.neutral900,
@@ -314,6 +471,7 @@ class _TransferScreenState extends State<TransferScreen> with TickerProviderStat
   @override
   Widget build(BuildContext context) {
     final appState = context.watch<AppState>();
+    localizations = AppLocalizations.of(context)!;
 
     return Scaffold(
       body: SvgBackground(
@@ -336,11 +494,20 @@ class _TransferScreenState extends State<TransferScreen> with TickerProviderStat
                     const SizedBox(width: BankingTokens.space16),
                     Expanded(
                       child: Text(
-                        'Перевод денег',
+                        localizations.transferMoney,
                         style: BankingTypography.bodyLarge.copyWith(
                           fontWeight: FontWeight.w600,
                           color: BankingColors.neutral900,
                         ),
+                      ),
+                    ),
+                    // SBP Logo в правой части
+                    Container(
+                      width: 60,
+                      height: 32,
+                      child: SvgPicture.asset(
+                        SvgAssets.sbpLogo,
+                        fit: BoxFit.contain,
                       ),
                     ),
                   ],
@@ -358,7 +525,7 @@ class _TransferScreenState extends State<TransferScreen> with TickerProviderStat
                       children: [
                         // User Selection
                         Text(
-                          'Выберите получателя',
+                          localizations.selectRecipient,
                           style: BankingTypography.bodyLarge.copyWith(
                             fontWeight: FontWeight.w600,
                             color: BankingColors.neutral900,
@@ -428,7 +595,7 @@ class _TransferScreenState extends State<TransferScreen> with TickerProviderStat
 
                         // Account Selection
                         Text(
-                          'Выберите карту',
+                          localizations.selectCard,
                           style: BankingTypography.bodyLarge.copyWith(
                             fontWeight: FontWeight.w600,
                             color: BankingColors.neutral900,
@@ -521,9 +688,63 @@ class _TransferScreenState extends State<TransferScreen> with TickerProviderStat
 
                         const SizedBox(height: BankingTokens.space32),
 
+                        // Bank Selection
+                        Text(
+                          localizations.bankRecipient,
+                          style: BankingTypography.bodyLarge.copyWith(
+                            fontWeight: FontWeight.w600,
+                            color: BankingColors.neutral900,
+                          ),
+                        ),
+                        const SizedBox(height: BankingTokens.space16),
+
+                        GestureDetector(
+                          onTap: () => _showBankSelectionDialog(),
+                          child: Container(
+                            padding: const EdgeInsets.all(BankingTokens.space16),
+                            decoration: BoxDecoration(
+                              color: BankingColors.neutral50,
+                              border: Border.all(
+                                color: BankingColors.neutral300,
+                                width: 1,
+                              ),
+                              borderRadius: BorderRadius.circular(BankingTokens.radius8),
+                            ),
+                            child: Row(
+                              children: [
+                                // Bank logo
+                                Container(
+                                  width: 32,
+                                  height: 32,
+                                  child: Image.asset(
+                                    _getBankLogo(_selectedBank!),
+                                    fit: BoxFit.contain,
+                                  ),
+                                ),
+                                const SizedBox(width: BankingTokens.space12),
+                                Expanded(
+                                  child: Text(
+                                    _selectedBank!,
+                                    style: BankingTypography.bodyRegular.copyWith(
+                                      fontWeight: FontWeight.w600,
+                                      color: BankingColors.neutral900,
+                                    ),
+                                  ),
+                                ),
+                                Icon(
+                                  Icons.arrow_drop_down,
+                                  color: BankingColors.neutral600,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: BankingTokens.space32),
+
                         // Amount Input
                         Text(
-                          'Сумма перевода',
+                          localizations.transferAmount,
                           style: BankingTypography.bodyLarge.copyWith(
                             fontWeight: FontWeight.w600,
                             color: BankingColors.neutral900,
@@ -570,7 +791,7 @@ class _TransferScreenState extends State<TransferScreen> with TickerProviderStat
 
                         // Comment Input
                         Text(
-                          'Комментарий (необязательно)',
+                          localizations.commentOptional,
                           style: BankingTypography.bodyLarge.copyWith(
                             fontWeight: FontWeight.w600,
                             color: BankingColors.neutral900,
@@ -601,14 +822,14 @@ class _TransferScreenState extends State<TransferScreen> with TickerProviderStat
                           children: [
                             Expanded(
                               child: BankingButtons.primary(
-                                text: _isProcessing ? 'Выполняется...' : 'Перевести',
-                                onPressed: _isProcessing ? null : _processTransfer,
+                                text: _isProcessing ? localizations.processing : localizations.transfer,
+                                onPressed: (_isProcessing || !_canTransfer()) ? null : _processTransfer,
                               ),
                             ),
                             const SizedBox(width: BankingTokens.space16),
                             Expanded(
                               child: BankingButtons.secondary(
-                                text: 'Получить перевод',
+                                text: localizations.receiveTransfer,
                                 onPressed: _isProcessing ? null : _receiveRandomTransfer,
                               ),
                             ),

@@ -243,6 +243,38 @@ class AppLocalizations {
       'logout': 'Выйти из аккаунта',
       'logoutConfirmation': 'Вы уверены, что хотите выйти из аккаунта?',
       'loggedOut': 'Вы вышли из аккаунта',
+      'selectProduct': 'Выберите продукт для оформления',
+      'cardsAndPaymentMeans': 'Карты и платежные средства',
+      'debitCard': 'Дебетовая карта',
+      'paymentSticker': 'Платежный стикер',
+      'savingsProducts': 'Накопительные продукты',
+      'savingsAccount': 'Накопительный счет',
+      'myCards': 'Мои карты',
+      'myCashback': 'Мой кэшбэк',
+      'bankRecipient': 'Банк получателя',
+      'transferAmount': 'Сумма перевода',
+      'commentOptional': 'Комментарий (необязательно)',
+      'transferMoney': 'Перевод денег',
+      'processing': 'Выполняется...',
+      'receiveTransfer': 'Получить перевод',
+      'success': 'Успех!',
+      'transferCompleted': 'Перевод успешно совершен',
+      'getGift': '🎁 Получи подарок!',
+      'inviteFriend': 'Приведи друга и получи \$1,000!',
+      'pinReset': 'Сброс PIN-кода',
+      'enterNewPin': 'Введите новый 4-значный PIN-код',
+      'createPin': 'Создайте PIN-код',
+      'confirmPin': 'Подтвердите PIN-код',
+      'enterPin': 'Введите PIN-код',
+      'repeatPin': 'Повторите введенный PIN-код',
+      'protectAccount': 'Придумайте 4-значный PIN-код для защиты аккаунта',
+      'enterPinToLogin': 'Введите ваш PIN-код для входа',
+      'forgotPin': 'Забыл PIN-код',
+      'wrongPin': 'Неверный PIN-код',
+      'attemptsLeft': 'осталось попыток',
+      'tooManyAttempts': 'Слишком много неудачных попыток',
+      'tryAgainIn': 'Повторите через',
+      'seconds': 'сек.',
     },
   };
 
@@ -360,6 +392,42 @@ class AppLocalizations {
   String get logout => _localizedValues[locale.languageCode]?['logout'] ?? 'Logout';
   String get logoutConfirmation => _localizedValues[locale.languageCode]?['logoutConfirmation'] ?? 'Are you sure you want to log out?';
   String get loggedOut => _localizedValues[locale.languageCode]?['loggedOut'] ?? 'You have been logged out';
+
+  // Additional localization keys
+  String get selectProduct => _localizedValues[locale.languageCode]?['selectProduct'] ?? 'Выберите продукт для оформления';
+  String get cardsAndPaymentMeans => _localizedValues[locale.languageCode]?['cardsAndPaymentMeans'] ?? 'Карты и платежные средства';
+  String get paymentSticker => _localizedValues[locale.languageCode]?['paymentSticker'] ?? 'Платежный стикер';
+  String get savingsProducts => _localizedValues[locale.languageCode]?['savingsProducts'] ?? 'Накопительные продукты';
+  String get myCards => _localizedValues[locale.languageCode]?['myCards'] ?? 'Мои карты';
+  String get myCashback => _localizedValues[locale.languageCode]?['myCashback'] ?? 'Мой кэшбэк';
+  String get bankRecipient => _localizedValues[locale.languageCode]?['bankRecipient'] ?? 'Банк получателя';
+  String get transferAmount => _localizedValues[locale.languageCode]?['transferAmount'] ?? 'Сумма перевода';
+  String get commentOptional => _localizedValues[locale.languageCode]?['commentOptional'] ?? 'Комментарий (необязательно)';
+  String get transferMoney => _localizedValues[locale.languageCode]?['transferMoney'] ?? 'Перевод денег';
+  String get processing => _localizedValues[locale.languageCode]?['processing'] ?? 'Выполняется...';
+  String get receiveTransfer => _localizedValues[locale.languageCode]?['receiveTransfer'] ?? 'Получить перевод';
+  String get success => _localizedValues[locale.languageCode]?['success'] ?? 'Успех!';
+  String get transferCompleted => _localizedValues[locale.languageCode]?['transferCompleted'] ?? 'Перевод успешно совершен';
+  String get getGift => _localizedValues[locale.languageCode]?['getGift'] ?? '🎁 Получи подарок!';
+  String get inviteFriend => _localizedValues[locale.languageCode]?['inviteFriend'] ?? 'Приведи друга и получи \$1,000!';
+  String get pinReset => _localizedValues[locale.languageCode]?['pinReset'] ?? 'Сброс PIN-кода';
+  String get enterNewPin => _localizedValues[locale.languageCode]?['enterNewPin'] ?? 'Введите новый 4-значный PIN-код';
+  String get createPin => _localizedValues[locale.languageCode]?['createPin'] ?? 'Создайте PIN-код';
+  String get confirmPin => _localizedValues[locale.languageCode]?['confirmPin'] ?? 'Подтвердите PIN-код';
+  String get enterPin => _localizedValues[locale.languageCode]?['enterPin'] ?? 'Введите PIN-код';
+  String get repeatPin => _localizedValues[locale.languageCode]?['repeatPin'] ?? 'Повторите введенный PIN-код';
+  String get protectAccount => _localizedValues[locale.languageCode]?['protectAccount'] ?? 'Придумайте 4-значный PIN-код для защиты аккаунта';
+  String get enterPinToLogin => _localizedValues[locale.languageCode]?['enterPinToLogin'] ?? 'Введите ваш PIN-код для входа';
+  String get forgotPin => _localizedValues[locale.languageCode]?['forgotPin'] ?? 'Забыл PIN-код';
+  String get wrongPin => _localizedValues[locale.languageCode]?['wrongPin'] ?? 'Неверный PIN-код';
+  String get attemptsLeft => _localizedValues[locale.languageCode]?['attemptsLeft'] ?? 'осталось попыток';
+  String get tooManyAttempts => _localizedValues[locale.languageCode]?['tooManyAttempts'] ?? 'Слишком много неудачных попыток';
+  String get tryAgainIn => _localizedValues[locale.languageCode]?['tryAgainIn'] ?? 'Повторите через';
+  String get seconds => _localizedValues[locale.languageCode]?['seconds'] ?? 'сек.';
+
+  // Additional getters for UI elements
+  String get debitCard => _localizedValues[locale.languageCode]?['debitCard'] ?? 'Дебетовая карта';
+  String get savingsAccount => _localizedValues[locale.languageCode]?['savingsAccount'] ?? 'Накопительный счет';
 
   String getTransactionTitle(String key) {
     return _localizedValues[locale.languageCode]?[key] ?? key;

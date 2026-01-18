@@ -82,7 +82,7 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
               ),
             ],
           ),
-          backgroundColor: Colors.transparent,
+          backgroundColor: isDark ? BankingColors.neutral800 : Colors.white,
           elevation: 0,
           actions: [
             IconButton(

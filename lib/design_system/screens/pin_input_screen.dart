@@ -3,6 +3,7 @@ import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:provider/provider.dart';
 import '../utils/app_state.dart';
 import '../foundation/colors.dart';
+import '../../l10n/app_localizations.dart';
 
 class PinInputScreen extends StatefulWidget {
   final bool isSetupMode; // true для установки PIN, false для входа
@@ -92,7 +93,7 @@ class _PinInputScreenState extends State<PinInputScreen> {
           }
         } else {
           setState(() {
-            _errorMessage = 'PIN-коды не совпадают. Попробуйте снова.';
+            _errorMessage = AppLocalizations.of(context)?.passwordsDontMatch ?? 'PIN-коды не совпадают. Попробуйте снова.';
             _enteredPin = '';
             _pinController.clear();
             _isConfirming = false;
@@ -106,6 +107,9 @@ class _PinInputScreenState extends State<PinInputScreen> {
       }
 
       if (appState.verifyPinCode(value)) {
+        setState(() {
+          _errorMessage = null; // Очищаем сообщение об ошибке при успешном вводе
+        });
         if (mounted) {
           if (widget.onSuccess != null) {
             widget.onSuccess!.call();
@@ -120,14 +124,14 @@ class _PinInputScreenState extends State<PinInputScreen> {
           setState(() {
             _isLocked = true;
             _lockoutTime = 30;
-            _errorMessage = 'Слишком много неудачных попыток. Повторите через 30 секунд.';
+            _errorMessage = '${AppLocalizations.of(context)?.tooManyAttempts ?? 'Слишком много неудачных попыток'}. ${AppLocalizations.of(context)?.tryAgainIn ?? 'Повторите через'} 30 ${AppLocalizations.of(context)?.seconds ?? 'сек.'}.';
             _enteredPin = '';
             _pinController.clear();
           });
           _startLockoutTimer();
         } else {
           setState(() {
-            _errorMessage = 'Неверный PIN-код. Осталось попыток: ${3 - _failedAttempts}';
+            _errorMessage = '${AppLocalizations.of(context)?.wrongPin ?? 'Неверный PIN-код'}. ${AppLocalizations.of(context)?.attemptsLeft ?? 'Осталось попыток'}: ${3 - _failedAttempts}';
             _enteredPin = '';
             _pinController.clear();
           });
@@ -145,12 +149,12 @@ class _PinInputScreenState extends State<PinInputScreen> {
       barrierDismissible: false,
       builder: (dialogContext) => StatefulBuilder(
         builder: (context, setState) => AlertDialog(
-          title: const Text('Сброс PIN-кода'),
+          title: Text(AppLocalizations.of(context)?.pinReset ?? 'Сброс PIN-кода'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text(
-                'Введите новый 4-значный PIN-код',
+              Text(
+                AppLocalizations.of(context)?.enterNewPin ?? 'Введите новый 4-значный PIN-код',
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 16),
@@ -194,7 +198,7 @@ class _PinInputScreenState extends State<PinInputScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(),
-              child: const Text('Отмена'),
+              child: Text(AppLocalizations.of(context)?.cancel ?? 'Отмена'),
             ),
             TextButton(
               onPressed: () async {
@@ -208,7 +212,7 @@ class _PinInputScreenState extends State<PinInputScreen> {
                 Navigator.of(dialogContext).pop();
                 Navigator.of(context).pop(true); // Возвращаем успех
               },
-              child: const Text('Сохранить'),
+              child: Text(AppLocalizations.of(context)?.save ?? 'Сохранить'),
             ),
           ],
         ),
@@ -239,9 +243,9 @@ class _PinInputScreenState extends State<PinInputScreen> {
               Text(
                 widget.isSetupMode
                     ? (_isConfirming
-                        ? 'Подтвердите PIN-код'
-                        : 'Создайте PIN-код')
-                    : 'Введите PIN-код',
+                        ? (AppLocalizations.of(context)?.confirmPin ?? 'Подтвердите PIN-код')
+                        : (AppLocalizations.of(context)?.createPin ?? 'Создайте PIN-код'))
+                    : (AppLocalizations.of(context)?.enterPin ?? 'Введите PIN-код'),
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: isDark ? BankingColors.neutral0 : BankingColors.neutral900,
@@ -254,9 +258,9 @@ class _PinInputScreenState extends State<PinInputScreen> {
               Text(
                 widget.isSetupMode
                     ? (_isConfirming
-                        ? 'Повторите введенный PIN-код'
-                        : 'Придумайте 4-значный PIN-код для защиты аккаунта')
-                    : 'Введите ваш PIN-код для входа',
+                        ? (AppLocalizations.of(context)?.repeatPin ?? 'Повторите введенный PIN-код')
+                        : (AppLocalizations.of(context)?.protectAccount ?? 'Придумайте 4-значный PIN-код для защиты аккаунта'))
+                    : (AppLocalizations.of(context)?.enterPinToLogin ?? 'Введите ваш PIN-код для входа'),
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                       color: isDark ? BankingColors.neutral300 : BankingColors.neutral600,
                     ),
@@ -308,7 +312,7 @@ class _PinInputScreenState extends State<PinInputScreen> {
                 const SizedBox(height: 24),
                 Text(
                   _isLocked && _lockoutTime > 0
-                      ? '$_errorMessage\nОсталось: $_lockoutTime сек.'
+                      ? '$_errorMessage\n${AppLocalizations.of(context)?.tryAgainIn ?? 'Осталось'}: $_lockoutTime ${AppLocalizations.of(context)?.seconds ?? 'сек.'}.'
                       : _errorMessage!,
                   style: const TextStyle(
                     color: Colors.red,
@@ -325,7 +329,7 @@ class _PinInputScreenState extends State<PinInputScreen> {
                 TextButton(
                   onPressed: () => _showForgotPinDialog(context),
                   child: Text(
-                    'Забыл PIN-код',
+                    AppLocalizations.of(context)?.forgotPin ?? 'Забыл PIN-код',
                     style: TextStyle(
                       color: BankingColors.primary500,
                       fontSize: 16,

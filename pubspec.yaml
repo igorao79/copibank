@@ -94,7 +94,9 @@ flutter:
   assets:
     - assets/lottie/
     - assets/svg/
+    - assets/banks/
     - assets/logobank.png
+    - assets/logobank.webp
 
   fonts:
     - family: Iciel
