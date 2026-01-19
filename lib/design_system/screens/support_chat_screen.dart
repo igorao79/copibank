@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:provider/provider.dart';
 import '../foundation/colors.dart';
 import '../foundation/typography.dart';
@@ -570,21 +571,35 @@ class _SupportChatScreenState extends State<SupportChatScreen> with TickerProvid
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
-              ListTile(
-                leading: Icon(Icons.refresh, color: BankingColors.primary500),
-                title: Text(AppLocalizations.of(context)?.newChat ?? 'Start new chat', style: BankingTypography.bodyRegular),
-                onTap: () {
-                  Navigator.pop(context);
-                  _startNewChat();
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.history, color: BankingColors.primary500),
-                title: Text(AppLocalizations.of(context)?.chatHistory ?? 'Chat history', style: BankingTypography.bodyRegular),
-                onTap: () {
-                  Navigator.pop(context);
-                  // TODO: Show chat history
-                },
+              ...AnimationConfiguration.toStaggeredList(
+                duration: const Duration(milliseconds: 600),
+                childAnimationBuilder: (widget) => SlideAnimation(
+                  key: UniqueKey(),
+                  verticalOffset: 50.0,
+                  child: ScaleAnimation(
+                    key: UniqueKey(),
+                    scale: 0.8,
+                    child: FlipAnimation(key: UniqueKey(), child: widget),
+                  ),
+                ),
+                children: [
+                  ListTile(
+                    leading: Icon(Icons.refresh, color: BankingColors.primary500),
+                    title: Text(AppLocalizations.of(context)?.newChat ?? 'Start new chat', style: BankingTypography.bodyRegular),
+                    onTap: () {
+                      Navigator.pop(context);
+                      _startNewChat();
+                    },
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.history, color: BankingColors.primary500),
+                    title: Text(AppLocalizations.of(context)?.chatHistory ?? 'Chat history', style: BankingTypography.bodyRegular),
+                    onTap: () {
+                      Navigator.pop(context);
+                      // TODO: Show chat history
+                    },
+                  ),
+                ],
               ),
             ],
           ),

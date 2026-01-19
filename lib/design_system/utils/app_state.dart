@@ -158,6 +158,7 @@ class AppState extends ChangeNotifier {
   List<CashbackCategory> get selectedCashbackCategories => _allCashbackCategories
       .where((category) => _selectedCashbackCategoryIds.contains(category.id))
       .toList();
+  List<String> get selectedCashbackCategoryIds => _selectedCashbackCategoryIds;
   bool get hasSelectedCashbackCategories => _hasSelectedCashbackCategories;
 
   // Initialize data from SharedPreferences
@@ -270,7 +271,7 @@ class AppState extends ChangeNotifier {
       final defaultColor = cardType == 'credit_card' ? const Color(0xFF1565C0) : const Color(0xFF2196F3);
       final account = Account(
         id: cardId,
-        name: cardType == 'credit_card' ? 'Кредитная карта' : 'Дебетовая карта',
+        name: cardType == 'credit_card' ? 'credit_card' : 'debit_card',
         type: cardType,
         balance: balance, // ← Реальный баланс из SharedPreferences
         currency: 'USD',

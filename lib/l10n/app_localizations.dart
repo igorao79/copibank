@@ -244,6 +244,14 @@ class AppLocalizations {
       // Card and account descriptions
       'debitCardDescription': 'Free maintenance • Up to 5% cashback • International payments',
       'creditCardDescription': 'Up to 120 days grace period • Credit limit up to 500,000 ₽ • Interest-free period',
+      'debitType': 'Debit',
+      'creditType': 'Credit',
+      'cardType': 'Card type',
+      'debitCardText': 'debit card',
+      'creditCardText': 'credit card',
+      'paymentStickerText': 'payment sticker',
+      'your': 'Your',
+      'willBeReady': 'will be ready within 3-5 business days',
       'paymentStickerDescription': 'Contactless payments • Quick transactions • Secure and convenient',
       'savingsAccountDescription': '5% annual interest • Build savings • No fees',
 
@@ -269,6 +277,11 @@ class AppLocalizations {
       'noNewNotifications': 'No new notifications',
       'helpWithApp': 'Help with the application',
       'helloHowCanWeHelp': 'Hello! How can we help?',
+
+      // Dashboard actions
+      'setupCashback': 'Set up cashback',
+      'cashbackDescription': 'Select up to 3 categories and get cashback up to 5%',
+      'selectCategories': 'Select categories',
     },
     'ru': {
       'appTitle': 'Banki2 - Банковское приложение',
@@ -442,6 +455,14 @@ class AppLocalizations {
       // Card and account descriptions
       'debitCardDescription': 'Бесплатное обслуживание • Кэшбэк до 5% • Международные платежи',
       'creditCardDescription': 'Льготный период до 120 дней • Кредитный лимит до 500 000 ₽ • Беспроцентный период',
+      'debitType': 'Дебетовая',
+      'creditType': 'Кредитная',
+      'cardType': 'Тип карты',
+      'debitCardText': 'дебетовая карта',
+      'creditCardText': 'кредитная карта',
+      'paymentStickerText': 'платежный стикер',
+      'your': 'Ваша',
+      'willBeReady': 'будет готова в течение 3-5 рабочих дней',
       'paymentStickerDescription': 'Бесконтактная оплата • Быстрые транзакции • Безопасно и удобно',
       'savingsAccountDescription': '5% годовых • Накопление сбережений • Без комиссий',
 
@@ -467,6 +488,11 @@ class AppLocalizations {
       'noNewNotifications': 'Нет новых уведомлений',
       'helpWithApp': 'Помощь с приложением',
       'helloHowCanWeHelp': 'Здравствуйте! Как мы можем помочь?',
+
+      // Dashboard actions
+      'setupCashback': 'Настройте кэшбэк',
+      'cashbackDescription': 'Выберите до 3 категорий и получайте кэшбэк до 5%',
+      'selectCategories': 'Выбрать категории',
     },
   };
 
@@ -695,6 +721,14 @@ class AppLocalizations {
   // Card and account descriptions
   String get debitCardDescription => _localizedValues[locale.languageCode]?['debitCardDescription'] ?? 'Free maintenance • Up to 5% cashback • International payments';
   String get creditCardDescription => _localizedValues[locale.languageCode]?['creditCardDescription'] ?? 'Up to 120 days grace period • Credit limit up to 500,000 ₽ • Interest-free period';
+  String get debitType => _localizedValues[locale.languageCode]?['debitType'] ?? 'Debit';
+  String get creditType => _localizedValues[locale.languageCode]?['creditType'] ?? 'Credit';
+  String get cardType => _localizedValues[locale.languageCode]?['cardType'] ?? 'Card type';
+  String get debitCardText => _localizedValues[locale.languageCode]?['debitCardText'] ?? 'debit card';
+  String get creditCardText => _localizedValues[locale.languageCode]?['creditCardText'] ?? 'credit card';
+  String get paymentStickerText => _localizedValues[locale.languageCode]?['paymentStickerText'] ?? 'payment sticker';
+  String get your => _localizedValues[locale.languageCode]?['your'] ?? 'Your';
+  String get willBeReady => _localizedValues[locale.languageCode]?['willBeReady'] ?? 'will be ready within 3-5 business days';
   String get paymentStickerDescription => _localizedValues[locale.languageCode]?['paymentStickerDescription'] ?? 'Contactless payments • Quick transactions • Secure and convenient';
   String get savingsAccountDescription => _localizedValues[locale.languageCode]?['savingsAccountDescription'] ?? '5% annual interest • Build savings • No fees';
 
@@ -729,6 +763,11 @@ class AppLocalizations {
   String get noNewNotifications => _localizedValues[locale.languageCode]?['noNewNotifications'] ?? 'No new notifications';
   String get helpWithApp => _localizedValues[locale.languageCode]?['helpWithApp'] ?? 'Help with the application';
   String get helloHowCanWeHelp => _localizedValues[locale.languageCode]?['helloHowCanWeHelp'] ?? 'Hello! How can we help?';
+
+  // Dashboard actions
+  String get setupCashback => _localizedValues[locale.languageCode]?['setupCashback'] ?? 'Set up cashback';
+  String get cashbackDescription => _localizedValues[locale.languageCode]?['cashbackDescription'] ?? 'Select up to 3 categories and get cashback up to 5%';
+  String get selectCategories => _localizedValues[locale.languageCode]?['selectCategories'] ?? 'Select categories';
 
   // Additional getters for UI elements
   String get debitCard => _localizedValues[locale.languageCode]?['debitCard'] ?? 'Дебетовая карта';

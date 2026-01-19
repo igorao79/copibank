@@ -6,6 +6,7 @@ import '../foundation/typography.dart';
 import '../foundation/tokens.dart';
 import '../foundation/icons.dart';
 import '../components/buttons.dart';
+import '../components/svg_background.dart';
 import '../utils/app_state.dart';
 import '../../l10n/app_localizations.dart';
 import 'transfer_screen.dart';
@@ -74,8 +75,10 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> with TickerProvid
     final localizations = AppLocalizations.of(context)!;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Scaffold(
-      appBar: AppBar(
+    return SvgBackground(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(
         title: GestureDetector(
           onTap: () => _navigateToProfile(),
           child: Row(
@@ -98,6 +101,14 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> with TickerProvid
         backgroundColor: Colors.transparent,
         elevation: 0,
         actions: [
+          IconButton(
+            icon: Icon(
+              isDark ? Icons.light_mode : Icons.dark_mode,
+              color: BankingColors.primary500,
+            ),
+            onPressed: () => appState.toggleTheme(),
+            tooltip: 'Переключить тему',
+          ),
           Container(
             margin: const EdgeInsets.only(right: 8),
             child: appState.unreadNotificationsCount > 0
@@ -298,11 +309,11 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> with TickerProvid
         ],
       ),
       body: FadeTransition(
-        opacity: _fadeAnimation,
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(BankingTokens.screenHorizontalPadding),
-          child: Column(
-            children: [
+            opacity: _fadeAnimation,
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(BankingTokens.screenHorizontalPadding),
+              child: Column(
+                children: [
               const SizedBox(height: BankingTokens.space32),
 
               // Card Display with Flip Animation
@@ -465,7 +476,7 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> with TickerProvid
                     _buildInfoRow(AppLocalizations.of(context)?.cardNumber ?? 'Card number', _formatCardNumber(widget.account.cardNumber ?? '**** **** **** ****')),
                     _buildInfoRow('Срок действия', widget.account.expireDate ?? 'MM/YY'),
                     _buildCVCRow(),
-                    _buildInfoRow('Тип карты', widget.account.type == 'debit_card' ? 'Дебетовая' : 'Кредитная'),
+                    _buildInfoRow(localizations.cardType, widget.account.type == 'debit_card' ? localizations.debitType : localizations.creditType),
                     if (widget.account.hasSticker)
                       _buildInfoRow('Стикер', 'Привязан'),
                   ],
@@ -475,6 +486,7 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> with TickerProvid
           ),
         ),
       ),
+    ),
     );
   }
 

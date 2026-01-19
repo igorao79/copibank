@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:lottie/lottie.dart';
@@ -1639,11 +1640,11 @@ class _SuccessModalState extends State<SuccessModal>
 
                 if (widget.productType != 'deposit')
                   Text(
-                    'Ваша ${widget.productType == 'debit_card'
-                        ? 'дебетовая карта'
+                    '${AppLocalizations.of(context)?.your ?? 'Your'} ${widget.productType == 'debit_card'
+                        ? AppLocalizations.of(context)!.debitCardText
                         : widget.productType == 'credit_card'
-                        ? 'кредитная карта'
-                        : 'платежный стикер'} будет готова в течение 3-5 рабочих дней.',
+                        ? AppLocalizations.of(context)!.creditCardText
+                        : AppLocalizations.of(context)!.paymentStickerText} ${AppLocalizations.of(context)?.willBeReady ?? 'will be ready within 3-5 business days'}.',
                     style: BankingTypography.caption.copyWith(
                       color: isDark
                           ? BankingColors.neutral300
@@ -1719,51 +1720,62 @@ class _SavingsAccountApplicationModalState
           constraints: const BoxConstraints(maxWidth: 400),
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 80,
-                height: 80,
-                decoration: BoxDecoration(
-                  color: BankingColors.primary100,
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  Icons.savings,
-                  color: BankingColors.primary600,
-                  size: 40,
+            children: AnimationConfiguration.toStaggeredList(
+              duration: const Duration(milliseconds: 600),
+              childAnimationBuilder: (widget) => SlideAnimation(
+                key: UniqueKey(),
+                verticalOffset: 50.0,
+                child: ScaleAnimation(
+                  key: UniqueKey(),
+                  scale: 0.8,
+                  child: FlipAnimation(key: UniqueKey(), child: widget),
                 ),
               ),
-              const SizedBox(height: BankingTokens.space24),
-
-              Text(
-                'Накопительный счет',
-                style: BankingTypography.heading2.copyWith(
-                  color: isDark
-                      ? BankingColors.neutral100
-                      : BankingColors.neutral900,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: BankingTokens.space16),
-
-              Flexible(
-                child: SingleChildScrollView(
-                  child: Text(
-                    'Накопительный счет позволяет вам копить деньги под 5% годовых.\n\n'
-                    '• Процентная ставка: 5% годовых\n'
-                    '• Начисление процентов: ежемесячно\n'
-                    '• Снятие средств: в любое время\n'
-                    '• Минимальный взнос: от 100₽\n'
-                    '• Без комиссий за обслуживание\n\n'
-                    'Вы сможете пополнять счет и следить за ростом ваших сбережений.',
-                    textAlign: TextAlign.left,
-                    style: BankingTypography.bodyRegular,
+              children: [
+                Container(
+                  width: 80,
+                  height: 80,
+                  decoration: BoxDecoration(
+                    color: BankingColors.primary100,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.savings,
+                    color: BankingColors.primary600,
+                    size: 40,
                   ),
                 ),
-              ),
-              const SizedBox(height: BankingTokens.space32),
+                const SizedBox(height: BankingTokens.space24),
 
-              Row(
+                Text(
+                  'Накопительный счет',
+                  style: BankingTypography.heading2.copyWith(
+                    color: isDark
+                        ? BankingColors.neutral100
+                        : BankingColors.neutral900,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: BankingTokens.space16),
+
+                Flexible(
+                  child: SingleChildScrollView(
+                    child: Text(
+                      'Накопительный счет позволяет вам копить деньги под 5% годовых.\n\n'
+                      '• Процентная ставка: 5% годовых\n'
+                      '• Начисление процентов: ежемесячно\n'
+                      '• Снятие средств: в любое время\n'
+                      '• Минимальный взнос: от 100₽\n'
+                      '• Без комиссий за обслуживание\n\n'
+                      'Вы сможете пополнять счет и следить за ростом ваших сбережений.',
+                      textAlign: TextAlign.left,
+                      style: BankingTypography.bodyRegular,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: BankingTokens.space32),
+
+                Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   Expanded(
@@ -1814,7 +1826,8 @@ class _SavingsAccountApplicationModalState
                   ),
                 ],
               ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

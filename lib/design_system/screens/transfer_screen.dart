@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'dart:async';
@@ -149,7 +150,18 @@ class _TransferScreenState extends State<TransferScreen> with TickerProviderStat
               ),
             ),
             const SizedBox(height: BankingTokens.space24),
-            ..._availableBanks.map((bank) {
+            ...AnimationConfiguration.toStaggeredList(
+              duration: const Duration(milliseconds: 600),
+              childAnimationBuilder: (widget) => SlideAnimation(
+                key: UniqueKey(),
+                verticalOffset: 50.0,
+                child: ScaleAnimation(
+                  key: UniqueKey(),
+                  scale: 0.8,
+                  child: FlipAnimation(key: UniqueKey(), child: widget),
+                ),
+              ),
+              children: _availableBanks.map((bank) {
               final isSelected = _selectedBank == bank;
               return GestureDetector(
                 onTap: () {
@@ -201,7 +213,7 @@ class _TransferScreenState extends State<TransferScreen> with TickerProviderStat
                 ),
               );
             }).toList(),
-            const SizedBox(height: BankingTokens.space16),
+            ),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
@@ -609,7 +621,18 @@ class _TransferScreenState extends State<TransferScreen> with TickerProviderStat
                         const SizedBox(height: BankingTokens.space16),
 
                         // Debit Cards Only
-                        ...appState.accounts.where((account) => account.type == 'debit_card').map((account) {
+                        ...AnimationConfiguration.toStaggeredList(
+                          duration: const Duration(milliseconds: 600),
+                          childAnimationBuilder: (widget) => SlideAnimation(
+                            key: UniqueKey(),
+                            verticalOffset: 50.0,
+                            child: ScaleAnimation(
+                              key: UniqueKey(),
+                              scale: 0.8,
+                              child: FlipAnimation(key: UniqueKey(), child: widget),
+                            ),
+                          ),
+                          children: appState.accounts.where((account) => account.type == 'debit_card').map((account) {
                           final isSelected = _selectedAccount?.id == account.id;
 
                           return GestureDetector(
@@ -674,6 +697,7 @@ class _TransferScreenState extends State<TransferScreen> with TickerProviderStat
                             ),
                           );
                         }).toList(),
+                        ),
 
                         if (appState.accounts.where((account) => account.type == 'debit_card').isEmpty)
                           Container(
@@ -863,6 +887,8 @@ class _TransferScreenState extends State<TransferScreen> with TickerProviderStat
       final lastFour = cardNumber.replaceAll(' ', '').substring(cardNumber.replaceAll(' ', '').length - 4);
       return '•••• $lastFour';
     }
-    return account.name; // Fallback to account name
+    // Fallback to localized account name
+    final localizations = AppLocalizations.of(context)!;
+    return account.name == 'credit_card' ? localizations.creditCard : localizations.debitCard;
   }
 }

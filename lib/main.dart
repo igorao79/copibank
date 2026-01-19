@@ -36,12 +36,12 @@ class _BankingAppState extends State<BankingApp> {
   }
 
   Future<void> _initializeApp() async {
-    // Показываем splash screen минимум 3 секунды
-    await Future.delayed(const Duration(milliseconds: 3000));
-
-    // Инициализируем данные приложения
+    // СНАЧАЛА инициализируем AppState, чтобы загрузить тему
     await _appState.init();
     print('DEBUG: App initialization completed');
+
+    // ПОТОМ показываем splash screen с правильной темой минимум 3 секунды
+    await Future.delayed(const Duration(milliseconds: 3000));
 
     // Плавно скрываем splash screen
     if (mounted) {

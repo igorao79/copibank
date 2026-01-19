@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
+import '../foundation/colors.dart';
 import '../utils/assets_constants.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -54,7 +55,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF121212) : Colors.white,
+      backgroundColor: isDark ? BankingColors.neutral900 : Colors.white,
       body: Center(
         child: ScaleTransition(
           scale: _scaleAnimation,
@@ -79,7 +80,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                   style: TextStyle(
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
-                    color: isDark ? Colors.white : const Color(0xFF1A73E8), // Синий для светлой, белый для темной
+                    color: isDark ? BankingColors.neutral0 : const Color(0xFF1A73E8), // Синий для светлой, белый для темной
                     letterSpacing: 2,
                   ),
                 ),

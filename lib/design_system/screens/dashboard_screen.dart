@@ -941,7 +941,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          account.name,
+                          account.name == 'credit_card' ? localizations.creditCard : localizations.debitCard,
                           style: Theme.of(context).textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.w600,
                           ),
@@ -1013,14 +1013,14 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
             ],
           ),
           child: appState.hasSelectedCashbackCategories
-              ? _buildSelectedCashbackCategories(appState)
-              : _buildCashbackSetup(appState),
+              ? _buildSelectedCashbackCategories(appState, localizations)
+              : _buildCashbackSetup(appState, localizations),
         ),
       ],
     );
   }
 
-  Widget _buildCashbackSetup(AppState appState) {
+  Widget _buildCashbackSetup(AppState appState, AppLocalizations localizations) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Column(
       children: [
@@ -1044,7 +1044,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Настройте кэшбэк',
+                    localizations.setupCashback,
                   style: BankingTypography.bodyRegular.copyWith(
                     fontWeight: FontWeight.w600,
                     color: isDark ? BankingColors.neutral100 : BankingColors.neutral900,
@@ -1052,7 +1052,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                   ),
                   const SizedBox(height: BankingTokens.space4),
                   Text(
-                    'Выберите до 3 категорий и получайте кэшбэк до 5%',
+                    localizations.cashbackDescription,
                     style: BankingTypography.caption.copyWith(
                       color: isDark ? BankingColors.neutral400 : BankingColors.neutral600,
                     ),
@@ -1088,7 +1088,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
               ),
             ),
             child: Text(
-              'Выбрать категории',
+              localizations.selectCategories,
               style: BankingTypography.button,
             ),
           ),
@@ -1097,7 +1097,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
     );
   }
 
-  Widget _buildSelectedCashbackCategories(AppState appState) {
+  Widget _buildSelectedCashbackCategories(AppState appState, AppLocalizations localizations) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
