@@ -69,7 +69,6 @@ class AppLocalizations {
       'education': 'Education',
       'utilities': 'Utilities',
       'viewAllNotifications': 'View all notifications',
-      'welcomeMessage': 'Welcome!',
       'loginSuccess': 'You have successfully logged in',
       'notificationsHeader': 'Notifications',
       'unreadNotifications': 'unread notifications',
@@ -212,6 +211,7 @@ class AppLocalizations {
       'hoursAgo': 'hours ago',
       'minutesAgo': 'minutes ago',
       'justNow': 'just now',
+      'acceptTerms': 'I agree to the terms and conditions',
       'noDebitCardsForTransfer': 'You have no debit cards for transfers',
       'maximumAmount': 'Maximum amount',
       'personalInformation': 'Personal information',
@@ -234,6 +234,8 @@ class AppLocalizations {
 
       // Important bank messages
       'welcomeToBank': 'Welcome to Banki2!',
+      'welcomeTitle': 'Welcome!',
+      'welcomeMessage': 'You have successfully logged in',
       'accountSecured': 'Your account is now secured with PIN code',
       'newCardAvailable': 'New card is now available in your wallet',
       'paymentReceived': 'Payment received successfully',
@@ -300,6 +302,10 @@ class AppLocalizations {
       'today': 'Сегодня',
       'yesterday': 'Вчера',
       'daysAgo': 'дней назад',
+      'hoursAgo': 'часов назад',
+      'minutesAgo': 'минут назад',
+      'justNow': 'только что',
+      'acceptTerms': 'Я согласен с условиями использования',
       'transfer': 'Перевод',
       'payBills': 'Оплатить счета',
       'topUp': 'Пополнить',
@@ -346,7 +352,6 @@ class AppLocalizations {
       'education': 'Образование',
       'utilities': 'Коммунальные услуги',
       'viewAllNotifications': 'Показать все уведомления',
-      'welcomeMessage': 'Добро пожаловать!',
       'loginSuccess': 'Вы успешно вошли',
       'notificationsHeader': 'Уведомления',
       'unreadNotifications': 'непрочитанных',
@@ -451,6 +456,8 @@ class AppLocalizations {
 
       // Important bank messages
       'welcomeToBank': 'Добро пожаловать в Banki2!',
+      'welcomeTitle': 'Добро пожаловать!',
+      'welcomeMessage': 'Вы успешно вошли в систему',
       'accountSecured': 'Ваш аккаунт теперь защищен PIN-кодом',
       'newCardAvailable': 'Новая карта теперь доступна в вашем кошельке',
       'paymentReceived': 'Платеж успешно получен',
@@ -564,7 +571,6 @@ class AppLocalizations {
   String get education => _localizedValues[locale.languageCode]?['education'] ?? 'Education';
   String get utilities => _localizedValues[locale.languageCode]?['utilities'] ?? 'Utilities';
   String get viewAllNotifications => _localizedValues[locale.languageCode]?['viewAllNotifications'] ?? 'View all notifications';
-  String get welcomeMessage => _localizedValues[locale.languageCode]?['welcomeMessage'] ?? 'Welcome!';
   String get loginSuccess => _localizedValues[locale.languageCode]?['loginSuccess'] ?? 'You have successfully logged in';
   String get notificationsHeader => _localizedValues[locale.languageCode]?['notificationsHeader'] ?? 'Notifications';
   String get unreadNotifications => _localizedValues[locale.languageCode]?['unreadNotifications'] ?? 'unread notifications';
@@ -699,6 +705,7 @@ class AppLocalizations {
   String get hoursAgo => _localizedValues[locale.languageCode]?['hoursAgo'] ?? 'hours ago';
   String get minutesAgo => _localizedValues[locale.languageCode]?['minutesAgo'] ?? 'minutes ago';
   String get justNow => _localizedValues[locale.languageCode]?['justNow'] ?? 'just now';
+  String get acceptTerms => _localizedValues[locale.languageCode]?['acceptTerms'] ?? 'I agree to the terms and conditions';
   String get noDebitCardsForTransfer => _localizedValues[locale.languageCode]?['noDebitCardsForTransfer'] ?? 'You have no debit cards for transfers';
   String get maximumAmount => _localizedValues[locale.languageCode]?['maximumAmount'] ?? 'Maximum amount';
   String get personalInformation => _localizedValues[locale.languageCode]?['personalInformation'] ?? 'Personal information';
@@ -723,6 +730,8 @@ class AppLocalizations {
 
   // Important bank messages
   String get welcomeToBank => _localizedValues[locale.languageCode]?['welcomeToBank'] ?? 'Welcome to Banki2!';
+  String get welcomeTitle => _localizedValues[locale.languageCode]?['welcomeTitle'] ?? 'Welcome!';
+  String get welcomeMessage => _localizedValues[locale.languageCode]?['welcomeMessage'] ?? 'You have successfully logged in';
   String get accountSecured => _localizedValues[locale.languageCode]?['accountSecured'] ?? 'Your account is now secured with PIN code';
   String get newCardAvailable => _localizedValues[locale.languageCode]?['newCardAvailable'] ?? 'New card is now available in your wallet';
   String get paymentReceived => _localizedValues[locale.languageCode]?['paymentReceived'] ?? 'Payment received successfully';

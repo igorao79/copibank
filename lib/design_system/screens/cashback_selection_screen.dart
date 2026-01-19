@@ -174,43 +174,41 @@ class _CashbackSelectionScreenState extends State<CashbackSelectionScreen> {
                       ),
                     ),
                   ),
-                  // Button with pulse animation when all categories selected
-                  AnimatedScale(
-                    scale: _selectedCategoryIds.length == 3 ? 1.05 : 1.0,
-                    duration: const Duration(milliseconds: 300),
-                    curve: Curves.elasticOut,
-                    child: SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: _selectedCategoryIds.length != 3
-                            ? null
-                            : () async {
-                                try {
-                                  await appState.selectCashbackCategories(_selectedCategoryIds.toList());
-                                  _showSuccessDialog();
-                                } catch (e) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text('${AppLocalizations.of(context)?.error ?? 'Ошибка'}: $e')),
-                                  );
-                                }
-                              },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: _selectedCategoryIds.length == 3
-                              ? BankingColors.primary500
-                              : (isDark ? BankingColors.neutral600 : BankingColors.neutral400),
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: BankingTokens.space16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(BankingTokens.radius12),
-                          ),
-                          elevation: 0,
+                  // Button
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: _selectedCategoryIds.length != 3
+                          ? null
+                          : () async {
+                              try {
+                                await appState.selectCashbackCategories(_selectedCategoryIds.toList());
+                                _showSuccessDialog();
+                              } catch (e) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text('${AppLocalizations.of(context)?.error ?? 'Ошибка'}: $e')),
+                                );
+                              }
+                            },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: _selectedCategoryIds.length == 3
+                            ? BankingColors.primary500
+                            : (isDark ? BankingColors.neutral600 : BankingColors.neutral400),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: BankingTokens.space16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(BankingTokens.radius12),
                         ),
-                        child: Text(
-                          _selectedCategoryIds.length == 3
-                              ? AppLocalizations.of(context)!.confirmSelection
-                              : AppLocalizations.of(context)!.selectMoreCategories(_selectedCategoryIds.length),
-                          style: BankingTypography.button,
-                        ),
+                        elevation: 0,
+                      ),
+                      child: Text(
+                        _selectedCategoryIds.length == 3
+                            ? AppLocalizations.of(context)!.confirmSelection
+                            : AppLocalizations.of(context)!.selectMoreCategories(_selectedCategoryIds.length),
+                        style: BankingTypography.button,
+                        textAlign: TextAlign.center,
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
                       ),
                     ),
                   ),

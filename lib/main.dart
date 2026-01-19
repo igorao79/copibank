@@ -29,6 +29,7 @@ class _BankingAppState extends State<BankingApp> {
   bool _isInitialized = false;
   bool _showSplash = true;
   bool? _isOnboardingCompleted;
+  bool _showMainApp = false;
 
   @override
   void initState() {
@@ -102,18 +103,20 @@ class _BankingAppState extends State<BankingApp> {
       return const OnboardingScreen();
     }
 
-    // Показываем PIN screen или main app
+    // Показываем main app если PIN уже введен
+    if (_showMainApp) {
+      return const BankingAppHome();
+    }
+
+    // Показываем PIN screen
     if (_isInitialized && _isOnboardingCompleted == true) {
       return PinInputScreen(
         isSetupMode: !_appState.hasPinCode,
         onSuccess: () {
-          // После успешного ввода PIN переходим к основному приложению
+          // После успешного ввода PIN показываем main app
           setState(() {
-            // Можно добавить флаг для перехода к main app
+            _showMainApp = true;
           });
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => const BankingAppHome()),
-          );
         },
       );
     }

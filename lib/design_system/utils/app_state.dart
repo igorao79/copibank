@@ -726,8 +726,8 @@ class AppState extends ChangeNotifier {
   final List<NotificationItem> _notifications = [
     NotificationItem(
       id: '1',
-      title: 'Welcome!', // Will be localized in UI
-      message: 'You have successfully logged in',
+      title: '', // Will be localized in UI via getLocalizedTitle
+      message: '', // Will be localized in UI via getLocalizedMessage
       timestamp: DateTime.now(),
       isRead: false,
       type: NotificationType.welcome,
@@ -1265,6 +1265,32 @@ class NotificationItem {
       } else {
         return 'just now';
       }
+    }
+  }
+
+  String getLocalizedTitle(AppLocalizations? localizations) {
+    if (localizations == null) return title;
+
+    switch (type) {
+      case NotificationType.welcome:
+        return localizations.welcomeTitle;
+      case NotificationType.transaction:
+      case NotificationType.security:
+      case NotificationType.promotion:
+        return title; // Для этих типов пока оставляем оригинальный title
+    }
+  }
+
+  String getLocalizedMessage(AppLocalizations? localizations) {
+    if (localizations == null) return message;
+
+    switch (type) {
+      case NotificationType.welcome:
+        return localizations.welcomeMessage;
+      case NotificationType.transaction:
+      case NotificationType.security:
+      case NotificationType.promotion:
+        return message; // Для этих типов пока оставляем оригинальное message
     }
   }
 }

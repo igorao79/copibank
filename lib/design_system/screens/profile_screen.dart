@@ -140,7 +140,7 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
                             children: [
                               Expanded(
                                 child: Text(
-                                  notification.title,
+                                  notification.getLocalizedTitle(localizations),
                                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                     fontWeight: notification.isRead ? FontWeight.normal : FontWeight.bold,
                                   ),
@@ -157,15 +157,16 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
                                 ),
                             ],
                           ),
-                          Text(
-                            notification.message,
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Theme.of(context).brightness == Brightness.dark
-                                  ? BankingColors.neutral400
-                                  : BankingColors.neutral600,
-                            ),
-                          ),
-                          Text(
+                            if (notification.getLocalizedMessage(AppLocalizations.of(context)).isNotEmpty)
+                              Text(
+                                notification.getLocalizedMessage(AppLocalizations.of(context)),
+                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  color: Theme.of(context).brightness == Brightness.dark
+                                      ? BankingColors.neutral400
+                                      : BankingColors.neutral600,
+                                ),
+                              ),
+                            Text(
                             notification.getTimeAgo(AppLocalizations.of(context)),
                             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                               color: Theme.of(context).brightness == Brightness.dark

@@ -654,7 +654,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
           localizations.loginSuccess,
           style: Theme.of(context).textTheme.headlineMedium?.copyWith(
             fontWeight: FontWeight.bold,
-            color: BankingColors.success500,
+            color: BankingColors.primary500,
           ),
           textAlign: TextAlign.center,
         ),
@@ -934,7 +934,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                     children: [
                       Expanded(
                         child: Text(
-                          notification.title,
+                          notification.getLocalizedTitle(localizations),
                           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                             fontWeight: notification.isRead ? FontWeight.normal : FontWeight.bold,
                           ),
@@ -951,14 +951,15 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                         ),
                     ],
                   ),
-                  Text(
-                    notification.message,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).brightness == Brightness.dark
-                          ? BankingColors.neutral400
-                          : BankingColors.neutral600,
+                  if (notification.getLocalizedMessage(localizations).isNotEmpty)
+                    Text(
+                      notification.getLocalizedMessage(localizations),
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).brightness == Brightness.dark
+                            ? BankingColors.neutral400
+                            : BankingColors.neutral600,
+                      ),
                     ),
-                  ),
                   Text(
                     notification.getTimeAgo(AppLocalizations.of(context)),
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(

@@ -43,6 +43,7 @@ class _NotificationsChatScreenState extends State<NotificationsChatScreen> with 
   Widget build(BuildContext context) {
     final appState = context.watch<AppState>();
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final localizations = AppLocalizations.of(context)!;
 
     return SvgBackground(
       child: Scaffold(
@@ -129,17 +130,18 @@ class _NotificationsChatScreenState extends State<NotificationsChatScreen> with 
 
   Widget _buildNotificationsList() {
     final appState = context.read<AppState>();
+    final localizations = AppLocalizations.of(context)!;
     return ListView.builder(
       padding: const EdgeInsets.all(BankingTokens.screenHorizontalPadding),
       itemCount: appState.notifications.length,
       itemBuilder: (context, index) {
         final notification = appState.notifications[index];
-        return _buildNotificationItem(notification, index);
+        return _buildNotificationItem(notification, index, localizations);
       },
     );
   }
 
-  Widget _buildNotificationItem(NotificationItem notification, int index) {
+  Widget _buildNotificationItem(NotificationItem notification, int index, AppLocalizations localizations) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final isRead = notification.isRead;
     final type = notification.type.toString().split('.').last; // Convert enum to string
@@ -200,8 +202,8 @@ class _NotificationsChatScreenState extends State<NotificationsChatScreen> with 
           title: Row(
             children: [
               Expanded(
-                child: Text(
-                  notification.title,
+                  child: Text(
+                  notification.getLocalizedTitle(localizations),
                   style: BankingTypography.bodyRegular.semiBold.copyWith(
                     color: isDark ? BankingColors.neutral100 : BankingColors.neutral900,
                   ),
@@ -222,13 +224,15 @@ class _NotificationsChatScreenState extends State<NotificationsChatScreen> with 
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: BankingTokens.space4),
-              Text(
-                notification.message,
-                style: BankingTypography.bodySmall.copyWith(
-                  color: isDark ? BankingColors.neutral100 : BankingColors.neutral600,
+              if (notification.getLocalizedMessage(localizations).isNotEmpty)
+                Text(
+                  notification.getLocalizedMessage(localizations),
+                  style: BankingTypography.bodySmall.copyWith(
+                    color: isDark ? BankingColors.neutral100 : BankingColors.neutral600,
+                  ),
                 ),
-              ),
-              const SizedBox(height: BankingTokens.space8),
+              if (notification.getLocalizedMessage(localizations).isNotEmpty)
+                const SizedBox(height: BankingTokens.space8),
               Text(
                 notification.getTimeAgo(AppLocalizations.of(context)),
                 style: BankingTypography.caption.copyWith(
