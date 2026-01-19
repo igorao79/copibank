@@ -154,7 +154,7 @@ class AppState extends ChangeNotifier {
     }).toList();
   }
 
-  List<CashbackCategory> get allCashbackCategories => _allCashbackCategories;
+  List<CashbackCategory> get allCashbackCategories => _allCashbackCategories.isNotEmpty ? _allCashbackCategories : [];
   List<CashbackCategory> get selectedCashbackCategories => _allCashbackCategories
       .where((category) => _selectedCashbackCategoryIds.contains(category.id))
       .toList();
@@ -189,6 +189,28 @@ class AppState extends ChangeNotifier {
 
     // Load PIN code
     _pinCode = prefs.getString('user_pin_code');
+
+    // Initialize transfer users with default English names (will be localized when accessed)
+    _transferUsers = _transferUserData.map((data) {
+      return TransferUser(
+        id: data['id']!,
+        name: data['nameKey']!, // Will be localized later
+        avatarUrl: data['avatarUrl']!,
+        phoneNumber: data['phoneNumber']!,
+      );
+    }).toList();
+
+    // Initialize cashback categories with default English names (will be localized when accessed)
+    _allCashbackCategories = _cashbackCategoryData.map((data) {
+      return CashbackCategory(
+        id: data['id'] as String,
+        name: data['nameKey'] as String, // Will be localized later
+        icon: data['icon'] as IconData,
+        description: data['descriptionKey'] as String, // Will be localized later
+        percentage: data['percentage'] as double,
+        color: data['color'] as Color,
+      );
+    }).toList();
 
     // Load sticker data for each card
     final stickerKeys = prefs.getKeys().where((key) => key.startsWith('sticker_')).toList();
@@ -679,7 +701,7 @@ class AppState extends ChangeNotifier {
       'id': '7',
       'nameKey': 'mariaVolkova',
       'avatarUrl': 'local_avatar_7',
-      'phoneNumber:': '+7 (999) 789-01-23',
+      'phoneNumber': '+7 (999) 789-01-23',
     },
     {
       'id': '8',

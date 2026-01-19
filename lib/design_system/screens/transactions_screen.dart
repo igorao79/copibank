@@ -765,7 +765,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> with TickerProv
                     hint: const Text('All cards'),
                     isExpanded: true,
                     items: [
-                      const DropdownMenuItem<String?>(
+                      DropdownMenuItem<String?>(
                         value: null,
                         child: Text(AppLocalizations.of(context)?.allCards ?? 'All cards'),
                       ),

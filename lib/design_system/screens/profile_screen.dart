@@ -325,8 +325,8 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
                 // Language Setting
                 _buildSettingItem(
                   context: context,
-                  title: 'Язык',
-                  value: appState.userLanguage == 'ru' ? 'Русский' : 'English',
+                  title: AppLocalizations.of(context)?.language ?? 'Language',
+                  value: appState.userLanguage == 'ru' ? (AppLocalizations.of(context)?.russian ?? 'Русский') : (AppLocalizations.of(context)?.english ?? 'English'),
                   icon: Icons.language,
                   onTap: () => _showLanguageDialog(context, appState),
                 ),
@@ -335,8 +335,8 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
                 // PIN Code Setting
                 _buildSettingItem(
                   context: context,
-                  title: 'PIN-код',
-                  value: appState.hasPinCode ? 'Установлен' : 'Не установлен',
+                  title: AppLocalizations.of(context)?.pinCode ?? 'PIN Code',
+                  value: appState.hasPinCode ? (AppLocalizations.of(context)?.pinSet ?? 'Set') : (AppLocalizations.of(context)?.pinNotSet ?? 'Not set'),
                   icon: Icons.lock,
                   onTap: () => _navigateToChangePin(context),
                 ),
@@ -345,9 +345,9 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
                 // Theme Setting
                 _buildSettingItem(
                   context: context,
-                  title: 'Тема',
-                  value: appState.themeMode == ThemeMode.dark ? 'Темная' :
-                         appState.themeMode == ThemeMode.light ? 'Светлая' : 'Системная',
+                  title: AppLocalizations.of(context)?.theme ?? 'Theme',
+                  value: appState.themeMode == ThemeMode.dark ? (AppLocalizations.of(context)?.dark ?? 'Dark') :
+                         appState.themeMode == ThemeMode.light ? (AppLocalizations.of(context)?.light ?? 'Light') : (AppLocalizations.of(context)?.system ?? 'System'),
                   icon: Icons.palette,
                   onTap: () => _showThemeDialog(context, appState),
                 ),
@@ -356,7 +356,7 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
                 // Logout Button
                 Center(
                   child: BankingButtons.secondary(
-                    text: 'Выйти из аккаунта',
+                    text: AppLocalizations.of(context)?.logout ?? 'Logout',
                     onPressed: () => _showLogoutDialog(context),
                     fullWidth: false,
                   ),

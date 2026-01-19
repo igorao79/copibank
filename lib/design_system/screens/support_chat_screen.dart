@@ -25,14 +25,14 @@ class _SupportChatScreenState extends State<SupportChatScreen> with TickerProvid
 
   List<Map<String, dynamic>> _messages = [
     {
-      'text': 'Hello! I am the bank assistant. How can I help?', // Will be localized in initState
+      'text': '', // Will be set in initState based on current locale
       'isBot': true,
       'timestamp': DateTime.now(),
       'type': 'text',
     }
   ];
 
-  List<Map<String, String>> _quickQuestions = [
+  List<Map<String, String>> get _quickQuestions => [
     {
       'question': AppLocalizations.of(context)?.faqHowToTopUp ?? 'How to top up account?',
       'answer': AppLocalizations.of(context)?.faqHowToTopUpAnswer ?? 'You can top up your account through:\n• ATM\n• Transfer from another card\n• Via mobile app\n• At bank branch'
@@ -71,8 +71,14 @@ class _SupportChatScreenState extends State<SupportChatScreen> with TickerProvid
     );
     _fadeController.forward();
 
-    // Mark support messages as read when entering chat
+    // Initialize bot message based on current locale
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      setState(() {
+        final localizations = AppLocalizations.of(context);
+        _messages[0]['text'] = localizations?.locale.languageCode == 'ru'
+            ? 'Здравствуйте! Я помощник банка. Чем могу помочь?'
+            : 'Hello! I am the bank assistant. How can I help?';
+      });
       context.read<AppState>().markSupportMessagesAsRead();
     });
   }
@@ -232,10 +238,6 @@ class _SupportChatScreenState extends State<SupportChatScreen> with TickerProvid
             ),
           ),
         ),
-        IconButton(
-              icon: Icon(Icons.more_vert),
-              onPressed: _showChatMenu,
-            ),
           ],
         ),
         body: SafeArea(
@@ -360,7 +362,11 @@ class _SupportChatScreenState extends State<SupportChatScreen> with TickerProvid
 
   Widget _buildQuickQuestions() {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: BankingTokens.screenHorizontalPadding),
+      margin: const EdgeInsets.only(
+        left: BankingTokens.screenHorizontalPadding,
+        right: BankingTokens.screenHorizontalPadding,
+        bottom: BankingTokens.space16,
+      ),
       child: GridView.builder(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),

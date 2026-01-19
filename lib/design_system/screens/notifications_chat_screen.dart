@@ -6,6 +6,7 @@ import '../foundation/tokens.dart';
 import '../components/svg_background.dart';
 import 'profile_screen.dart';
 import '../utils/app_state.dart';
+import '../../l10n/app_localizations.dart';
 
 class NotificationsChatScreen extends StatefulWidget {
   const NotificationsChatScreen({super.key});
@@ -49,7 +50,7 @@ class _NotificationsChatScreenState extends State<NotificationsChatScreen> with 
         extendBody: true,
         appBar: AppBar(
         title: GestureDetector(
-          onTap: () => _navigateToProfile(),
+          onTap: () => _navigateToProfile(context),
           child: Row(
             children: [
               Icon(
@@ -251,72 +252,13 @@ class _NotificationsChatScreenState extends State<NotificationsChatScreen> with 
       notification.isRead = true;
       appState.notifyListeners();
     }
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (context) {
-        final isDark = Theme.of(context).brightness == Brightness.dark;
-        return Container(
-          constraints: BoxConstraints(
-            maxHeight: MediaQuery.of(context).size.height * 0.8,
-          ),
-          decoration: BoxDecoration(
-            color: isDark ? BankingColors.neutral800 : BankingColors.neutral0,
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(BankingTokens.borderRadiusLarge),
-              topRight: Radius.circular(BankingTokens.borderRadiusLarge),
-            ),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 40,
-                height: 4,
-                margin: const EdgeInsets.symmetric(vertical: BankingTokens.space12),
-                decoration: BoxDecoration(
-                  color: isDark ? BankingColors.neutral200 : BankingColors.neutral300,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(BankingTokens.screenHorizontalPadding),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        notification.title,
-                        style: BankingTypography.heading3,
-                      ),
-                      const SizedBox(height: BankingTokens.space16),
-                      Text(
-                        notification.message,
-                        style: BankingTypography.bodyRegular,
-                      ),
-                      const SizedBox(height: BankingTokens.space16),
-                      Text(
-                        notification.getTimeAgo(AppLocalizations.of(context)),
-                        style: BankingTypography.caption.copyWith(
-                          color: isDark ? BankingColors.neutral200 : BankingColors.neutral400,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
+    // Removed modal bottom sheet - notifications no longer expand on tap
   }
 
 
 
 
-  void _navigateToProfile() {
+  void _navigateToProfile(BuildContext context) {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const ProfileScreen()),

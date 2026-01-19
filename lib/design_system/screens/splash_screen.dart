@@ -52,8 +52,9 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: isDark ? const Color(0xFF121212) : Colors.white,
       body: Center(
         child: ScaleTransition(
           scale: _scaleAnimation,
@@ -73,12 +74,12 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                 ),
                 const SizedBox(height: 32),
                 // Надпись "copibank"
-                const Text(
+                Text(
                   'copibank',
                   style: TextStyle(
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF1A73E8), // Синий цвет как у Google
+                    color: isDark ? Colors.white : const Color(0xFF1A73E8), // Синий для светлой, белый для темной
                     letterSpacing: 2,
                   ),
                 ),

@@ -85,7 +85,7 @@ class _CardsScreenState extends State<CardsScreen> with TickerProviderStateMixin
             ],
           ),
         ),
-        backgroundColor: Colors.white,
+        backgroundColor: isDark ? BankingColors.neutral900 : Colors.white,
         actions: [
           IconButton(
             icon: Icon(

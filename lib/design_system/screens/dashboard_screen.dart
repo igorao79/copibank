@@ -717,14 +717,6 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
   }
 
   void _onQuickActionTap(String actionId) {
-    // Show feedback when action is tapped
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('${AppLocalizations.of(context)?.actionSelected ?? 'Действие'} "${_getLocalizedActionTitle(actionId, AppLocalizations.of(context)!)}" ${AppLocalizations.of(context)?.actionSelected == 'Action selected' ? 'selected' : 'выбрано'}'),
-        duration: const Duration(seconds: 1),
-      ),
-    );
-
     switch (actionId) {
       case 'transfer':
         Navigator.of(context).push(
@@ -908,7 +900,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Мои карты',
+          localizations.myCards,
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
             fontWeight: FontWeight.bold,
           ),
@@ -1001,7 +993,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Мой кэшбэк',
+          localizations.myCashback,
           style: BankingTypography.heading3,
         ),
         const SizedBox(height: BankingTokens.space16),

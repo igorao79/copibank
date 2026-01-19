@@ -277,8 +277,7 @@ class _ApplyScreenState extends State<ApplyScreen>
                   ),
                   child: _buildFullWidthProductButton(
                     title: localizations.debitCard,
-                    description:
-                        'Бесплатное обслуживание • Кэшбэк до 5% • Международные платежи',
+                    description: localizations.debitCardDescription,
                     icon: Icons.credit_card,
                     isDisabled: _getDebitCardCount(appState) >= 2,
                     onTap: _getDebitCardCount(appState) >= 2
@@ -294,8 +293,7 @@ class _ApplyScreenState extends State<ApplyScreen>
                   ),
                   child: _buildFullWidthProductButton(
                     title: localizations.creditCard,
-                    description:
-                        'Льготный период до 120 дней • Кредитный лимит до 500 000 ₽ • Беспроцентный период',
+                    description: localizations.creditCardDescription,
                     icon: Icons.credit_card,
                     isDisabled: _getCreditCardCount(appState) >= 2,
                     onTap: _getCreditCardCount(appState) >= 2
@@ -311,8 +309,7 @@ class _ApplyScreenState extends State<ApplyScreen>
                   ),
                   child: _buildFullWidthProductButton(
                     title: localizations.paymentSticker,
-                    description:
-                        'Бесконтактная оплата • Привязка к карте • Мгновенные платежи',
+                    description: localizations.paymentStickerDescription,
                     icon: Icons.sticky_note_2,
                     isDisabled: !appState.canOrderSticker,
                     onTap: appState.canOrderSticker
@@ -341,8 +338,7 @@ class _ApplyScreenState extends State<ApplyScreen>
                   ),
                   child: _buildFullWidthProductButton(
                     title: localizations.savingsAccount,
-                    description:
-                        '5% годовых • Накопление сбережений • Без комиссий',
+                    description: localizations.savingsAccountDescription,
                     icon: Icons.savings,
                     isDisabled: !appState.canOpenSavingsAccount,
                     onTap: appState.canOpenSavingsAccount

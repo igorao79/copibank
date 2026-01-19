@@ -175,15 +175,14 @@ class AppLocalizations {
       'newChat': 'Start new chat',
       'chatHistory': 'Chat history',
       'helloBot': 'Hello! I am the bank assistant. How can I help?',
+      'helloBotRu': 'Здравствуйте! Я помощник банка. Чем могу помочь?',
       'foodAndRestaurants': 'Food and restaurants',
       'foodRestaurantsDescription': 'Cashback on restaurants, cafes and food delivery',
-      'shopping': 'Shopping',
       'shoppingDescription': 'Cashback on clothing, electronics and goods',
       'travel': 'Travel',
       'travelDescription': 'Cashback on flights, hotels and transport',
       'fuel': 'Fuel',
       'fuelDescription': 'Cashback on gas stations and fuel',
-      'entertainment': 'Entertainment',
       'entertainmentDescription': 'Cashback on cinema, concerts and entertainment',
       'supermarkets': 'Supermarkets',
       'supermarketsDescription': 'Cashback on groceries and supermarket goods',
@@ -210,7 +209,6 @@ class AppLocalizations {
       'cashbackCategoriesSelected': 'Cashback categories selected',
       'cashbackCategoriesMessage': 'You have selected',
       'cashbackCategoriesCount': 'categories for cashback',
-      'daysAgo': 'days ago',
       'hoursAgo': 'hours ago',
       'minutesAgo': 'minutes ago',
       'justNow': 'just now',
@@ -233,6 +231,44 @@ class AppLocalizations {
       'faqHowToEnableNotificationsAnswer': 'Enable notifications:\n• Open app\n• Go to Settings\n• Select "Notifications"\n• Allow push notifications',
       'faqAccountSecurity': 'Account security',
       'faqAccountSecurityAnswer': 'Security recommendations:\n• Use strong password\n• Don\'t share data with third parties\n• Change password regularly\n• Enable two-factor authentication',
+
+      // Important bank messages
+      'welcomeToBank': 'Welcome to Banki2!',
+      'accountSecured': 'Your account is now secured with PIN code',
+      'newCardAvailable': 'New card is now available in your wallet',
+      'paymentReceived': 'Payment received successfully',
+      'transferProcessed': 'Transfer has been processed',
+      'savingsGoal': 'Great! You\'re on track to reach your savings goal',
+      'cashbackEarned': 'Cashback earned on your recent purchase',
+
+      // Card and account descriptions
+      'debitCardDescription': 'Free maintenance • Up to 5% cashback • International payments',
+      'creditCardDescription': 'Up to 120 days grace period • Credit limit up to 500,000 ₽ • Interest-free period',
+      'paymentStickerDescription': 'Contactless payments • Quick transactions • Secure and convenient',
+      'savingsAccountDescription': '5% annual interest • Build savings • No fees',
+
+      // Profile settings
+      'language': 'Language',
+      'theme': 'Theme',
+      'pinCode': 'PIN Code',
+      'pinSet': 'Set',
+      'pinNotSet': 'Not set',
+
+      // Cashback selection
+      'selectCashbackCategories': 'Select cashback categories',
+      'selectUpTo3Categories': 'Select up to 3 categories where you want to receive cashback',
+      'categoriesSelected': 'categories selected',
+      'saveSelection': 'Save selection',
+      'selectedCount': 'Selected: {count}/3',
+      'selectMoreCategories': 'Select {count}/3 categories',
+      'confirmSelection': 'Confirm selection',
+
+      // Chat descriptions
+      'importantBankMessages': 'Important messages from the bank',
+      'technicalSupportDescription': 'Get help and support',
+      'noNewNotifications': 'No new notifications',
+      'helpWithApp': 'Help with the application',
+      'helloHowCanWeHelp': 'Hello! How can we help?',
     },
     'ru': {
       'appTitle': 'Banki2 - Банковское приложение',
@@ -393,6 +429,44 @@ class AppLocalizations {
       'faqHowToEnableNotificationsAnswer': 'Включить уведомления:\n• Откройте приложение\n• Перейдите в Настройки\n• Выберите "Уведомления"\n• Разрешите push-уведомления',
       'faqAccountSecurity': 'Безопасность аккаунта',
       'faqAccountSecurityAnswer': 'Рекомендации по безопасности:\n• Используйте сложный пароль\n• Не сообщайте данные третьим лицам\n• Регулярно меняйте пароль\n• Включайте двухфакторную аутентификацию',
+
+      // Important bank messages
+      'welcomeToBank': 'Добро пожаловать в Banki2!',
+      'accountSecured': 'Ваш аккаунт теперь защищен PIN-кодом',
+      'newCardAvailable': 'Новая карта теперь доступна в вашем кошельке',
+      'paymentReceived': 'Платеж успешно получен',
+      'transferProcessed': 'Перевод был обработан',
+      'savingsGoal': 'Отлично! Вы на пути к достижению цели по сбережениям',
+      'cashbackEarned': 'Кэшбэк заработан на вашей недавней покупке',
+
+      // Card and account descriptions
+      'debitCardDescription': 'Бесплатное обслуживание • Кэшбэк до 5% • Международные платежи',
+      'creditCardDescription': 'Льготный период до 120 дней • Кредитный лимит до 500 000 ₽ • Беспроцентный период',
+      'paymentStickerDescription': 'Бесконтактная оплата • Быстрые транзакции • Безопасно и удобно',
+      'savingsAccountDescription': '5% годовых • Накопление сбережений • Без комиссий',
+
+      // Profile settings
+      'language': 'Язык',
+      'theme': 'Тема',
+      'pinCode': 'PIN-код',
+      'pinSet': 'Установлен',
+      'pinNotSet': 'Не установлен',
+
+      // Cashback selection
+      'selectCashbackCategories': 'Выберите категории кэшбэка',
+      'selectUpTo3Categories': 'Выберите до 3 категорий, где хотите получать кэшбэк',
+      'categoriesSelected': 'категорий выбрано',
+      'saveSelection': 'Сохранить выбор',
+      'selectedCount': 'Выбрано: {count}/3',
+      'selectMoreCategories': 'Выберите {count}/3 категории',
+      'confirmSelection': 'Подтвердить выбор',
+
+      // Chat descriptions
+      'importantBankMessages': 'Важные сообщения от банка',
+      'technicalSupportDescription': 'Получите помощь и поддержку',
+      'noNewNotifications': 'Нет новых уведомлений',
+      'helpWithApp': 'Помощь с приложением',
+      'helloHowCanWeHelp': 'Здравствуйте! Как мы можем помочь?',
     },
   };
 
@@ -511,38 +585,6 @@ class AppLocalizations {
   String get logoutConfirmation => _localizedValues[locale.languageCode]?['logoutConfirmation'] ?? 'Are you sure you want to log out?';
   String get loggedOut => _localizedValues[locale.languageCode]?['loggedOut'] ?? 'You have been logged out';
 
-  // Additional localization keys
-  String get selectProduct => _localizedValues[locale.languageCode]?['selectProduct'] ?? 'Выберите продукт для оформления';
-  String get cardsAndPaymentMeans => _localizedValues[locale.languageCode]?['cardsAndPaymentMeans'] ?? 'Карты и платежные средства';
-  String get paymentSticker => _localizedValues[locale.languageCode]?['paymentSticker'] ?? 'Платежный стикер';
-  String get savingsProducts => _localizedValues[locale.languageCode]?['savingsProducts'] ?? 'Накопительные продукты';
-  String get myCards => _localizedValues[locale.languageCode]?['myCards'] ?? 'Мои карты';
-  String get myCashback => _localizedValues[locale.languageCode]?['myCashback'] ?? 'Мой кэшбэк';
-  String get bankRecipient => _localizedValues[locale.languageCode]?['bankRecipient'] ?? 'Банк получателя';
-  String get transferAmount => _localizedValues[locale.languageCode]?['transferAmount'] ?? 'Сумма перевода';
-  String get commentOptional => _localizedValues[locale.languageCode]?['commentOptional'] ?? 'Комментарий (необязательно)';
-  String get transferMoney => _localizedValues[locale.languageCode]?['transferMoney'] ?? 'Перевод денег';
-  String get processing => _localizedValues[locale.languageCode]?['processing'] ?? 'Выполняется...';
-  String get receiveTransfer => _localizedValues[locale.languageCode]?['receiveTransfer'] ?? 'Получить перевод';
-  String get success => _localizedValues[locale.languageCode]?['success'] ?? 'Успех!';
-  String get transferCompleted => _localizedValues[locale.languageCode]?['transferCompleted'] ?? 'Перевод успешно совершен';
-  String get getGift => _localizedValues[locale.languageCode]?['getGift'] ?? '🎁 Получи подарок!';
-  String get inviteFriend => _localizedValues[locale.languageCode]?['inviteFriend'] ?? 'Приведи друга и получи \$1,000!';
-  String get pinReset => _localizedValues[locale.languageCode]?['pinReset'] ?? 'Сброс PIN-кода';
-  String get enterNewPin => _localizedValues[locale.languageCode]?['enterNewPin'] ?? 'Введите новый 4-значный PIN-код';
-  String get createPin => _localizedValues[locale.languageCode]?['createPin'] ?? 'Создайте PIN-код';
-  String get confirmPin => _localizedValues[locale.languageCode]?['confirmPin'] ?? 'Подтвердите PIN-код';
-  String get enterPin => _localizedValues[locale.languageCode]?['enterPin'] ?? 'Введите PIN-код';
-  String get repeatPin => _localizedValues[locale.languageCode]?['repeatPin'] ?? 'Повторите введенный PIN-код';
-  String get protectAccount => _localizedValues[locale.languageCode]?['protectAccount'] ?? 'Придумайте 4-значный PIN-код для защиты аккаунта';
-  String get enterPinToLogin => _localizedValues[locale.languageCode]?['enterPinToLogin'] ?? 'Введите ваш PIN-код для входа';
-  String get forgotPin => _localizedValues[locale.languageCode]?['forgotPin'] ?? 'Забыл PIN-код';
-  String get wrongPin => _localizedValues[locale.languageCode]?['wrongPin'] ?? 'Wrong PIN code';
-  String get attemptsLeft => _localizedValues[locale.languageCode]?['attemptsLeft'] ?? 'осталось попыток';
-  String get tooManyAttempts => _localizedValues[locale.languageCode]?['tooManyAttempts'] ?? 'Слишком много неудачных попыток';
-  String get tryAgainIn => _localizedValues[locale.languageCode]?['tryAgainIn'] ?? 'Повторите через';
-  String get seconds => _localizedValues[locale.languageCode]?['seconds'] ?? 'сек.';
-
   // Additional getters for new keys
   String get selectProduct => _localizedValues[locale.languageCode]?['selectProduct'] ?? 'Select product to apply for';
   String get cardsAndPaymentMeans => _localizedValues[locale.languageCode]?['cardsAndPaymentMeans'] ?? 'Cards and payment methods';
@@ -585,13 +627,11 @@ class AppLocalizations {
   String get helloBot => _localizedValues[locale.languageCode]?['helloBot'] ?? 'Hello! I am the bank assistant. How can I help?';
   String get foodAndRestaurants => _localizedValues[locale.languageCode]?['foodAndRestaurants'] ?? 'Food and restaurants';
   String get foodRestaurantsDescription => _localizedValues[locale.languageCode]?['foodRestaurantsDescription'] ?? 'Cashback on restaurants, cafes and food delivery';
-  String get shopping => _localizedValues[locale.languageCode]?['shopping'] ?? 'Shopping';
   String get shoppingDescription => _localizedValues[locale.languageCode]?['shoppingDescription'] ?? 'Cashback on clothing, electronics and goods';
   String get travel => _localizedValues[locale.languageCode]?['travel'] ?? 'Travel';
   String get travelDescription => _localizedValues[locale.languageCode]?['travelDescription'] ?? 'Cashback on flights, hotels and transport';
   String get fuel => _localizedValues[locale.languageCode]?['fuel'] ?? 'Fuel';
   String get fuelDescription => _localizedValues[locale.languageCode]?['fuelDescription'] ?? 'Cashback on gas stations and fuel';
-  String get entertainment => _localizedValues[locale.languageCode]?['entertainment'] ?? 'Entertainment';
   String get entertainmentDescription => _localizedValues[locale.languageCode]?['entertainmentDescription'] ?? 'Cashback on cinema, concerts and entertainment';
   String get supermarkets => _localizedValues[locale.languageCode]?['supermarkets'] ?? 'Supermarkets';
   String get supermarketsDescription => _localizedValues[locale.languageCode]?['supermarketsDescription'] ?? 'Cashback on groceries and supermarket goods';
@@ -618,7 +658,6 @@ class AppLocalizations {
   String get cashbackCategoriesSelected => _localizedValues[locale.languageCode]?['cashbackCategoriesSelected'] ?? 'Cashback categories selected';
   String get cashbackCategoriesMessage => _localizedValues[locale.languageCode]?['cashbackCategoriesMessage'] ?? 'You have selected';
   String get cashbackCategoriesCount => _localizedValues[locale.languageCode]?['cashbackCategoriesCount'] ?? 'categories for cashback';
-  String get daysAgo => _localizedValues[locale.languageCode]?['daysAgo'] ?? 'days ago';
   String get hoursAgo => _localizedValues[locale.languageCode]?['hoursAgo'] ?? 'hours ago';
   String get minutesAgo => _localizedValues[locale.languageCode]?['minutesAgo'] ?? 'minutes ago';
   String get justNow => _localizedValues[locale.languageCode]?['justNow'] ?? 'just now';
@@ -643,6 +682,53 @@ class AppLocalizations {
   String get faqHowToEnableNotificationsAnswer => _localizedValues[locale.languageCode]?['faqHowToEnableNotificationsAnswer'] ?? 'Enable notifications:\n• Open app\n• Go to Settings\n• Select "Notifications"\n• Allow push notifications';
   String get faqAccountSecurity => _localizedValues[locale.languageCode]?['faqAccountSecurity'] ?? 'Account security';
   String get faqAccountSecurityAnswer => _localizedValues[locale.languageCode]?['faqAccountSecurityAnswer'] ?? 'Security recommendations:\n• Use strong password\n• Don\'t share data with third parties\n• Change password regularly\n• Enable two-factor authentication';
+
+  // Important bank messages
+  String get welcomeToBank => _localizedValues[locale.languageCode]?['welcomeToBank'] ?? 'Welcome to Banki2!';
+  String get accountSecured => _localizedValues[locale.languageCode]?['accountSecured'] ?? 'Your account is now secured with PIN code';
+  String get newCardAvailable => _localizedValues[locale.languageCode]?['newCardAvailable'] ?? 'New card is now available in your wallet';
+  String get paymentReceived => _localizedValues[locale.languageCode]?['paymentReceived'] ?? 'Payment received successfully';
+  String get transferProcessed => _localizedValues[locale.languageCode]?['transferProcessed'] ?? 'Transfer has been processed';
+  String get savingsGoal => _localizedValues[locale.languageCode]?['savingsGoal'] ?? 'Great! You\'re on track to reach your savings goal';
+  String get cashbackEarned => _localizedValues[locale.languageCode]?['cashbackEarned'] ?? 'Cashback earned on your recent purchase';
+
+  // Card and account descriptions
+  String get debitCardDescription => _localizedValues[locale.languageCode]?['debitCardDescription'] ?? 'Free maintenance • Up to 5% cashback • International payments';
+  String get creditCardDescription => _localizedValues[locale.languageCode]?['creditCardDescription'] ?? 'Up to 120 days grace period • Credit limit up to 500,000 ₽ • Interest-free period';
+  String get paymentStickerDescription => _localizedValues[locale.languageCode]?['paymentStickerDescription'] ?? 'Contactless payments • Quick transactions • Secure and convenient';
+  String get savingsAccountDescription => _localizedValues[locale.languageCode]?['savingsAccountDescription'] ?? '5% annual interest • Build savings • No fees';
+
+  // Profile settings
+  String get language => _localizedValues[locale.languageCode]?['language'] ?? 'Language';
+  String get theme => _localizedValues[locale.languageCode]?['theme'] ?? 'Theme';
+  String get pinCode => _localizedValues[locale.languageCode]?['pinCode'] ?? 'PIN Code';
+  String get pinSet => _localizedValues[locale.languageCode]?['pinSet'] ?? 'Set';
+  String get pinNotSet => _localizedValues[locale.languageCode]?['pinNotSet'] ?? 'Not set';
+
+  // Cashback selection
+  String get selectCashbackCategories => _localizedValues[locale.languageCode]?['selectCashbackCategories'] ?? 'Select cashback categories';
+  String get selectUpTo3Categories => _localizedValues[locale.languageCode]?['selectUpTo3Categories'] ?? 'Select up to 3 categories where you want to receive cashback';
+  String get categoriesSelected => _localizedValues[locale.languageCode]?['categoriesSelected'] ?? 'categories selected';
+  String get saveSelection => _localizedValues[locale.languageCode]?['saveSelection'] ?? 'Save selection';
+
+  String selectedCount(int count) {
+    final template = _localizedValues[locale.languageCode]?['selectedCount'] ?? 'Selected: {count}/3';
+    return template.replaceAll('{count}', count.toString());
+  }
+
+  String selectMoreCategories(int count) {
+    final template = _localizedValues[locale.languageCode]?['selectMoreCategories'] ?? 'Select {count}/3 categories';
+    return template.replaceAll('{count}', count.toString());
+  }
+
+  String get confirmSelection => _localizedValues[locale.languageCode]?['confirmSelection'] ?? 'Confirm selection';
+
+  // Chat descriptions
+  String get importantBankMessages => _localizedValues[locale.languageCode]?['importantBankMessages'] ?? 'Important messages from the bank';
+  String get technicalSupportDescription => _localizedValues[locale.languageCode]?['technicalSupportDescription'] ?? 'Get help and support';
+  String get noNewNotifications => _localizedValues[locale.languageCode]?['noNewNotifications'] ?? 'No new notifications';
+  String get helpWithApp => _localizedValues[locale.languageCode]?['helpWithApp'] ?? 'Help with the application';
+  String get helloHowCanWeHelp => _localizedValues[locale.languageCode]?['helloHowCanWeHelp'] ?? 'Hello! How can we help?';
 
   // Additional getters for UI elements
   String get debitCard => _localizedValues[locale.languageCode]?['debitCard'] ?? 'Дебетовая карта';

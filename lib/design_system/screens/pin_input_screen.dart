@@ -189,7 +189,7 @@ class _PinInputScreenState extends State<PinInputScreen> {
 
   @override
   Widget build(BuildContext context) {
-    const isDark = false; // Светлая тема по умолчанию
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
       backgroundColor: isDark ? BankingColors.neutral900 : BankingColors.neutral0,
       body: SafeArea(
@@ -215,6 +215,7 @@ class _PinInputScreenState extends State<PinInputScreen> {
                     : (AppLocalizations.of(context)?.enterPin ?? 'Введите PIN-код'),
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                       fontWeight: FontWeight.bold,
+                      fontFamily: 'Roboto', // Changed font for PIN input
                       color: isDark ? BankingColors.neutral0 : BankingColors.neutral900,
                     ),
                 textAlign: TextAlign.center,

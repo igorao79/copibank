@@ -71,6 +71,9 @@ class _BankingAppState extends State<BankingApp> {
     // Show splash screen first
     if (_showSplash) {
       return MaterialApp(
+        theme: BankingTheme.light,
+        darkTheme: BankingTheme.dark,
+        themeMode: _appState.themeMode,
         home: Opacity(
           opacity: _splashOpacity,
           child: const SplashScreen(),

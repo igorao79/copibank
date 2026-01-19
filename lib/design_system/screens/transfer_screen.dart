@@ -128,9 +128,10 @@ class _TransferScreenState extends State<TransferScreen> with TickerProviderStat
   }
 
   void _showBankSelectionDialog() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: isDark ? BankingColors.neutral800 : Colors.white,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(BankingTokens.radius16)),
       ),
@@ -144,7 +145,7 @@ class _TransferScreenState extends State<TransferScreen> with TickerProviderStat
               AppLocalizations.of(context)?.bankRecipient ?? 'Recipient bank',
               style: BankingTypography.bodyLarge.copyWith(
                 fontWeight: FontWeight.w600,
-                color: BankingColors.neutral900,
+                color: isDark ? BankingColors.neutral0 : BankingColors.neutral900,
               ),
             ),
             const SizedBox(height: BankingTokens.space24),
@@ -159,9 +160,11 @@ class _TransferScreenState extends State<TransferScreen> with TickerProviderStat
                   padding: const EdgeInsets.all(BankingTokens.space16),
                   margin: const EdgeInsets.only(bottom: BankingTokens.space8),
                   decoration: BoxDecoration(
-                    color: isSelected ? BankingColors.primary50 : BankingColors.neutral50,
+                    color: isSelected
+                        ? (isDark ? BankingColors.primary800 : BankingColors.primary50)
+                        : (isDark ? BankingColors.neutral700 : BankingColors.neutral50),
                     border: Border.all(
-                      color: isSelected ? BankingColors.primary500 : BankingColors.neutral300,
+                      color: isSelected ? BankingColors.primary500 : (isDark ? BankingColors.neutral600 : BankingColors.neutral300),
                       width: isSelected ? 2 : 1,
                     ),
                     borderRadius: BorderRadius.circular(BankingTokens.radius8),
@@ -183,7 +186,7 @@ class _TransferScreenState extends State<TransferScreen> with TickerProviderStat
                           bank,
                           style: BankingTypography.bodyRegular.copyWith(
                             fontWeight: FontWeight.w600,
-                            color: BankingColors.neutral900,
+                            color: isDark ? BankingColors.neutral0 : BankingColors.neutral900,
                           ),
                         ),
                       ),
@@ -204,8 +207,8 @@ class _TransferScreenState extends State<TransferScreen> with TickerProviderStat
               child: ElevatedButton(
                 onPressed: () => Navigator.of(context).pop(),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: BankingColors.neutral100,
-                  foregroundColor: BankingColors.neutral700,
+                  backgroundColor: isDark ? BankingColors.neutral700 : BankingColors.neutral100,
+                  foregroundColor: isDark ? BankingColors.neutral200 : BankingColors.neutral700,
                   padding: const EdgeInsets.symmetric(vertical: BankingTokens.space16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(BankingTokens.radius8),
@@ -302,6 +305,7 @@ class _TransferScreenState extends State<TransferScreen> with TickerProviderStat
       if (success && mounted) {
         print('DEBUG: Showing success dialog');
         // Show success dialog
+        final isDark = Theme.of(context).brightness == Brightness.dark;
         await showDialog(
           context: context,
           barrierDismissible: false,
@@ -315,7 +319,7 @@ class _TransferScreenState extends State<TransferScreen> with TickerProviderStat
             });
 
             return Dialog(
-              backgroundColor: Colors.white,
+              backgroundColor: isDark ? BankingColors.neutral800 : Colors.white,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(BankingTokens.radius16),
               ),
@@ -334,7 +338,7 @@ class _TransferScreenState extends State<TransferScreen> with TickerProviderStat
                       localizations.success,
                       style: BankingTypography.bodyLarge.copyWith(
                         fontWeight: FontWeight.w600,
-                        color: BankingColors.neutral900,
+                        color: isDark ? BankingColors.neutral0 : BankingColors.neutral900,
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -472,6 +476,7 @@ class _TransferScreenState extends State<TransferScreen> with TickerProviderStat
   Widget build(BuildContext context) {
     final appState = context.watch<AppState>();
     localizations = AppLocalizations.of(context)!;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
       body: SvgBackground(
@@ -487,8 +492,8 @@ class _TransferScreenState extends State<TransferScreen> with TickerProviderStat
                       onPressed: () => Navigator.of(context).pop(),
                       icon: const Icon(Icons.arrow_back),
                       style: IconButton.styleFrom(
-                        backgroundColor: BankingColors.neutral50,
-                        foregroundColor: BankingColors.neutral900,
+                        backgroundColor: isDark ? BankingColors.neutral800 : BankingColors.neutral50,
+                        foregroundColor: isDark ? BankingColors.neutral200 : BankingColors.neutral900,
                       ),
                     ),
                     const SizedBox(width: BankingTokens.space16),
@@ -497,7 +502,7 @@ class _TransferScreenState extends State<TransferScreen> with TickerProviderStat
                         localizations.transferMoney,
                         style: BankingTypography.bodyLarge.copyWith(
                           fontWeight: FontWeight.w600,
-                          color: BankingColors.neutral900,
+                          color: isDark ? BankingColors.neutral0 : BankingColors.neutral900,
                         ),
                       ),
                     ),
@@ -528,7 +533,7 @@ class _TransferScreenState extends State<TransferScreen> with TickerProviderStat
                           localizations.selectRecipient,
                           style: BankingTypography.bodyLarge.copyWith(
                             fontWeight: FontWeight.w600,
-                            color: BankingColors.neutral900,
+                            color: isDark ? BankingColors.neutral0 : BankingColors.neutral900,
                           ),
                         ),
                         const SizedBox(height: BankingTokens.space16),
@@ -538,9 +543,9 @@ class _TransferScreenState extends State<TransferScreen> with TickerProviderStat
                           height: 120,
                           child: ListView.builder(
                             scrollDirection: Axis.horizontal,
-                            itemCount: appState.transferUsers.length,
+                            itemCount: appState.getLocalizedTransferUsers(context).length,
                             itemBuilder: (context, index) {
-                              final user = appState.transferUsers[index];
+                              final user = appState.getLocalizedTransferUsers(context)[index];
                               final isSelected = _selectedUser?.id == user.id;
 
                               return GestureDetector(
@@ -576,7 +581,7 @@ class _TransferScreenState extends State<TransferScreen> with TickerProviderStat
                                       Text(
                                         user.name.split(' ').first,
                                         style: BankingTypography.bodySmall.copyWith(
-                                          color: BankingColors.neutral700,
+                                          color: isDark ? BankingColors.neutral300 : BankingColors.neutral700,
                                           fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
                                         ),
                                         textAlign: TextAlign.center,
@@ -598,7 +603,7 @@ class _TransferScreenState extends State<TransferScreen> with TickerProviderStat
                           localizations.selectCard,
                           style: BankingTypography.bodyLarge.copyWith(
                             fontWeight: FontWeight.w600,
-                            color: BankingColors.neutral900,
+                            color: isDark ? BankingColors.neutral0 : BankingColors.neutral900,
                           ),
                         ),
                         const SizedBox(height: BankingTokens.space16),
@@ -613,9 +618,11 @@ class _TransferScreenState extends State<TransferScreen> with TickerProviderStat
                               margin: const EdgeInsets.only(bottom: BankingTokens.space12),
                               padding: const EdgeInsets.all(BankingTokens.space16),
                               decoration: BoxDecoration(
-                                color: isSelected ? BankingColors.primary50 : BankingColors.neutral50,
+                                color: isSelected
+                                    ? (isDark ? BankingColors.primary800 : BankingColors.primary50)
+                                    : (isDark ? BankingColors.neutral700 : BankingColors.neutral50),
                                 border: Border.all(
-                                  color: isSelected ? BankingColors.primary500 : BankingColors.neutral300,
+                                  color: isSelected ? BankingColors.primary500 : (isDark ? BankingColors.neutral600 : BankingColors.neutral300),
                                   width: isSelected ? 2 : 1,
                                 ),
                                 borderRadius: BorderRadius.circular(BankingTokens.radius8),
@@ -644,13 +651,13 @@ class _TransferScreenState extends State<TransferScreen> with TickerProviderStat
                                           _getAccountDisplayName(account),
                                           style: BankingTypography.bodyRegular.copyWith(
                                             fontWeight: FontWeight.w600,
-                                            color: BankingColors.neutral900,
+                                            color: isDark ? BankingColors.neutral0 : BankingColors.neutral900,
                                           ),
                                         ),
                                         Text(
                                           account.formattedBalance,
                                           style: BankingTypography.bodySmall.copyWith(
-                                            color: BankingColors.neutral600,
+                                            color: isDark ? BankingColors.neutral300 : BankingColors.neutral600,
                                           ),
                                         ),
                                       ],
@@ -679,7 +686,7 @@ class _TransferScreenState extends State<TransferScreen> with TickerProviderStat
                               child: Text(
                                 AppLocalizations.of(context)?.noDebitCardsForTransfer ?? 'You have no debit cards for transfers',
                                 style: BankingTypography.bodyRegular.copyWith(
-                                  color: BankingColors.neutral600,
+                                  color: isDark ? BankingColors.neutral300 : BankingColors.neutral600,
                                 ),
                                 textAlign: TextAlign.center,
                               ),
@@ -693,7 +700,7 @@ class _TransferScreenState extends State<TransferScreen> with TickerProviderStat
                           localizations.bankRecipient,
                           style: BankingTypography.bodyLarge.copyWith(
                             fontWeight: FontWeight.w600,
-                            color: BankingColors.neutral900,
+                            color: isDark ? BankingColors.neutral0 : BankingColors.neutral900,
                           ),
                         ),
                         const SizedBox(height: BankingTokens.space16),
@@ -703,9 +710,9 @@ class _TransferScreenState extends State<TransferScreen> with TickerProviderStat
                           child: Container(
                             padding: const EdgeInsets.all(BankingTokens.space16),
                             decoration: BoxDecoration(
-                              color: BankingColors.neutral50,
+                              color: isDark ? BankingColors.neutral700 : BankingColors.neutral50,
                               border: Border.all(
-                                color: BankingColors.neutral300,
+                                color: isDark ? BankingColors.neutral600 : BankingColors.neutral300,
                                 width: 1,
                               ),
                               borderRadius: BorderRadius.circular(BankingTokens.radius8),
@@ -722,19 +729,19 @@ class _TransferScreenState extends State<TransferScreen> with TickerProviderStat
                                   ),
                                 ),
                                 const SizedBox(width: BankingTokens.space12),
-                                Expanded(
-                                  child: Text(
-                                    _selectedBank!,
-                                    style: BankingTypography.bodyRegular.copyWith(
-                                      fontWeight: FontWeight.w600,
-                                      color: BankingColors.neutral900,
+                                  Expanded(
+                                    child: Text(
+                                      _selectedBank!,
+                                      style: BankingTypography.bodyRegular.copyWith(
+                                        fontWeight: FontWeight.w600,
+                                        color: isDark ? BankingColors.neutral0 : BankingColors.neutral900,
+                                      ),
                                     ),
                                   ),
-                                ),
-                                Icon(
-                                  Icons.arrow_drop_down,
-                                  color: BankingColors.neutral600,
-                                ),
+                                  Icon(
+                                    Icons.arrow_drop_down,
+                                    color: isDark ? BankingColors.neutral300 : BankingColors.neutral600,
+                                  ),
                               ],
                             ),
                           ),
@@ -747,7 +754,7 @@ class _TransferScreenState extends State<TransferScreen> with TickerProviderStat
                           localizations.transferAmount,
                           style: BankingTypography.bodyLarge.copyWith(
                             fontWeight: FontWeight.w600,
-                            color: BankingColors.neutral900,
+                            color: isDark ? BankingColors.neutral0 : BankingColors.neutral900,
                           ),
                         ),
                         const SizedBox(height: BankingTokens.space16),
@@ -782,7 +789,7 @@ class _TransferScreenState extends State<TransferScreen> with TickerProviderStat
                             child: Text(
                               '${AppLocalizations.of(context)?.maximumAmount ?? 'Maximum amount'}: ${_selectedAccount!.balance.toStringAsFixed(2)}\$',
                               style: BankingTypography.bodySmall.copyWith(
-                                color: BankingColors.neutral600,
+                                color: isDark ? BankingColors.neutral300 : BankingColors.neutral600,
                               ),
                             ),
                           ),
@@ -794,7 +801,7 @@ class _TransferScreenState extends State<TransferScreen> with TickerProviderStat
                           localizations.commentOptional,
                           style: BankingTypography.bodyLarge.copyWith(
                             fontWeight: FontWeight.w600,
-                            color: BankingColors.neutral900,
+                            color: isDark ? BankingColors.neutral0 : BankingColors.neutral900,
                           ),
                         ),
                         const SizedBox(height: BankingTokens.space16),

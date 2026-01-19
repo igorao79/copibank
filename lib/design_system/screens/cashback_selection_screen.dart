@@ -34,7 +34,7 @@ class _CashbackSelectionScreenState extends State<CashbackSelectionScreen> {
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
-          'Выберите категории кэшбэка',
+          AppLocalizations.of(context)?.selectCashbackCategories ?? 'Select cashback categories',
           style: BankingTypography.heading3.copyWith(
             color: isDark ? BankingColors.neutral100 : BankingColors.neutral700,
           ),
@@ -46,14 +46,14 @@ class _CashbackSelectionScreenState extends State<CashbackSelectionScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Выберите до 3 категорий, где хотите получать кэшбэк',
+              AppLocalizations.of(context)?.selectUpTo3Categories ?? 'Select up to 3 categories where you want to receive cashback',
               style: BankingTypography.bodyRegular.copyWith(
                 color: isDark ? BankingColors.neutral400 : BankingColors.neutral600,
               ),
             ),
             const SizedBox(height: BankingTokens.space8),
             Text(
-              'Выбрано: ${_selectedCategoryIds.length}/3',
+              AppLocalizations.of(context)!.selectedCount(_selectedCategoryIds.length),
               style: BankingTypography.bodySmall.copyWith(
                 color: BankingColors.primary500,
                 fontWeight: FontWeight.w600,
@@ -68,9 +68,9 @@ class _CashbackSelectionScreenState extends State<CashbackSelectionScreen> {
                   mainAxisSpacing: BankingTokens.space16,
                   childAspectRatio: 1.2,
                 ),
-                itemCount: appState.allCashbackCategories.length,
+                itemCount: appState.getLocalizedCashbackCategories(context).length,
                 itemBuilder: (context, index) {
-                  final category = appState.allCashbackCategories[index];
+                  final category = appState.getLocalizedCashbackCategories(context)[index];
                   final isSelected = _selectedCategoryIds.contains(category.id);
                   final isDisabled = _selectedCategoryIds.length >= 3 && !isSelected;
 
@@ -151,7 +151,7 @@ class _CashbackSelectionScreenState extends State<CashbackSelectionScreen> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: _selectedCategoryIds.length != 3
+                onPressed: _selectedCategoryIds.isEmpty
                     ? null
                     : () async {
                         try {
@@ -164,18 +164,17 @@ class _CashbackSelectionScreenState extends State<CashbackSelectionScreen> {
                         }
                       },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: BankingColors.primary500,
+                  backgroundColor: _selectedCategoryIds.isNotEmpty ? BankingColors.primary500 : BankingColors.neutral300,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: BankingTokens.space16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(BankingTokens.radius12),
                   ),
-                  disabledBackgroundColor: BankingColors.neutral300,
                 ),
                 child: Text(
-                  _selectedCategoryIds.length < 3
-                      ? 'Выберите ${_selectedCategoryIds.length}/3 категории'
-                      : 'Подтвердить выбор',
+                  _selectedCategoryIds.isEmpty
+                      ? AppLocalizations.of(context)!.selectMoreCategories(_selectedCategoryIds.length)
+                      : AppLocalizations.of(context)!.confirmSelection,
                   style: BankingTypography.button,
                 ),
               ),

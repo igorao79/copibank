@@ -243,11 +243,11 @@ class _ChatsScreenState extends State<ChatsScreen> with TickerProviderStateMixin
               // Main chats
               _buildChatItem(
                 title: localizations.notifications,
-                subtitle: 'Важные сообщения от банка',
+                subtitle: localizations.importantBankMessages,
                 icon: Icons.notifications,
                 lastMessage: appState.notifications.isNotEmpty
                     ? appState.notifications.first.message
-                    : 'Нет новых уведомлений',
+                    : localizations.noNewNotifications,
                 time: appState.notifications.isNotEmpty
                     ? appState.notifications.first.getTimeAgo(localizations)
                     : '--:--',
@@ -258,9 +258,9 @@ class _ChatsScreenState extends State<ChatsScreen> with TickerProviderStateMixin
 
               _buildChatItem(
                 title: localizations.techSupport,
-                subtitle: 'Помощь с приложением',
+                subtitle: localizations.helpWithApp,
                 icon: Icons.support_agent,
-                lastMessage: 'Здравствуйте! Как мы можем помочь?',
+                lastMessage: localizations.helloHowCanWeHelp,
                 time: '12:45',
                 unreadCount: appState.unreadSupportMessages,
                 onTap: () => _onChatTap('support'),
