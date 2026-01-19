@@ -569,7 +569,8 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                     );
 
                     if (confirmed == true) {
-                      final success = await appState.deleteSavingsAccount();
+                      final localizations = AppLocalizations.of(context);
+                      final success = await appState.deleteSavingsAccount(localizations);
                       if (success) {
                         Navigator.of(context).pop(); // Закрываем диалог пополнения
                         ScaffoldMessenger.of(context).showSnackBar(

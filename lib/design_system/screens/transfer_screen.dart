@@ -143,7 +143,7 @@ class _TransferScreenState extends State<TransferScreen> with TickerProviderStat
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              AppLocalizations.of(context)?.bankRecipient ?? 'Recipient bank',
+              AppLocalizations.of(context)?.bankRecipient ?? 'Банк получателя',
               style: BankingTypography.bodyLarge.copyWith(
                 fontWeight: FontWeight.w600,
                 color: isDark ? BankingColors.neutral0 : BankingColors.neutral900,
@@ -226,7 +226,7 @@ class _TransferScreenState extends State<TransferScreen> with TickerProviderStat
                   ),
                 ),
                 child: Text(
-                  AppLocalizations.of(context)?.cancel ?? 'Cancel',
+                  AppLocalizations.of(context)?.cancel ?? 'Отмена',
                   style: BankingTypography.button,
                 ),
               ),
@@ -311,7 +311,9 @@ class _TransferScreenState extends State<TransferScreen> with TickerProviderStat
 
     try {
       final appState = context.read<AppState>();
+      final localizations = AppLocalizations.of(context);
       final success = await appState.transferMoney(
+        localizations: localizations,
         fromAccount: _selectedAccount!,
         toUser: _selectedUser!,
         amount: amount,
@@ -343,7 +345,7 @@ class _TransferScreenState extends State<TransferScreen> with TickerProviderStat
                     ),
                     const SizedBox(height: BankingTokens.space16),
                     Text(
-                      localizations.success,
+                      localizations?.success ?? 'Success',
                       style: BankingTypography.bodyLarge.copyWith(
                         fontWeight: FontWeight.w600,
                         color: isDark ? BankingColors.neutral0 : BankingColors.neutral900,
@@ -352,7 +354,7 @@ class _TransferScreenState extends State<TransferScreen> with TickerProviderStat
                     ),
                     const SizedBox(height: BankingTokens.space16),
                     Text(
-                      localizations.transferCompleted,
+                      localizations?.transferCompleted ?? 'Transfer completed successfully!',
                       style: BankingTypography.bodyMedium.copyWith(
                         color: isDark ? BankingColors.neutral300 : BankingColors.neutral700,
                       ),
@@ -375,7 +377,7 @@ class _TransferScreenState extends State<TransferScreen> with TickerProviderStat
                           ),
                         ),
                         child: Text(
-                          localizations.home, // "Главная" or "Home"
+                          localizations?.home ?? 'Home', // "Главная" or "Home"
                           style: BankingTypography.button,
                         ),
                       ),
@@ -733,7 +735,7 @@ class _TransferScreenState extends State<TransferScreen> with TickerProviderStat
                             ),
                             child: Center(
                               child: Text(
-                                AppLocalizations.of(context)?.noDebitCardsForTransfer ?? 'You have no debit cards for transfers',
+                                AppLocalizations.of(context)?.noDebitCardsForTransfer ?? 'У вас нет дебетовых карт для переводов',
                                 style: BankingTypography.bodyRegular.copyWith(
                                   color: isDark ? BankingColors.neutral300 : BankingColors.neutral600,
                                 ),
@@ -839,7 +841,7 @@ class _TransferScreenState extends State<TransferScreen> with TickerProviderStat
                           Padding(
                             padding: const EdgeInsets.only(top: BankingTokens.space8),
                             child: Text(
-                              '${AppLocalizations.of(context)?.maximumAmount ?? 'Maximum amount'}: ${_selectedAccount!.balance.toStringAsFixed(2)}\$',
+                              '${AppLocalizations.of(context)?.maximumAmount ?? 'Максимальная сумма'}: ${_selectedAccount!.balance.toStringAsFixed(2)}\$',
                               style: BankingTypography.bodySmall.copyWith(
                                 color: isDark ? BankingColors.neutral300 : BankingColors.neutral600,
                               ),

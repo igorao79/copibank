@@ -34,7 +34,7 @@ class _CashbackSelectionScreenState extends State<CashbackSelectionScreen> {
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
-          AppLocalizations.of(context)?.selectCashbackCategories ?? 'Select cashback categories',
+          AppLocalizations.of(context)?.selectCashbackCategories ?? 'Выберите категории кэшбэка',
           style: BankingTypography.heading3.copyWith(
             color: isDark ? BankingColors.neutral100 : BankingColors.neutral700,
           ),
@@ -150,6 +150,7 @@ class _CashbackSelectionScreenState extends State<CashbackSelectionScreen> {
             const SizedBox(height: BankingTokens.space24),
             SizedBox(
               width: double.infinity,
+              height: 56,
               child: Stack(
                 children: [
                   // Background progress bar
@@ -177,12 +178,14 @@ class _CashbackSelectionScreenState extends State<CashbackSelectionScreen> {
                   // Button
                   SizedBox(
                     width: double.infinity,
+                    height: 56,
                     child: ElevatedButton(
                       onPressed: _selectedCategoryIds.length != 3
                           ? null
                           : () async {
                               try {
-                                await appState.selectCashbackCategories(_selectedCategoryIds.toList());
+                                final localizations = AppLocalizations.of(context);
+                                await appState.selectCashbackCategories(_selectedCategoryIds.toList(), localizations);
                                 _showSuccessDialog();
                               } catch (e) {
                                 ScaffoldMessenger.of(context).showSnackBar(

@@ -80,27 +80,6 @@ class _QrScannerScreenState extends State<QrScannerScreen> {
               ),
             ),
           ),
-          // Инструкции внизу
-          Positioned(
-            bottom: BankingTokens.screenHorizontalPadding,
-            left: BankingTokens.screenHorizontalPadding,
-            right: BankingTokens.screenHorizontalPadding,
-            child: Container(
-              padding: const EdgeInsets.all(BankingTokens.space16),
-              decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.7),
-                borderRadius: BorderRadius.circular(BankingTokens.radius12),
-              ),
-              child: Text(
-                localizations.qrScanInstruction,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 14,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ),
-          ),
         ],
       ),
     );

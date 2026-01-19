@@ -281,7 +281,7 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
 
                 // Profile Information Section
                 Text(
-                  AppLocalizations.of(context)?.personalInformation ?? 'Personal information',
+                  AppLocalizations.of(context)?.personalInformation ?? 'Личная информация',
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -321,7 +321,7 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
 
                 // Settings Section
                 Text(
-                  AppLocalizations.of(context)?.settings ?? 'Settings',
+                  AppLocalizations.of(context)?.settings ?? 'Настройки',
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -331,8 +331,8 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
                 // Language Setting
                 _buildSettingItem(
                   context: context,
-                  title: AppLocalizations.of(context)?.language ?? 'Language',
-                  value: appState.userLanguage == 'ru' ? (AppLocalizations.of(context)?.russian ?? 'Русский') : (AppLocalizations.of(context)?.english ?? 'English'),
+                  title: AppLocalizations.of(context)?.language ?? 'Язык',
+                  value: appState.userLanguage == 'ru' ? (AppLocalizations.of(context)?.russian ?? 'Русский') : (AppLocalizations.of(context)?.english ?? 'Английский'),
                   icon: Icons.language,
                   onTap: () => _showLanguageDialog(context, appState),
                 ),
@@ -341,8 +341,8 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
                 // PIN Code Setting
                 _buildSettingItem(
                   context: context,
-                  title: AppLocalizations.of(context)?.pinCode ?? 'PIN Code',
-                  value: appState.hasPinCode ? (AppLocalizations.of(context)?.pinSet ?? 'Set') : (AppLocalizations.of(context)?.pinNotSet ?? 'Not set'),
+                  title: AppLocalizations.of(context)?.pinCode ?? 'PIN код',
+                  value: appState.hasPinCode ? (AppLocalizations.of(context)?.pinSet ?? 'Установлен') : (AppLocalizations.of(context)?.pinNotSet ?? 'Не установлен'),
                   icon: Icons.lock,
                   onTap: () => _navigateToChangePin(context),
                 ),
@@ -351,9 +351,9 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
                 // Theme Setting
                 _buildSettingItem(
                   context: context,
-                  title: AppLocalizations.of(context)?.theme ?? 'Theme',
-                  value: appState.themeMode == ThemeMode.dark ? (AppLocalizations.of(context)?.dark ?? 'Dark') :
-                         appState.themeMode == ThemeMode.light ? (AppLocalizations.of(context)?.light ?? 'Light') : (AppLocalizations.of(context)?.system ?? 'System'),
+                  title: AppLocalizations.of(context)?.theme ?? 'Тема',
+                  value: appState.themeMode == ThemeMode.dark ? (AppLocalizations.of(context)?.dark ?? 'Тёмная') :
+                         appState.themeMode == ThemeMode.light ? (AppLocalizations.of(context)?.light ?? 'Светлая') : (AppLocalizations.of(context)?.system ?? 'Системная'),
                   icon: Icons.palette,
                   onTap: () => _showThemeDialog(context, appState),
                 ),
@@ -362,7 +362,7 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
                 // Logout Button
                 Center(
                   child: BankingButtons.secondary(
-                    text: AppLocalizations.of(context)?.logout ?? 'Logout',
+                    text: AppLocalizations.of(context)?.logout ?? 'Выйти',
                     onPressed: () => _showLogoutDialog(context),
                     fullWidth: false,
                   ),
@@ -743,7 +743,7 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
               },
             ),
             ListTile(
-              title: Text(AppLocalizations.of(context)?.english ?? 'English'),
+              title: Text(AppLocalizations.of(context)?.english ?? 'Английский'),
               leading: appState.userLanguage == 'en' ? const Icon(Icons.check) : const SizedBox(),
               onTap: () {
                 appState.setUserLanguage('en');

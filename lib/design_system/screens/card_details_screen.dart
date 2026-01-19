@@ -247,6 +247,7 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> with TickerProvid
       body: FadeTransition(
             opacity: _fadeAnimation,
             child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
               padding: const EdgeInsets.all(BankingTokens.screenHorizontalPadding),
               child: Column(
                 children: [
@@ -362,10 +363,10 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> with TickerProvid
               const SizedBox(height: BankingTokens.space24),
 
               // Action Buttons
-              if (widget.account.type != 'credit_card') ...[
-                Column(
-                  children: [
-                    // Пополнить button
+              Column(
+                children: [
+                  // Пополнить button (только для дебетовых карт)
+                  if (widget.account.type != 'credit_card') ...[
                     SizedBox(
                       width: double.infinity,
                       child: BankingButtons.secondary(
@@ -375,7 +376,9 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> with TickerProvid
                       ),
                     ),
                     const SizedBox(height: BankingTokens.space16),
-                    // Transfer button
+                  ],
+                  // Transfer button (только для дебетовых карт)
+                  if (widget.account.type != 'credit_card') ...[
                     SizedBox(
                       width: double.infinity,
                       child: BankingButtons.primary(
@@ -384,9 +387,19 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> with TickerProvid
                         icon: Icons.send,
                       ),
                     ),
+                    const SizedBox(height: BankingTokens.space16),
                   ],
-                ),
-              ],
+                  // Заблокировать карту button (для всех карт)
+                  SizedBox(
+                    width: double.infinity,
+                    child: BankingButtons.tertiary(
+                      text: 'Заблокировать карту',
+                      onPressed: () => _onBlockCardPressed(),
+                      icon: Icons.lock,
+                    ),
+                  ),
+                ],
+              ),
 
               const SizedBox(height: BankingTokens.space32),
 
@@ -401,7 +414,7 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> with TickerProvid
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      AppLocalizations.of(context)?.cardInformation ?? 'Card information',
+                      AppLocalizations.of(context)?.cardInformation ?? 'Информация о карте',
                       style: BankingTypography.bodyLarge.copyWith(
                         fontWeight: FontWeight.w600,
                         color: isDark ? BankingColors.neutral100 : BankingColors.neutral900,
@@ -409,7 +422,7 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> with TickerProvid
                     ),
                     const SizedBox(height: BankingTokens.space16),
 
-                    _buildInfoRow(AppLocalizations.of(context)?.cardNumber ?? 'Card number', _formatCardNumber(widget.account.cardNumber ?? '**** **** **** ****')),
+                    _buildInfoRow(AppLocalizations.of(context)?.cardNumber ?? 'Номер карты', _formatCardNumber(widget.account.cardNumber ?? '**** **** **** ****')),
                     _buildInfoRow('Срок действия', widget.account.expireDate ?? 'MM/YY'),
                     _buildCVCRow(),
                     _buildInfoRow(localizations.cardType, widget.account.type == 'debit_card' ? localizations.debitType : localizations.creditType),
@@ -511,7 +524,7 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> with TickerProvid
                                 ),
                                 const SizedBox(height: BankingTokens.space16),
                                 Text(
-                                  AppLocalizations.of(context)?.cardNumberCopied ?? 'Card number copied!',
+                                  AppLocalizations.of(context)?.cardNumberCopied ?? 'Номер карты скопирован!',
                                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                                     color: Colors.white,
                                     fontWeight: FontWeight.bold,
@@ -779,7 +792,8 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> with TickerProvid
 
   Future<void> _depositToCard(double amount) async {
     final appState = context.read<AppState>();
-    final success = await appState.depositFromSavingsToCard(widget.account, amount);
+    final localizations = AppLocalizations.of(context);
+    final success = await appState.depositFromSavingsToCard(widget.account, amount, localizations);
 
     if (success) {
       // Show success animation
@@ -805,6 +819,48 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> with TickerProvid
         productType: 'deposit',
       ),
     );
+  }
+
+  void _onBlockCardPressed() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Заблокировать карту'),
+          content: const Text('Вы уверены, что хотите заблокировать эту карту? Карта будет удалена и все данные будут очищены. Это действие нельзя отменить.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Отмена'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close dialog
+                _blockCard();
+              },
+              style: TextButton.styleFrom(
+                foregroundColor: BankingColors.error500,
+              ),
+              child: const Text('Заблокировать'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _blockCard() async {
+    final appState = context.read<AppState>();
+    await appState.blockCard(widget.account.id);
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Карта заблокирована и удалена'),
+          backgroundColor: BankingColors.success500,
+        ),
+      );
+      Navigator.of(context).pop(); // Go back to previous screen
+    }
   }
 
   void _navigateToProfile() {

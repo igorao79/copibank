@@ -174,6 +174,22 @@ class AppLocalizations {
       'newChat': 'Start new chat',
       'chatHistory': 'Chat history',
       'helloBot': 'Hello! I am the bank assistant. How can I help?',
+      'cardIssuedTitle': 'Card issued!',
+      'cardIssuedMessage': 'Your new debit card is ready to use',
+      'transferCompletedTitle': 'Transfer completed',
+      'transferCompletedMessage': 'Transfer of {amount} to {name} completed successfully',
+      'transferReceivedTitle': 'Transfer received',
+      'transferReceivedMessage': 'You received {amount} from {name}',
+      'savingsAccountOpenedTitle': 'Savings account opened!',
+      'savingsAccountOpenedMessage': 'Now you can save money at 5% per annum',
+      'savingsAccountToppedUpTitle': 'Savings account topped up',
+      'savingsAccountToppedUpMessage': '{amount} credited to savings account',
+      'savingsAccountDeletedTitle': 'Savings account deleted',
+      'savingsAccountDeletedMessage': 'Your savings account has been closed',
+      'cardToppedUpTitle': 'Card topped up',
+      'cardToppedUpMessage': '{amount} credited from savings account',
+      'cashbackCategoriesSelectedTitle': 'Cashback categories selected',
+      'cashbackCategoriesSelectedMessage': 'You have selected {count} categories for cashback',
       'helloBotRu': 'Здравствуйте! Я помощник банка. Чем могу помочь?',
       'foodAndRestaurants': 'Food and restaurants',
       'foodRestaurantsDescription': 'Cashback on restaurants, cafes and food delivery',
@@ -501,6 +517,23 @@ class AppLocalizations {
       'noNewNotifications': 'Нет новых уведомлений',
       'helpWithApp': 'Помощь с приложением',
       'helloHowCanWeHelp': 'Здравствуйте! Как мы можем помочь?',
+      'specialistContact': 'Наш специалист свяжется с вами в ближайшее время.',
+      'cardIssuedTitle': 'Карта оформлена!',
+      'cardIssuedMessage': 'Ваша новая дебетовая карта готова к использованию',
+      'transferCompletedTitle': 'Перевод выполнен',
+      'transferCompletedMessage': 'Перевод {amount} пользователю {name} выполнен успешно',
+      'transferReceivedTitle': 'Получен перевод',
+      'transferReceivedMessage': 'Вы получили {amount} от {name}',
+      'savingsAccountOpenedTitle': 'Накопительный счет открыт!',
+      'savingsAccountOpenedMessage': 'Теперь вы можете копить деньги под 5% годовых',
+      'savingsAccountToppedUpTitle': 'Накопительный счет пополнен',
+      'savingsAccountToppedUpMessage': '{amount} зачислено на накопительный счет',
+      'savingsAccountDeletedTitle': 'Накопительный счет удален',
+      'savingsAccountDeletedMessage': 'Ваш накопительный счет был закрыт',
+      'cardToppedUpTitle': 'Карта пополнена',
+      'cardToppedUpMessage': '{amount} зачислено с накопительного счета',
+      'cashbackCategoriesSelectedTitle': 'Выбраны категории кэшбэка',
+      'cashbackCategoriesSelectedMessage': 'Вы выбрали {count} категорий для кэшбэка',
 
       // Dashboard actions
       'setupCashback': 'Настройте кэшбэк',
@@ -665,7 +698,23 @@ class AppLocalizations {
   String get allCards => _localizedValues[locale.languageCode]?['allCards'] ?? 'All cards';
   String get toggleTheme => _localizedValues[locale.languageCode]?['toggleTheme'] ?? 'Switch theme';
   String get enterMessage => _localizedValues[locale.languageCode]?['enterMessage'] ?? 'Enter message...';
-  String get specialistContact => _localizedValues[locale.languageCode]?['specialistContact'] ?? 'Our specialist will contact you shortly.';
+  String get specialistContact => _localizedValues[locale.languageCode]?['specialistContact'] ?? 'Наш специалист свяжется с вами в ближайшее время.';
+  String get cardIssuedTitle => _localizedValues[locale.languageCode]?['cardIssuedTitle'] ?? 'Карта оформлена!';
+  String get cardIssuedMessage => _localizedValues[locale.languageCode]?['cardIssuedMessage'] ?? 'Ваша новая дебетовая карта готова к использованию';
+  String get transferCompletedTitle => _localizedValues[locale.languageCode]?['transferCompletedTitle'] ?? 'Перевод выполнен';
+  String get transferCompletedMessage => _localizedValues[locale.languageCode]?['transferCompletedMessage'] ?? 'Перевод {amount} пользователю {name} выполнен успешно';
+  String get transferReceivedTitle => _localizedValues[locale.languageCode]?['transferReceivedTitle'] ?? 'Получен перевод';
+  String get transferReceivedMessage => _localizedValues[locale.languageCode]?['transferReceivedMessage'] ?? 'Вы получили {amount} от {name}';
+  String get savingsAccountOpenedTitle => _localizedValues[locale.languageCode]?['savingsAccountOpenedTitle'] ?? 'Накопительный счет открыт!';
+  String get savingsAccountOpenedMessage => _localizedValues[locale.languageCode]?['savingsAccountOpenedMessage'] ?? 'Теперь вы можете копить деньги под 5% годовых';
+  String get savingsAccountToppedUpTitle => _localizedValues[locale.languageCode]?['savingsAccountToppedUpTitle'] ?? 'Накопительный счет пополнен';
+  String get savingsAccountToppedUpMessage => _localizedValues[locale.languageCode]?['savingsAccountToppedUpMessage'] ?? '{amount} зачислено на накопительный счет';
+  String get savingsAccountDeletedTitle => _localizedValues[locale.languageCode]?['savingsAccountDeletedTitle'] ?? 'Накопительный счет удален';
+  String get savingsAccountDeletedMessage => _localizedValues[locale.languageCode]?['savingsAccountDeletedMessage'] ?? 'Ваш накопительный счет был закрыт';
+  String get cardToppedUpTitle => _localizedValues[locale.languageCode]?['cardToppedUpTitle'] ?? 'Карта пополнена';
+  String get cardToppedUpMessage => _localizedValues[locale.languageCode]?['cardToppedUpMessage'] ?? '{amount} зачислено с накопительного счета';
+  String get cashbackCategoriesSelectedTitle => _localizedValues[locale.languageCode]?['cashbackCategoriesSelectedTitle'] ?? 'Выбраны категории кэшбэка';
+  String get cashbackCategoriesSelectedMessage => _localizedValues[locale.languageCode]?['cashbackCategoriesSelectedMessage'] ?? 'Вы выбрали {count} категорий для кэшбэка';
   String get newChat => _localizedValues[locale.languageCode]?['newChat'] ?? 'Start new chat';
   String get chatHistory => _localizedValues[locale.languageCode]?['chatHistory'] ?? 'Chat history';
   String get helloBot => _localizedValues[locale.languageCode]?['helloBot'] ?? 'Hello! I am the bank assistant. How can I help?';

@@ -643,7 +643,8 @@ class _CardsScreenState extends State<CardsScreen> with TickerProviderStateMixin
 
     print('DEBUG: Creating card with number: $cardNumber, expire: $expireDate, cvc: $cvc, balance: ${newAccount.balance}');
     print('DEBUG: newAccount.cardNumber before addAccount: ${newAccount.cardNumber}');
-    appState.addAccount(newAccount);
+    final localizations = AppLocalizations.of(context);
+    appState.addAccount(newAccount, localizations);
     print('DEBUG: After addAccount - appState.accounts[0].cardNumber: ${appState.accounts.isNotEmpty ? appState.accounts[0].cardNumber : 'no accounts'}');
 
     // Force rebuild to show new card immediately

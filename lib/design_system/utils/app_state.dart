@@ -411,7 +411,7 @@ class AppState extends ChangeNotifier {
   // User balance - calculated from all accounts
   double get balance => _accounts.fold<double>(0.0, (sum, account) => sum + account.balance);
 
-  void addAccount(Account account) {
+  void addAccount(Account account, [AppLocalizations? localizations]) {
     print('DEBUG: addAccount called with ID: ${account.id}, cardNumber: ${account.cardNumber}');
     print('DEBUG: Before adding - account object: $account');
     _accounts.add(account);
@@ -421,8 +421,8 @@ class AppState extends ChangeNotifier {
     // Add notification about new card
     final notification = NotificationItem(
       id: 'card_${account.id}_${DateTime.now().millisecondsSinceEpoch}',
-      title: 'Card issued!',
-      message: 'Your new debit card is ready to use',
+      title: localizations?.cardIssuedTitle ?? 'Карта оформлена!',
+      message: localizations?.cardIssuedMessage ?? 'Ваша новая дебетовая карта готова к использованию',
       timestamp: DateTime.now(),
       isRead: false,
       type: NotificationType.transaction,
@@ -452,8 +452,30 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> blockCard(String accountId) async {
+    // Remove the card from the accounts list (same as removeAccount)
+    _accounts.removeWhere((account) => account.id == accountId);
+
+    // Remove from SharedPreferences (same as removeAccount)
+    final prefs = await SharedPreferences.getInstance();
+    final existingCards = prefs.getStringList('user_cards') ?? [];
+    existingCards.remove(accountId);
+    await prefs.setStringList('user_cards', existingCards);
+    await prefs.remove('card_${accountId}_number');
+    await prefs.remove('card_${accountId}_expire');
+    await prefs.remove('card_${accountId}_cvc');
+    await prefs.remove('card_${accountId}_balance');
+    await prefs.remove('card_${accountId}_type');
+    await prefs.remove('card_${accountId}_has_sticker');
+    await prefs.remove('card_${accountId}_color');
+    await prefs.remove('sticker_${accountId}'); // Старый ключ для обратной совместимости
+
+    notifyListeners();
+  }
+
   // Transfer money between accounts
   Future<bool> transferMoney({
+    AppLocalizations? localizations,
     required Account fromAccount,
     required TransferUser toUser,
     required double amount,
@@ -504,8 +526,10 @@ class AppState extends ChangeNotifier {
     // Add notification - content will be localized in UI
     final notification = NotificationItem(
       id: 'transfer_${transactionId}',
-      title: 'Transfer completed',
-      message: 'Transfer of \$${amount.toStringAsFixed(2)} to ${toUser.name} completed successfully',
+      title: localizations?.transferCompletedTitle ?? 'Перевод выполнен',
+      message: (localizations?.transferCompletedMessage ?? 'Перевод {amount} пользователю {name} выполнен успешно')
+          .replaceAll('{amount}', '\$${amount.toStringAsFixed(2)}')
+          .replaceAll('{name}', toUser.name),
       timestamp: DateTime.now(),
       isRead: false,
       type: NotificationType.transaction,
@@ -517,7 +541,7 @@ class AppState extends ChangeNotifier {
   }
 
   // Receive random transfer from random user
-  Future<void> receiveRandomTransfer() async {
+  Future<void> receiveRandomTransfer([AppLocalizations? localizations]) async {
     final random = Random();
     final randomUser = _transferUsers[random.nextInt(_transferUsers.length)];
     final randomAmount = 1 + random.nextInt(1000); // 1 to 1000 dollars
@@ -563,8 +587,10 @@ class AppState extends ChangeNotifier {
       // Add notification - content will be localized in UI
       final notification = NotificationItem(
         id: 'receive_${transactionId}',
-        title: 'Transfer received',
-        message: 'You received \$${randomAmount.toStringAsFixed(2)} from ${randomUser.name}',
+        title: localizations?.transferReceivedTitle ?? 'Получен перевод',
+        message: (localizations?.transferReceivedMessage ?? 'Вы получили {amount} от {name}')
+            .replaceAll('{amount}', '\$${randomAmount.toStringAsFixed(2)}')
+            .replaceAll('{name}', randomUser.name),
         timestamp: DateTime.now(),
         isRead: false,
         type: NotificationType.transaction,
@@ -777,7 +803,7 @@ class AppState extends ChangeNotifier {
 
   bool get canOrderSticker => _accounts.any((account) => account.type == 'debit_card' && !account.hasSticker);
 
-  Future<bool> openSavingsAccount() async {
+  Future<bool> openSavingsAccount([AppLocalizations? localizations]) async {
     if (!canOpenSavingsAccount) return false;
 
     _savingsAccount = SavingsAccount(
@@ -797,8 +823,8 @@ class AppState extends ChangeNotifier {
     // Add notification - content will be localized in UI
     final notification = NotificationItem(
       id: 'savings_${_savingsAccount!.id}',
-      title: 'Savings account opened!',
-      message: 'Now you can save money at 5% per annum',
+      title: localizations?.savingsAccountOpenedTitle ?? 'Накопительный счет открыт!',
+      message: localizations?.savingsAccountOpenedMessage ?? 'Теперь вы можете копить деньги под 5% годовых',
       timestamp: DateTime.now(),
       isRead: false,
       type: NotificationType.transaction,
@@ -809,7 +835,7 @@ class AppState extends ChangeNotifier {
     return true;
   }
 
-  Future<bool> depositToSavingsFromAccount(double amount, Account sourceAccount) async {
+  Future<bool> depositToSavingsFromAccount(double amount, Account sourceAccount, [AppLocalizations? localizations]) async {
     if (_savingsAccount == null || amount <= 0) return false;
 
     // Check if the source account has enough balance
@@ -873,7 +899,7 @@ class AppState extends ChangeNotifier {
     return true;
   }
 
-  Future<bool> deleteSavingsAccount() async {
+  Future<bool> deleteSavingsAccount([AppLocalizations? localizations]) async {
     if (_savingsAccount == null) return false;
 
     // Clear savings account
@@ -889,8 +915,8 @@ class AppState extends ChangeNotifier {
     // Add notification - content will be localized in UI
     final notification = NotificationItem(
       id: 'savings_deleted_${DateTime.now().millisecondsSinceEpoch}',
-      title: 'Savings account deleted',
-      message: 'Your savings account has been closed',
+      title: localizations?.savingsAccountDeletedTitle ?? 'Накопительный счет удален',
+      message: localizations?.savingsAccountDeletedMessage ?? 'Ваш накопительный счет был закрыт',
       timestamp: DateTime.now(),
       isRead: false,
       type: NotificationType.transaction,
@@ -901,7 +927,7 @@ class AppState extends ChangeNotifier {
     return true;
   }
 
-  Future<bool> depositToSavings(double amount) async {
+  Future<bool> depositToSavings(double amount, [AppLocalizations? localizations]) async {
     if (_savingsAccount == null || amount <= 0) return false;
 
     // Check if user has enough money in any account
@@ -965,8 +991,9 @@ class AppState extends ChangeNotifier {
     // Add notification - content will be localized in UI
     final notification = NotificationItem(
       id: 'savings_deposit_$transactionId',
-      title: 'Savings account topped up',
-      message: '\$${amount.toStringAsFixed(2)} credited to savings account',
+      title: localizations?.savingsAccountToppedUpTitle ?? 'Накопительный счет пополнен',
+      message: (localizations?.savingsAccountToppedUpMessage ?? '{amount} зачислено на накопительный счет')
+          .replaceAll('{amount}', '\$${amount.toStringAsFixed(2)}'),
       timestamp: DateTime.now(),
       isRead: false,
       type: NotificationType.transaction,
@@ -977,7 +1004,7 @@ class AppState extends ChangeNotifier {
     return true;
   }
 
-  Future<bool> depositFromSavingsToCard(Account account, double amount) async {
+  Future<bool> depositFromSavingsToCard(Account account, double amount, [AppLocalizations? localizations]) async {
     if (_savingsAccount == null || _savingsAccount!.balance < amount || amount <= 0) return false;
 
     // Update savings account
@@ -1028,8 +1055,9 @@ class AppState extends ChangeNotifier {
     // Add notification - content will be localized in UI
     final notification = NotificationItem(
       id: 'deposit_$transactionId',
-      title: 'Card topped up',
-      message: '\$${amount.toStringAsFixed(2)} credited from savings account',
+      title: localizations?.cardToppedUpTitle ?? 'Карта пополнена',
+      message: (localizations?.cardToppedUpMessage ?? '{amount} зачислено с накопительного счета')
+          .replaceAll('{amount}', '\$${amount.toStringAsFixed(2)}'),
       timestamp: DateTime.now(),
       isRead: false,
       type: NotificationType.transaction,
@@ -1092,7 +1120,7 @@ class AppState extends ChangeNotifier {
   }
 
   // Cashback methods
-  Future<void> selectCashbackCategories(List<String> categoryIds) async {
+  Future<void> selectCashbackCategories(List<String> categoryIds, [AppLocalizations? localizations]) async {
     if (categoryIds.length > 3) {
       throw ArgumentError('Can select no more than 3 cashback categories'); // Will be localized in UI
     }
@@ -1107,8 +1135,9 @@ class AppState extends ChangeNotifier {
     // Add notification about cashback categories selection - content will be localized in UI
     addNotification(NotificationItem(
       id: 'cashback_selected_${DateTime.now().millisecondsSinceEpoch}',
-      title: 'Cashback categories selected',
-      message: 'You have selected ${categoryIds.length} categories for cashback',
+      title: localizations?.cashbackCategoriesSelectedTitle ?? 'Выбраны категории кэшбэка',
+      message: (localizations?.cashbackCategoriesSelectedMessage ?? 'Вы выбрали {count} категорий для кэшбэка')
+          .replaceAll('{count}', categoryIds.length.toString()),
       timestamp: DateTime.now(),
       type: NotificationType.promotion,
     ));

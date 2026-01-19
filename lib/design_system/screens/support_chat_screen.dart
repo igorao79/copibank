@@ -35,28 +35,28 @@ class _SupportChatScreenState extends State<SupportChatScreen> with TickerProvid
 
   List<Map<String, String>> get _quickQuestions => [
     {
-      'question': AppLocalizations.of(context)?.faqHowToTopUp ?? 'How to top up account?',
-      'answer': AppLocalizations.of(context)?.faqHowToTopUpAnswer ?? 'You can top up your account through:\n• ATM\n• Transfer from another card\n• Via mobile app\n• At bank branch'
+      'question': AppLocalizations.of(context)?.faqHowToTopUp ?? 'Как пополнить счет?',
+      'answer': AppLocalizations.of(context)?.faqHowToTopUpAnswer ?? 'Вы можете пополнить счет через:\n• Банкомат\n• Перевод с другой карты\n• Через мобильное приложение\n• В отделении банка'
     },
     {
-      'question': AppLocalizations.of(context)?.faqHowToBlockCard ?? 'How to block card?',
-      'answer': AppLocalizations.of(context)?.faqHowToBlockCardAnswer ?? 'Block card can be done:\n• In mobile app (Cards → Select card → Block)\n• By hotline phone\n• At bank branch'
+      'question': AppLocalizations.of(context)?.faqHowToBlockCard ?? 'Как заблокировать карту?',
+      'answer': AppLocalizations.of(context)?.faqHowToBlockCardAnswer ?? 'Заблокировать карту можно:\n• В мобильном приложении (Карты → Выбрать карту → Заблокировать)\n• По телефону горячей линии\n• В отделении банка'
     },
     {
-      'question': AppLocalizations.of(context)?.faqHowToChangePin ?? 'How to change PIN code?',
-      'answer': AppLocalizations.of(context)?.faqHowToChangePinAnswer ?? 'Change PIN code can be done:\n• At ATM\n• Via mobile app\n• At bank branch with passport'
+      'question': AppLocalizations.of(context)?.faqHowToChangePin ?? 'Как изменить PIN код?',
+      'answer': AppLocalizations.of(context)?.faqHowToChangePinAnswer ?? 'Изменить PIN код можно:\n• В банкомате\n• Через мобильное приложение\n• В отделении банка с паспортом'
     },
     {
-      'question': AppLocalizations.of(context)?.faqWhyPaymentFailed ?? 'Why payment didn\'t go through?',
-      'answer': AppLocalizations.of(context)?.faqWhyPaymentFailedAnswer ?? 'Possible reasons:\n• Insufficient funds\n• Limit exceeded\n• Technical problems\n• Incorrect details\n\nCheck payment status in transaction history'
+      'question': AppLocalizations.of(context)?.faqWhyPaymentFailed ?? 'Почему платеж не прошел?',
+      'answer': AppLocalizations.of(context)?.faqWhyPaymentFailedAnswer ?? 'Возможные причины:\n• Недостаточно средств\n• Превышен лимит\n• Технические проблемы\n• Некорректные данные\n\nПроверьте статус платежа в истории транзакций'
     },
     {
-      'question': AppLocalizations.of(context)?.faqHowToEnableNotifications ?? 'How to enable notifications?',
-      'answer': AppLocalizations.of(context)?.faqHowToEnableNotificationsAnswer ?? 'Enable notifications:\n• Open app\n• Go to Settings\n• Select "Notifications"\n• Allow push notifications'
+      'question': AppLocalizations.of(context)?.faqHowToEnableNotifications ?? 'Как включить уведомления?',
+      'answer': AppLocalizations.of(context)?.faqHowToEnableNotificationsAnswer ?? 'Включить уведомления:\n• Откройте приложение\n• Перейдите в Настройки\n• Выберите "Уведомления"\n• Разрешите push уведомления'
     },
     {
-      'question': AppLocalizations.of(context)?.faqAccountSecurity ?? 'Account security',
-      'answer': AppLocalizations.of(context)?.faqAccountSecurityAnswer ?? 'Security recommendations:\n• Use strong password\n• Don\'t share data with third parties\n• Change password regularly\n• Enable two-factor authentication'
+      'question': AppLocalizations.of(context)?.faqAccountSecurity ?? 'Безопасность счета',
+      'answer': AppLocalizations.of(context)?.faqAccountSecurityAnswer ?? 'Рекомендации по безопасности:\n• Используйте надежный пароль\n• Не передавайте данные третьим лицам\n• Регулярно меняйте пароль\n• Включите двухфакторную аутентификацию'
     },
   ];
 
@@ -447,7 +447,7 @@ class _SupportChatScreenState extends State<SupportChatScreen> with TickerProvid
               child: TextField(
                 controller: _messageController,
                 decoration: InputDecoration(
-                  hintText: AppLocalizations.of(context)?.enterMessage ?? 'Enter message...',
+                  hintText: AppLocalizations.of(context)?.enterMessage ?? 'Введите сообщение...',
                   border: InputBorder.none,
                   hintStyle: BankingTypography.bodyRegular.copyWith(
                     color: isDark ? BankingColors.neutral200 : BankingColors.neutral400,
@@ -532,7 +532,7 @@ class _SupportChatScreenState extends State<SupportChatScreen> with TickerProvid
         if (mounted) {
           setState(() {
             _messages.add({
-              'text': AppLocalizations.of(context)?.specialistContact ?? 'Thank you for your message. Our specialist will contact you shortly.',
+              'text': AppLocalizations.of(context)?.specialistContact ?? 'Спасибо за ваше сообщение. Наш специалист свяжется с вами в ближайшее время.',
               'isBot': true,
               'timestamp': DateTime.now(),
               'type': 'text',
@@ -586,7 +586,7 @@ class _SupportChatScreenState extends State<SupportChatScreen> with TickerProvid
                 children: [
                   ListTile(
                     leading: Icon(Icons.refresh, color: BankingColors.primary500),
-                    title: Text(AppLocalizations.of(context)?.newChat ?? 'Start new chat', style: BankingTypography.bodyRegular),
+                    title: Text(AppLocalizations.of(context)?.newChat ?? 'Начать новый чат', style: BankingTypography.bodyRegular),
                     onTap: () {
                       Navigator.pop(context);
                       _startNewChat();
@@ -594,7 +594,7 @@ class _SupportChatScreenState extends State<SupportChatScreen> with TickerProvid
                   ),
                   ListTile(
                     leading: Icon(Icons.history, color: BankingColors.primary500),
-                    title: Text(AppLocalizations.of(context)?.chatHistory ?? 'Chat history', style: BankingTypography.bodyRegular),
+                    title: Text(AppLocalizations.of(context)?.chatHistory ?? 'История чатов', style: BankingTypography.bodyRegular),
                     onTap: () {
                       Navigator.pop(context);
                       // TODO: Show chat history
@@ -613,7 +613,7 @@ class _SupportChatScreenState extends State<SupportChatScreen> with TickerProvid
     setState(() {
       _messages = [
         {
-          'text': AppLocalizations.of(context)?.helloBot ?? 'Hello! I am the bank assistant. How can I help?',
+          'text': AppLocalizations.of(context)?.helloBot ?? 'Здравствуйте! Я помощник банка. Чем могу помочь?',
           'isBot': true,
           'timestamp': DateTime.now(),
           'type': 'text',

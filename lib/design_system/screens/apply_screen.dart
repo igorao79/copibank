@@ -482,7 +482,8 @@ class _ApplyScreenState extends State<ApplyScreen>
   }
 
   void _onSavingsAccountAccepted(BuildContext context, AppState appState) {
-    appState.openSavingsAccount();
+    final localizations = AppLocalizations.of(context);
+    appState.openSavingsAccount(localizations);
     Navigator.of(context).pop();
     _showSuccessModal(context, 'Накопительный счет открыт!', 'savings_account');
   }
@@ -565,7 +566,7 @@ class _ApplyScreenState extends State<ApplyScreen>
 
     final isFirstCard = appState.accounts.isEmpty;
 
-    appState.addAccount(newAccount);
+    appState.addAccount(newAccount, localizations);
     _saveCardToSharedPreferences(newAccount);
 
     Navigator.of(context).pop();
@@ -641,7 +642,7 @@ class _ApplyScreenState extends State<ApplyScreen>
 
     print('DEBUG: ApplyScreen - Credit account created with cardNumber: ${newAccount.cardNumber}');
 
-    appState.addAccount(newAccount);
+    appState.addAccount(newAccount, localizations);
     _saveCardToSharedPreferences(newAccount);
 
     Navigator.of(context).pop();
