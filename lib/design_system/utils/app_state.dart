@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/cupertino.dart';
 import 'dart:math';
+import 'package:copibank/l10n/app_localizations.dart';
 
 /// App State Management
 /// Centralized state management for the banking application
@@ -10,60 +11,148 @@ class AppState extends ChangeNotifier {
   int _selectedTabIndex = 0;
   int get selectedTabIndex => _selectedTabIndex;
 
-  // Cashback management
-  final List<CashbackCategory> _allCashbackCategories = [
-    const CashbackCategory(
-      id: 'food',
-      name: 'Еда и рестораны',
-      icon: Icons.restaurant,
-      description: 'Кэшбэк на рестораны, кафе и доставку еды',
-      percentage: 5.0,
-      color: Color(0xFF4CAF50),
-    ),
-    const CashbackCategory(
-      id: 'shopping',
-      name: 'Покупки',
-      icon: Icons.shopping_bag,
-      description: 'Кэшбэк на одежду, электронику и товары',
-      percentage: 3.0,
-      color: Color(0xFF2196F3),
-    ),
-    const CashbackCategory(
-      id: 'travel',
-      name: 'Путешествия',
-      icon: Icons.flight,
-      description: 'Кэшбэк на авиабилеты, отели и транспорт',
-      percentage: 4.0,
-      color: Color(0xFFFF9800),
-    ),
-    const CashbackCategory(
-      id: 'fuel',
-      name: 'Топливо',
-      icon: Icons.local_gas_station,
-      description: 'Кэшбэк на заправки и топливо',
-      percentage: 2.0,
-      color: Color(0xFFFF5722),
-    ),
-    const CashbackCategory(
-      id: 'entertainment',
-      name: 'Развлечения',
-      icon: Icons.movie,
-      description: 'Кэшбэк на кино, концерты и развлечения',
-      percentage: 3.5,
-      color: Color(0xFF9C27B0),
-    ),
-    const CashbackCategory(
-      id: 'supermarket',
-      name: 'Супермаркеты',
-      icon: Icons.shopping_cart,
-      description: 'Кэшбэк на продукты и товары в супермаркетах',
-      percentage: 2.5,
-      color: Color(0xFF795548),
-    ),
+  // Cashback management - localized categories will be initialized in getLocalizedCashbackCategories
+  final List<Map<String, dynamic>> _cashbackCategoryData = [
+    {
+      'id': 'food',
+      'icon': Icons.restaurant,
+      'percentage': 5.0,
+      'color': Color(0xFF4CAF50),
+      'nameKey': 'foodAndRestaurants',
+      'descriptionKey': 'foodRestaurantsDescription',
+    },
+    {
+      'id': 'shopping',
+      'icon': Icons.shopping_bag,
+      'percentage': 3.0,
+      'color': Color(0xFF2196F3),
+      'nameKey': 'shopping',
+      'descriptionKey': 'shoppingDescription',
+    },
+    {
+      'id': 'travel',
+      'icon': Icons.flight,
+      'percentage': 4.0,
+      'color': Color(0xFFFF9800),
+      'nameKey': 'travel',
+      'descriptionKey': 'travelDescription',
+    },
+    {
+      'id': 'fuel',
+      'icon': Icons.local_gas_station,
+      'percentage': 2.0,
+      'color': Color(0xFFFF5722),
+      'nameKey': 'fuel',
+      'descriptionKey': 'fuelDescription',
+    },
+    {
+      'id': 'entertainment',
+      'icon': Icons.movie,
+      'percentage': 3.5,
+      'color': Color(0xFF9C27B0),
+      'nameKey': 'entertainment',
+      'descriptionKey': 'entertainmentDescription',
+    },
+    {
+      'id': 'supermarket',
+      'icon': Icons.shopping_cart,
+      'percentage': 2.5,
+      'color': Color(0xFF795548),
+      'nameKey': 'supermarkets',
+      'descriptionKey': 'supermarketsDescription',
+    },
   ];
+
+  List<CashbackCategory> _allCashbackCategories = [];
 
   List<String> _selectedCashbackCategoryIds = [];
   bool _hasSelectedCashbackCategories = false;
+
+  // Method to get localized cashback categories
+  List<CashbackCategory> getLocalizedCashbackCategories(BuildContext context) {
+    final localizations = AppLocalizations.of(context);
+    if (localizations == null) return _allCashbackCategories;
+
+    return _cashbackCategoryData.map((data) {
+      final name = _getLocalizedValue(localizations, data['nameKey'] as String);
+      final description = _getLocalizedValue(localizations, data['descriptionKey'] as String);
+
+      return CashbackCategory(
+        id: data['id'] as String,
+        name: name,
+        icon: data['icon'] as IconData,
+        description: description,
+        percentage: data['percentage'] as double,
+        color: data['color'] as Color,
+      );
+    }).toList();
+  }
+
+  // Helper method to get localized value
+  String _getLocalizedValue(AppLocalizations localizations, String key) {
+    // Using reflection-like approach with switch statement for known keys
+    switch (key) {
+      case 'foodAndRestaurants':
+        return localizations.foodAndRestaurants;
+      case 'foodRestaurantsDescription':
+        return localizations.foodRestaurantsDescription;
+      case 'shopping':
+        return localizations.shopping;
+      case 'shoppingDescription':
+        return localizations.shoppingDescription;
+      case 'travel':
+        return localizations.travel;
+      case 'travelDescription':
+        return localizations.travelDescription;
+      case 'fuel':
+        return localizations.fuel;
+      case 'fuelDescription':
+        return localizations.fuelDescription;
+      case 'entertainment':
+        return localizations.entertainment;
+      case 'entertainmentDescription':
+        return localizations.entertainmentDescription;
+      case 'supermarkets':
+        return localizations.supermarkets;
+      case 'supermarketsDescription':
+        return localizations.supermarketsDescription;
+      case 'annaIvanova':
+        return localizations.annaIvanova;
+      case 'mikhailPetrov':
+        return localizations.mikhailPetrov;
+      case 'elenaSidorova':
+        return localizations.elenaSidorova;
+      case 'dmitryKozlov':
+        return localizations.dmitryKozlov;
+      case 'olgaNovikova':
+        return localizations.olgaNovikova;
+      case 'alexeyMorozov':
+        return localizations.alexeyMorozov;
+      case 'mariaVolkova':
+        return localizations.mariaVolkova;
+      case 'sergeySokolov':
+        return localizations.sergeySokolov;
+      default:
+        return key; // Fallback to key if not found
+    }
+  }
+
+  // Method to get localized transfer users
+  List<TransferUser> getLocalizedTransferUsers(BuildContext context) {
+    final localizations = AppLocalizations.of(context);
+    if (localizations == null) return _transferUsers;
+
+    return _transferUserData.map((data) {
+      final name = _getLocalizedValue(localizations, data['nameKey']!);
+
+      return TransferUser(
+        id: data['id']!,
+        name: name,
+        avatarUrl: data['avatarUrl']!,
+        phoneNumber: data['phoneNumber']!,
+      );
+    }).toList();
+  }
 
   List<CashbackCategory> get allCashbackCategories => _allCashbackCategories;
   List<CashbackCategory> get selectedCashbackCategories => _allCashbackCategories
@@ -247,13 +336,7 @@ class AppState extends ChangeNotifier {
     await setPinCode(newPinCode);
 
     // Add notification about PIN code change
-    addNotification(NotificationItem(
-      id: 'pin_changed_${DateTime.now().millisecondsSinceEpoch}',
-      title: 'PIN-код изменен',
-      message: 'Ваш PIN-код был успешно изменен',
-      timestamp: DateTime.now(),
-      type: NotificationType.security,
-    ));
+    // Note: PIN change notification will be localized in the UI layer
   }
 
   bool verifyPinCode(String pinCode) {
@@ -386,7 +469,7 @@ class AppState extends ChangeNotifier {
     final transactionId = 'transfer_${DateTime.now().millisecondsSinceEpoch}';
     final transaction = Transaction(
       id: transactionId,
-      title: 'Перевод ${toUser.name}',
+      title: 'Transfer to ${toUser.name}', // Will be localized in UI
       amount: -amount,
       date: DateTime.now(),
       category: 'Transfer',
@@ -395,7 +478,7 @@ class AppState extends ChangeNotifier {
     );
     addTransaction(transaction);
 
-    // Add notification
+    // Add notification - content will be localized in UI
     final notification = NotificationItem(
       id: 'transfer_${transactionId}',
       title: 'Transfer completed',
@@ -446,7 +529,7 @@ class AppState extends ChangeNotifier {
       final transactionId = 'receive_${DateTime.now().millisecondsSinceEpoch}';
       final transaction = Transaction(
         id: transactionId,
-        title: 'Получен перевод от ${randomUser.name}',
+        title: 'Received transfer from ${randomUser.name}', // Will be localized in UI
         amount: randomAmount.toDouble(),
         date: DateTime.now(),
         category: 'Income',
@@ -454,7 +537,7 @@ class AppState extends ChangeNotifier {
       );
       addTransaction(transaction);
 
-      // Add notification
+      // Add notification - content will be localized in UI
       final notification = NotificationItem(
         id: 'receive_${transactionId}',
         title: 'Transfer received',
@@ -513,7 +596,7 @@ class AppState extends ChangeNotifier {
     ),
     Transaction(
       id: '6',
-      title: 'Перевод от Михаила',
+      title: 'Transfer from Mikhail', // Will be localized in UI
       amount: 500.00,
       date: DateTime.now().subtract(const Duration(days: 4)),
       category: 'Transfer',
@@ -521,7 +604,7 @@ class AppState extends ChangeNotifier {
     ),
     Transaction(
       id: '7',
-      title: 'Покупка в магазине',
+      title: 'Store purchase', // Will be localized in UI
       amount: -25.50,
       date: DateTime.now().subtract(const Duration(days: 5)),
       category: 'Shopping',
@@ -554,57 +637,59 @@ class AppState extends ChangeNotifier {
 
   List<QuickAction> get quickActions => _quickActions;
 
-  // Transfer users - mock users available for transfers
-  final List<TransferUser> _transferUsers = [
-    TransferUser(
-      id: '1',
-      name: 'Анна Иванова',
-      avatarUrl: 'local_avatar_1', // Using local identifiers instead of external URLs
-      phoneNumber: '+7 (999) 123-45-67',
-    ),
-    TransferUser(
-      id: '2',
-      name: 'Михаил Петров',
-      avatarUrl: 'local_avatar_2',
-      phoneNumber: '+7 (999) 234-56-78',
-    ),
-    TransferUser(
-      id: '3',
-      name: 'Елена Сидорова',
-      avatarUrl: 'local_avatar_3',
-      phoneNumber: '+7 (999) 345-67-89',
-    ),
-    TransferUser(
-      id: '4',
-      name: 'Дмитрий Козлов',
-      avatarUrl: 'local_avatar_4',
-      phoneNumber: '+7 (999) 456-78-90',
-    ),
-    TransferUser(
-      id: '5',
-      name: 'Ольга Новикова',
-      avatarUrl: 'local_avatar_5',
-      phoneNumber: '+7 (999) 567-89-01',
-    ),
-    TransferUser(
-      id: '6',
-      name: 'Алексей Морозов',
-      avatarUrl: 'local_avatar_6',
-      phoneNumber: '+7 (999) 678-90-12',
-    ),
-    TransferUser(
-      id: '7',
-      name: 'Мария Волкова',
-      avatarUrl: 'local_avatar_7',
-      phoneNumber: '+7 (999) 789-01-23',
-    ),
-    TransferUser(
-      id: '8',
-      name: 'Сергей Соколов',
-      avatarUrl: 'local_avatar_8',
-      phoneNumber: '+7 (999) 890-12-34',
-    ),
+  // Transfer users data - will be localized
+  final List<Map<String, String>> _transferUserData = [
+    {
+      'id': '1',
+      'nameKey': 'annaIvanova',
+      'avatarUrl': 'local_avatar_1',
+      'phoneNumber': '+7 (999) 123-45-67',
+    },
+    {
+      'id': '2',
+      'nameKey': 'mikhailPetrov',
+      'avatarUrl': 'local_avatar_2',
+      'phoneNumber': '+7 (999) 234-56-78',
+    },
+    {
+      'id': '3',
+      'nameKey': 'elenaSidorova',
+      'avatarUrl': 'local_avatar_3',
+      'phoneNumber': '+7 (999) 345-67-89',
+    },
+    {
+      'id': '4',
+      'nameKey': 'dmitryKozlov',
+      'avatarUrl': 'local_avatar_4',
+      'phoneNumber': '+7 (999) 456-78-90',
+    },
+    {
+      'id': '5',
+      'nameKey': 'olgaNovikova',
+      'avatarUrl': 'local_avatar_5',
+      'phoneNumber': '+7 (999) 567-89-01',
+    },
+    {
+      'id': '6',
+      'nameKey': 'alexeyMorozov',
+      'avatarUrl': 'local_avatar_6',
+      'phoneNumber': '+7 (999) 678-90-12',
+    },
+    {
+      'id': '7',
+      'nameKey': 'mariaVolkova',
+      'avatarUrl': 'local_avatar_7',
+      'phoneNumber:': '+7 (999) 789-01-23',
+    },
+    {
+      'id': '8',
+      'nameKey': 'sergeySokolov',
+      'avatarUrl': 'local_avatar_8',
+      'phoneNumber': '+7 (999) 890-12-34',
+    },
   ];
+
+  List<TransferUser> _transferUsers = [];
 
   List<TransferUser> get transferUsers => _transferUsers;
 
@@ -614,12 +699,12 @@ class AppState extends ChangeNotifier {
   List<Account> get accounts => _accounts;
   Account? get primaryAccount => _accounts.isEmpty ? null : _accounts.firstWhere((account) => account.isPrimary, orElse: () => _accounts.first);
 
-  // Notifications
+  // Notifications - will be localized in UI
   final List<NotificationItem> _notifications = [
     NotificationItem(
       id: '1',
-      title: 'Добро пожаловать!', // Will be localized later
-      message: 'Вы успешно вошли в систему',
+      title: 'Welcome!', // Will be localized in UI
+      message: 'You have successfully logged in',
       timestamp: DateTime.now(),
       isRead: false,
       type: NotificationType.welcome,
@@ -686,11 +771,11 @@ class AppState extends ChangeNotifier {
     await prefs.setDouble('savings_account_rate', _savingsAccount!.interestRate);
     await prefs.setString('savings_account_created', _savingsAccount!.createdDate.toIso8601String());
 
-    // Add notification
+    // Add notification - content will be localized in UI
     final notification = NotificationItem(
       id: 'savings_${_savingsAccount!.id}',
-      title: 'Накопительный счет открыт!',
-      message: 'Теперь вы можете копить деньги под 5% годовых',
+      title: 'Savings account opened!',
+      message: 'Now you can save money at 5% per annum',
       timestamp: DateTime.now(),
       isRead: false,
       type: NotificationType.transaction,
@@ -754,7 +839,7 @@ class AppState extends ChangeNotifier {
     final transactionId = 'savings_deposit_${DateTime.now().millisecondsSinceEpoch}';
     final transaction = Transaction(
       id: transactionId,
-      title: 'Пополнение накопительного счета',
+      title: 'Savings account deposit', // Will be localized in UI
       amount: -amount,
       date: DateTime.now(),
       category: 'Savings',
@@ -762,7 +847,7 @@ class AppState extends ChangeNotifier {
     );
     addTransaction(transaction);
 
-    // Add notification
+    // Add notification - content will be localized in UI
     final notification = NotificationItem(
       id: 'savings_deposit_$transactionId',
       title: 'Savings account topped up',
@@ -817,7 +902,7 @@ class AppState extends ChangeNotifier {
     final transactionId = 'savings_to_card_${DateTime.now().millisecondsSinceEpoch}';
     final transaction = Transaction(
       id: transactionId,
-      title: 'Пополнение карты с накопительного счета',
+      title: 'Card deposit from savings account', // Will be localized in UI
       amount: amount,
       date: DateTime.now(),
       category: 'Deposit',
@@ -825,7 +910,7 @@ class AppState extends ChangeNotifier {
     );
     addTransaction(transaction);
 
-    // Add notification
+    // Add notification - content will be localized in UI
     final notification = NotificationItem(
       id: 'deposit_$transactionId',
       title: 'Card topped up',
@@ -894,7 +979,7 @@ class AppState extends ChangeNotifier {
   // Cashback methods
   Future<void> selectCashbackCategories(List<String> categoryIds) async {
     if (categoryIds.length > 3) {
-      throw ArgumentError('Можно выбрать не более 3 категорий кэшбэка');
+      throw ArgumentError('Can select no more than 3 cashback categories'); // Will be localized in UI
     }
 
     _selectedCashbackCategoryIds = categoryIds;
@@ -904,11 +989,11 @@ class AppState extends ChangeNotifier {
     await prefs.setStringList('selected_cashback_categories', categoryIds);
     await prefs.setBool('has_selected_cashback_categories', true);
 
-    // Add notification about cashback categories selection
+    // Add notification about cashback categories selection - content will be localized in UI
     addNotification(NotificationItem(
       id: 'cashback_selected_${DateTime.now().millisecondsSinceEpoch}',
-      title: 'Категории кэшбэка выбраны',
-      message: 'Вы выбрали ${categoryIds.length} категорию(й) для получения кэшбэка',
+      title: 'Cashback categories selected',
+      message: 'You have selected ${categoryIds.length} categories for cashback',
       timestamp: DateTime.now(),
       type: NotificationType.promotion,
     ));
@@ -1040,18 +1125,31 @@ class NotificationItem {
     required this.type,
   });
 
-  String get timeAgo {
+  String getTimeAgo(AppLocalizations? localizations) {
     final now = DateTime.now();
     final difference = now.difference(timestamp);
 
-    if (difference.inDays > 0) {
-      return '${difference.inDays} д. назад';
-    } else if (difference.inHours > 0) {
-      return '${difference.inHours} ч. назад';
-    } else if (difference.inMinutes > 0) {
-      return '${difference.inMinutes} мин. назад';
+    if (localizations != null) {
+      if (difference.inDays > 0) {
+        return '${difference.inDays} ${localizations.daysAgo}';
+      } else if (difference.inHours > 0) {
+        return '${difference.inHours} ${localizations.hoursAgo}';
+      } else if (difference.inMinutes > 0) {
+        return '${difference.inMinutes} ${localizations.minutesAgo}';
+      } else {
+        return localizations.justNow;
+      }
     } else {
-      return 'только что';
+      // Fallback for when localizations is not available
+      if (difference.inDays > 0) {
+        return '${difference.inDays} days ago';
+      } else if (difference.inHours > 0) {
+        return '${difference.inHours} hours ago';
+      } else if (difference.inMinutes > 0) {
+        return '${difference.inMinutes} minutes ago';
+      } else {
+        return 'just now';
+      }
     }
   }
 }

@@ -173,7 +173,7 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> with TickerProvid
                               ),
                             ),
                             Text(
-                              notification.timeAgo,
+                              notification.getTimeAgo(AppLocalizations.of(context)),
                               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                 color: Theme.of(context).brightness == Brightness.dark
                                     ? BankingColors.neutral500
@@ -266,7 +266,7 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> with TickerProvid
                                   ),
                                 ),
                                 Text(
-                                  notification.timeAgo,
+                                  notification.getTimeAgo(AppLocalizations.of(context)),
                                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                     color: Theme.of(context).brightness == Brightness.dark
                                         ? BankingColors.neutral500
@@ -395,7 +395,7 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> with TickerProvid
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Баланс:',
+                      AppLocalizations.of(context)?.balance ?? 'Balance:',
                       style: BankingTypography.bodyLarge.copyWith(
                         fontWeight: FontWeight.w600,
                         color: isDark ? BankingColors.neutral100 : BankingColors.neutral900,
@@ -454,7 +454,7 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> with TickerProvid
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Информация о карте',
+                      AppLocalizations.of(context)?.cardInformation ?? 'Card information',
                       style: BankingTypography.bodyLarge.copyWith(
                         fontWeight: FontWeight.w600,
                         color: isDark ? BankingColors.neutral100 : BankingColors.neutral900,
@@ -462,7 +462,7 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> with TickerProvid
                     ),
                     const SizedBox(height: BankingTokens.space16),
 
-                    _buildInfoRow('Номер карты', _formatCardNumber(widget.account.cardNumber ?? '**** **** **** ****')),
+                    _buildInfoRow(AppLocalizations.of(context)?.cardNumber ?? 'Card number', _formatCardNumber(widget.account.cardNumber ?? '**** **** **** ****')),
                     _buildInfoRow('Срок действия', widget.account.expireDate ?? 'MM/YY'),
                     _buildCVCRow(),
                     _buildInfoRow('Тип карты', widget.account.type == 'debit_card' ? 'Дебетовая' : 'Кредитная'),
@@ -563,7 +563,7 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> with TickerProvid
                                 ),
                                 const SizedBox(height: BankingTokens.space16),
                                 Text(
-                                  'Номер карты скопирован!',
+                                  AppLocalizations.of(context)?.cardNumberCopied ?? 'Card number copied!',
                                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                                     color: Colors.white,
                                     fontWeight: FontWeight.bold,

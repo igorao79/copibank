@@ -229,7 +229,7 @@ class _NotificationsChatScreenState extends State<NotificationsChatScreen> with 
               ),
               const SizedBox(height: BankingTokens.space8),
               Text(
-                notification.timeAgo,
+                notification.getTimeAgo(AppLocalizations.of(context)),
                 style: BankingTypography.caption.copyWith(
                   color: isDark ? BankingColors.neutral200 : BankingColors.neutral400,
                   fontSize: 10,
@@ -297,7 +297,7 @@ class _NotificationsChatScreenState extends State<NotificationsChatScreen> with 
                       ),
                       const SizedBox(height: BankingTokens.space16),
                       Text(
-                        notification.timeAgo,
+                        notification.getTimeAgo(AppLocalizations.of(context)),
                         style: BankingTypography.caption.copyWith(
                           color: isDark ? BankingColors.neutral200 : BankingColors.neutral400,
                         ),

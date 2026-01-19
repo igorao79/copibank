@@ -209,7 +209,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                           ),
                         ),
                         Text(
-                          notification.timeAgo,
+                          notification.getTimeAgo(AppLocalizations.of(context)),
                           style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: Theme.of(context).brightness == Brightness.dark
                                 ? BankingColors.neutral500

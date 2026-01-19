@@ -78,7 +78,7 @@ class _TransferScreenState extends State<TransferScreen> with TickerProviderStat
     final amount = double.tryParse(_amountController.text.replaceAll(',', '.'));
     if (_selectedAccount != null && amount != null && amount > _selectedAccount!.balance) {
       setState(() {
-        _amountError = 'Сумма превышает доступный баланс';
+        _amountError = AppLocalizations.of(context)?.insufficientCardFunds ?? 'Insufficient funds on card';
       });
     } else {
       setState(() {
@@ -141,7 +141,7 @@ class _TransferScreenState extends State<TransferScreen> with TickerProviderStat
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Выберите банк получателя',
+              AppLocalizations.of(context)?.bankRecipient ?? 'Recipient bank',
               style: BankingTypography.bodyLarge.copyWith(
                 fontWeight: FontWeight.w600,
                 color: BankingColors.neutral900,
@@ -212,7 +212,7 @@ class _TransferScreenState extends State<TransferScreen> with TickerProviderStat
                   ),
                 ),
                 child: Text(
-                  'Отмена',
+                  AppLocalizations.of(context)?.cancel ?? 'Cancel',
                   style: BankingTypography.button,
                 ),
               ),
@@ -677,7 +677,7 @@ class _TransferScreenState extends State<TransferScreen> with TickerProviderStat
                             ),
                             child: Center(
                               child: Text(
-                                'У вас нет дебетовых карт для переводов',
+                                AppLocalizations.of(context)?.noDebitCardsForTransfer ?? 'You have no debit cards for transfers',
                                 style: BankingTypography.bodyRegular.copyWith(
                                   color: BankingColors.neutral600,
                                 ),
@@ -780,7 +780,7 @@ class _TransferScreenState extends State<TransferScreen> with TickerProviderStat
                           Padding(
                             padding: const EdgeInsets.only(top: BankingTokens.space8),
                             child: Text(
-                              'Максимальная сумма: ${_selectedAccount!.balance.toStringAsFixed(2)}\$',
+                              '${AppLocalizations.of(context)?.maximumAmount ?? 'Maximum amount'}: ${_selectedAccount!.balance.toStringAsFixed(2)}\$',
                               style: BankingTypography.bodySmall.copyWith(
                                 color: BankingColors.neutral600,
                               ),
@@ -803,7 +803,7 @@ class _TransferScreenState extends State<TransferScreen> with TickerProviderStat
                           controller: _commentController,
                           maxLines: 3,
                           decoration: InputDecoration(
-                            hintText: 'Добавьте комментарий к переводу...',
+                            hintText: AppLocalizations.of(context)?.commentOptional ?? 'Add comment to transfer...',
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(BankingTokens.radius8),
                             ),

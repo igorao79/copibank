@@ -127,6 +127,100 @@ class AppLocalizations {
       'logout': 'Logout',
       'logoutConfirmation': 'Are you sure you want to log out?',
       'loggedOut': 'You have been logged out',
+      'selectProduct': 'Select product to apply for',
+      'cardsAndPaymentMeans': 'Cards and payment methods',
+      'debitCard': 'Debit card',
+      'paymentSticker': 'Payment sticker',
+      'savingsProducts': 'Savings products',
+      'savingsAccount': 'Savings account',
+      'myCards': 'My cards',
+      'myCashback': 'My cashback',
+      'bankRecipient': 'Recipient bank',
+      'transferAmount': 'Transfer amount',
+      'commentOptional': 'Comment (optional)',
+      'transferMoney': 'Transfer money',
+      'processing': 'Processing...',
+      'receiveTransfer': 'Receive transfer',
+      'success': 'Success!',
+      'transferCompleted': 'Transfer completed successfully',
+      'getGift': '🎁 Get a gift!',
+      'inviteFriend': 'Invite a friend and get \$1,000!',
+      'pinReset': 'PIN code reset',
+      'enterNewPin': 'Enter new 4-digit PIN code',
+      'createPin': 'Create PIN code',
+      'confirmPin': 'Confirm PIN code',
+      'enterPin': 'Enter PIN code',
+      'repeatPin': 'Repeat the entered PIN code',
+      'protectAccount': 'Create a 4-digit PIN code to protect your account',
+      'enterPinToLogin': 'Enter your PIN code to log in',
+      'forgotPin': 'Forgot PIN code',
+      'wrongPin': 'Wrong PIN code',
+      'attemptsLeft': 'attempts left',
+      'tooManyAttempts': 'Too many failed attempts',
+      'tryAgainIn': 'Try again in',
+      'seconds': 'sec.',
+      'averageTransaction': 'Average transaction',
+      'transactionsCount': 'transactions',
+      'type': 'Type:',
+      'allCards': 'All cards',
+      'toggleTheme': 'Switch theme',
+      'crossAxisCount': '2 columns',
+      'childAspectRatio': 'Aspect ratio for oval buttons',
+      'height': 'Fixed height for oval buttons',
+      'borderRadius': 'Completely oval',
+      'minimumSize': 'Remove minimum size',
+      'fontSize': 'Small font',
+      'enterMessage': 'Enter message...',
+      'specialistContact': 'Our specialist will contact you shortly.',
+      'newChat': 'Start new chat',
+      'chatHistory': 'Chat history',
+      'helloBot': 'Hello! I am the bank assistant. How can I help?',
+      'foodAndRestaurants': 'Food and restaurants',
+      'foodRestaurantsDescription': 'Cashback on restaurants, cafes and food delivery',
+      'shopping': 'Shopping',
+      'shoppingDescription': 'Cashback on clothing, electronics and goods',
+      'travel': 'Travel',
+      'travelDescription': 'Cashback on flights, hotels and transport',
+      'fuel': 'Fuel',
+      'fuelDescription': 'Cashback on gas stations and fuel',
+      'entertainment': 'Entertainment',
+      'entertainmentDescription': 'Cashback on cinema, concerts and entertainment',
+      'supermarkets': 'Supermarkets',
+      'supermarketsDescription': 'Cashback on groceries and supermarket goods',
+      'pinChanged': 'PIN code changed',
+      'pinChangedMessage': 'Your PIN code has been successfully changed',
+      'transferTo': 'Transfer to',
+      'receivedTransferFrom': 'Received transfer from',
+      'transferFromMikhail': 'Transfer from Mikhail',
+      'storePurchase': 'Store purchase',
+      'annaIvanova': 'Anna Ivanova',
+      'mikhailPetrov': 'Mikhail Petrov',
+      'elenaSidorova': 'Elena Sidorova',
+      'dmitryKozlov': 'Dmitry Kozlov',
+      'olgaNovikova': 'Olga Novikova',
+      'alexeyMorozov': 'Alexey Morozov',
+      'mariaVolkova': 'Maria Volkova',
+      'sergeySokolov': 'Sergey Sokolov',
+      'welcomeNotification': 'Welcome!',
+      'loginSuccessMessage': 'You have successfully logged in',
+      'savingsAccountOpened': 'Savings account opened!',
+      'savingsAccountMessage': 'Now you can save money at 5% per annum',
+      'savingsDeposit': 'Savings account deposit',
+      'cardDeposit': 'Card deposit from savings account',
+      'cashbackCategoriesSelected': 'Cashback categories selected',
+      'cashbackCategoriesMessage': 'You have selected',
+      'cashbackCategoriesCount': 'categories for cashback',
+      'daysAgo': 'days ago',
+      'hoursAgo': 'hours ago',
+      'minutesAgo': 'minutes ago',
+      'justNow': 'just now',
+      'noDebitCardsForTransfer': 'You have no debit cards for transfers',
+      'maximumAmount': 'Maximum amount',
+      'personalInformation': 'Personal information',
+      'balance': 'Balance:',
+      'cardInformation': 'Card information',
+      'cardNumber': 'Card number',
+      'cardNumberCopied': 'Card number copied!',
     },
     'ru': {
       'appTitle': 'Banki2 - Банковское приложение',
@@ -419,11 +513,98 @@ class AppLocalizations {
   String get protectAccount => _localizedValues[locale.languageCode]?['protectAccount'] ?? 'Придумайте 4-значный PIN-код для защиты аккаунта';
   String get enterPinToLogin => _localizedValues[locale.languageCode]?['enterPinToLogin'] ?? 'Введите ваш PIN-код для входа';
   String get forgotPin => _localizedValues[locale.languageCode]?['forgotPin'] ?? 'Забыл PIN-код';
-  String get wrongPin => _localizedValues[locale.languageCode]?['wrongPin'] ?? 'Неверный PIN-код';
+  String get wrongPin => _localizedValues[locale.languageCode]?['wrongPin'] ?? 'Wrong PIN code';
   String get attemptsLeft => _localizedValues[locale.languageCode]?['attemptsLeft'] ?? 'осталось попыток';
   String get tooManyAttempts => _localizedValues[locale.languageCode]?['tooManyAttempts'] ?? 'Слишком много неудачных попыток';
   String get tryAgainIn => _localizedValues[locale.languageCode]?['tryAgainIn'] ?? 'Повторите через';
   String get seconds => _localizedValues[locale.languageCode]?['seconds'] ?? 'сек.';
+
+  // Additional getters for new keys
+  String get selectProduct => _localizedValues[locale.languageCode]?['selectProduct'] ?? 'Select product to apply for';
+  String get cardsAndPaymentMeans => _localizedValues[locale.languageCode]?['cardsAndPaymentMeans'] ?? 'Cards and payment methods';
+  String get paymentSticker => _localizedValues[locale.languageCode]?['paymentSticker'] ?? 'Payment sticker';
+  String get savingsProducts => _localizedValues[locale.languageCode]?['savingsProducts'] ?? 'Savings products';
+  String get myCards => _localizedValues[locale.languageCode]?['myCards'] ?? 'My cards';
+  String get myCashback => _localizedValues[locale.languageCode]?['myCashback'] ?? 'My cashback';
+  String get bankRecipient => _localizedValues[locale.languageCode]?['bankRecipient'] ?? 'Recipient bank';
+  String get transferAmount => _localizedValues[locale.languageCode]?['transferAmount'] ?? 'Transfer amount';
+  String get commentOptional => _localizedValues[locale.languageCode]?['commentOptional'] ?? 'Comment (optional)';
+  String get transferMoney => _localizedValues[locale.languageCode]?['transferMoney'] ?? 'Transfer money';
+  String get processing => _localizedValues[locale.languageCode]?['processing'] ?? 'Processing...';
+  String get receiveTransfer => _localizedValues[locale.languageCode]?['receiveTransfer'] ?? 'Receive transfer';
+  String get success => _localizedValues[locale.languageCode]?['success'] ?? 'Success!';
+  String get transferCompleted => _localizedValues[locale.languageCode]?['transferCompleted'] ?? 'Transfer completed successfully';
+  String get getGift => _localizedValues[locale.languageCode]?['getGift'] ?? '🎁 Get a gift!';
+  String get inviteFriend => _localizedValues[locale.languageCode]?['inviteFriend'] ?? 'Invite a friend and get \$1,000!';
+  String get pinReset => _localizedValues[locale.languageCode]?['pinReset'] ?? 'PIN code reset';
+  String get enterNewPin => _localizedValues[locale.languageCode]?['enterNewPin'] ?? 'Enter new 4-digit PIN code';
+  String get createPin => _localizedValues[locale.languageCode]?['createPin'] ?? 'Create PIN code';
+  String get confirmPin => _localizedValues[locale.languageCode]?['confirmPin'] ?? 'Confirm PIN code';
+  String get enterPin => _localizedValues[locale.languageCode]?['enterPin'] ?? 'Enter PIN code';
+  String get repeatPin => _localizedValues[locale.languageCode]?['repeatPin'] ?? 'Repeat the entered PIN code';
+  String get protectAccount => _localizedValues[locale.languageCode]?['protectAccount'] ?? 'Create a 4-digit PIN code to protect your account';
+  String get enterPinToLogin => _localizedValues[locale.languageCode]?['enterPinToLogin'] ?? 'Enter your PIN code to log in';
+  String get forgotPin => _localizedValues[locale.languageCode]?['forgotPin'] ?? 'Forgot PIN code';
+  String get wrongPin => _localizedValues[locale.languageCode]?['wrongPin'] ?? 'Wrong PIN code';
+  String get attemptsLeft => _localizedValues[locale.languageCode]?['attemptsLeft'] ?? 'attempts left';
+  String get tooManyAttempts => _localizedValues[locale.languageCode]?['tooManyAttempts'] ?? 'Too many failed attempts';
+  String get tryAgainIn => _localizedValues[locale.languageCode]?['tryAgainIn'] ?? 'Try again in';
+  String get averageTransaction => _localizedValues[locale.languageCode]?['averageTransaction'] ?? 'Average transaction';
+  String get transactionsCount => _localizedValues[locale.languageCode]?['transactionsCount'] ?? 'transactions';
+  String get type => _localizedValues[locale.languageCode]?['type'] ?? 'Type:';
+  String get allCards => _localizedValues[locale.languageCode]?['allCards'] ?? 'All cards';
+  String get toggleTheme => _localizedValues[locale.languageCode]?['toggleTheme'] ?? 'Switch theme';
+  String get enterMessage => _localizedValues[locale.languageCode]?['enterMessage'] ?? 'Enter message...';
+  String get specialistContact => _localizedValues[locale.languageCode]?['specialistContact'] ?? 'Our specialist will contact you shortly.';
+  String get newChat => _localizedValues[locale.languageCode]?['newChat'] ?? 'Start new chat';
+  String get chatHistory => _localizedValues[locale.languageCode]?['chatHistory'] ?? 'Chat history';
+  String get helloBot => _localizedValues[locale.languageCode]?['helloBot'] ?? 'Hello! I am the bank assistant. How can I help?';
+  String get foodAndRestaurants => _localizedValues[locale.languageCode]?['foodAndRestaurants'] ?? 'Food and restaurants';
+  String get foodRestaurantsDescription => _localizedValues[locale.languageCode]?['foodRestaurantsDescription'] ?? 'Cashback on restaurants, cafes and food delivery';
+  String get shopping => _localizedValues[locale.languageCode]?['shopping'] ?? 'Shopping';
+  String get shoppingDescription => _localizedValues[locale.languageCode]?['shoppingDescription'] ?? 'Cashback on clothing, electronics and goods';
+  String get travel => _localizedValues[locale.languageCode]?['travel'] ?? 'Travel';
+  String get travelDescription => _localizedValues[locale.languageCode]?['travelDescription'] ?? 'Cashback on flights, hotels and transport';
+  String get fuel => _localizedValues[locale.languageCode]?['fuel'] ?? 'Fuel';
+  String get fuelDescription => _localizedValues[locale.languageCode]?['fuelDescription'] ?? 'Cashback on gas stations and fuel';
+  String get entertainment => _localizedValues[locale.languageCode]?['entertainment'] ?? 'Entertainment';
+  String get entertainmentDescription => _localizedValues[locale.languageCode]?['entertainmentDescription'] ?? 'Cashback on cinema, concerts and entertainment';
+  String get supermarkets => _localizedValues[locale.languageCode]?['supermarkets'] ?? 'Supermarkets';
+  String get supermarketsDescription => _localizedValues[locale.languageCode]?['supermarketsDescription'] ?? 'Cashback on groceries and supermarket goods';
+  String get pinChanged => _localizedValues[locale.languageCode]?['pinChanged'] ?? 'PIN code changed';
+  String get pinChangedMessage => _localizedValues[locale.languageCode]?['pinChangedMessage'] ?? 'Your PIN code has been successfully changed';
+  String get transferTo => _localizedValues[locale.languageCode]?['transferTo'] ?? 'Transfer to';
+  String get receivedTransferFrom => _localizedValues[locale.languageCode]?['receivedTransferFrom'] ?? 'Received transfer from';
+  String get transferFromMikhail => _localizedValues[locale.languageCode]?['transferFromMikhail'] ?? 'Transfer from Mikhail';
+  String get storePurchase => _localizedValues[locale.languageCode]?['storePurchase'] ?? 'Store purchase';
+  String get annaIvanova => _localizedValues[locale.languageCode]?['annaIvanova'] ?? 'Anna Ivanova';
+  String get mikhailPetrov => _localizedValues[locale.languageCode]?['mikhailPetrov'] ?? 'Mikhail Petrov';
+  String get elenaSidorova => _localizedValues[locale.languageCode]?['elenaSidorova'] ?? 'Elena Sidorova';
+  String get dmitryKozlov => _localizedValues[locale.languageCode]?['dmitryKozlov'] ?? 'Dmitry Kozlov';
+  String get olgaNovikova => _localizedValues[locale.languageCode]?['olgaNovikova'] ?? 'Olga Novikova';
+  String get alexeyMorozov => _localizedValues[locale.languageCode]?['alexeyMorozov'] ?? 'Alexey Morozov';
+  String get mariaVolkova => _localizedValues[locale.languageCode]?['mariaVolkova'] ?? 'Maria Volkova';
+  String get sergeySokolov => _localizedValues[locale.languageCode]?['sergeySokolov'] ?? 'Sergey Sokolov';
+  String get welcomeNotification => _localizedValues[locale.languageCode]?['welcomeNotification'] ?? 'Welcome!';
+  String get loginSuccessMessage => _localizedValues[locale.languageCode]?['loginSuccessMessage'] ?? 'You have successfully logged in';
+  String get savingsAccountOpened => _localizedValues[locale.languageCode]?['savingsAccountOpened'] ?? 'Savings account opened!';
+  String get savingsAccountMessage => _localizedValues[locale.languageCode]?['savingsAccountMessage'] ?? 'Now you can save money at 5% per annum';
+  String get savingsDeposit => _localizedValues[locale.languageCode]?['savingsDeposit'] ?? 'Savings account deposit';
+  String get cardDeposit => _localizedValues[locale.languageCode]?['cardDeposit'] ?? 'Card deposit from savings account';
+  String get cashbackCategoriesSelected => _localizedValues[locale.languageCode]?['cashbackCategoriesSelected'] ?? 'Cashback categories selected';
+  String get cashbackCategoriesMessage => _localizedValues[locale.languageCode]?['cashbackCategoriesMessage'] ?? 'You have selected';
+  String get cashbackCategoriesCount => _localizedValues[locale.languageCode]?['cashbackCategoriesCount'] ?? 'categories for cashback';
+  String get daysAgo => _localizedValues[locale.languageCode]?['daysAgo'] ?? 'days ago';
+  String get hoursAgo => _localizedValues[locale.languageCode]?['hoursAgo'] ?? 'hours ago';
+  String get minutesAgo => _localizedValues[locale.languageCode]?['minutesAgo'] ?? 'minutes ago';
+  String get justNow => _localizedValues[locale.languageCode]?['justNow'] ?? 'just now';
+  String get noDebitCardsForTransfer => _localizedValues[locale.languageCode]?['noDebitCardsForTransfer'] ?? 'You have no debit cards for transfers';
+  String get maximumAmount => _localizedValues[locale.languageCode]?['maximumAmount'] ?? 'Maximum amount';
+  String get personalInformation => _localizedValues[locale.languageCode]?['personalInformation'] ?? 'Personal information';
+  String get balance => _localizedValues[locale.languageCode]?['balance'] ?? 'Balance:';
+  String get cardInformation => _localizedValues[locale.languageCode]?['cardInformation'] ?? 'Card information';
+  String get cardNumber => _localizedValues[locale.languageCode]?['cardNumber'] ?? 'Card number';
+  String get cardNumberCopied => _localizedValues[locale.languageCode]?['cardNumberCopied'] ?? 'Card number copied!';
 
   // Additional getters for UI elements
   String get debitCard => _localizedValues[locale.languageCode]?['debitCard'] ?? 'Дебетовая карта';

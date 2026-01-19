@@ -175,7 +175,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> with TickerProv
                           ),
                         ),
                         Text(
-                          notification.timeAgo,
+                          notification.getTimeAgo(AppLocalizations.of(context)),
                           style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: Theme.of(context).brightness == Brightness.dark
                                 ? BankingColors.neutral500
@@ -316,7 +316,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> with TickerProv
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Средняя транзакция',
+                          AppLocalizations.of(context)?.averageTransaction ?? 'Average transaction',
                           style: BankingTypography.bodyRegular,
                         ),
                         Text(
@@ -410,7 +410,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> with TickerProv
                 child: _buildAnalyticsCard(
                   title: localizations.count,
                   amount: transactionCount.toDouble(),
-                  subtitle: 'транзакций',
+                  subtitle: AppLocalizations.of(context)?.transactionsCount ?? 'transactions',
                   color: BankingColors.primary500,
                   icon: Icons.receipt,
                   isCount: true,
@@ -695,7 +695,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> with TickerProv
           Row(
             children: [
               Text(
-                'Тип:',
+                AppLocalizations.of(context)?.type ?? 'Type:',
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
               const SizedBox(width: BankingTokens.space12),
@@ -767,7 +767,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> with TickerProv
                     items: [
                       const DropdownMenuItem<String?>(
                         value: null,
-                        child: Text('Все карты'),
+                        child: Text(AppLocalizations.of(context)?.allCards ?? 'All cards'),
                       ),
                       ...appState.accounts.map((account) {
                         return DropdownMenuItem<String?>(

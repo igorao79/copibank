@@ -25,7 +25,7 @@ class _SupportChatScreenState extends State<SupportChatScreen> with TickerProvid
 
   List<Map<String, dynamic>> _messages = [
     {
-      'text': 'Здравствуйте! Я робот-помощник банка. Чем могу помочь?',
+      'text': 'Hello! I am the bank assistant. How can I help?', // Will be localized in initState
       'isBot': true,
       'timestamp': DateTime.now(),
       'type': 'text',
@@ -33,7 +33,7 @@ class _SupportChatScreenState extends State<SupportChatScreen> with TickerProvid
   ];
 
   List<Map<String, String>> _quickQuestions = [
-    {'question': 'Как пополнить счет?', 'answer': 'Вы можете пополнить счет через:\n• Банкомат\n• Перевод с другой карты\n• Через мобильное приложение\n• В отделении банка'},
+    {'question': 'How to top up account?', 'answer': 'You can top up your account through:\n• ATM\n• Transfer from another card\n• Via mobile app\n• At bank branch'}, // Will be localized
     {'question': 'Как заблокировать карту?', 'answer': 'Заблокировать карту можно:\n• В мобильном приложении (Карты → Выбрать карту → Заблокировать)\n• По телефону горячей линии\n• В отделении банка'},
     {'question': 'Как изменить ПИН-код?', 'answer': 'Изменить ПИН-код можно:\n• В банкомате\n• Через мобильное приложение\n• В отделении банка с паспортом'},
     {'question': 'Почему платеж не прошел?', 'answer': 'Возможные причины:\n• Недостаточно средств\n• Превышен лимит\n• Технические проблемы\n• Неправильные реквизиты\n\nПроверьте статус платежа в истории операций'},
@@ -184,7 +184,7 @@ class _SupportChatScreenState extends State<SupportChatScreen> with TickerProvid
                             ),
                           ),
                           Text(
-                            notification.timeAgo,
+                            notification.getTimeAgo(AppLocalizations.of(context)),
                             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                               color: Theme.of(context).brightness == Brightness.dark
                                   ? BankingColors.neutral500
@@ -421,7 +421,7 @@ class _SupportChatScreenState extends State<SupportChatScreen> with TickerProvid
               child: TextField(
                 controller: _messageController,
                 decoration: InputDecoration(
-                  hintText: 'Введите сообщение...',
+                  hintText: AppLocalizations.of(context)?.enterMessage ?? 'Enter message...',
                   border: InputBorder.none,
                   hintStyle: BankingTypography.bodyRegular.copyWith(
                     color: isDark ? BankingColors.neutral200 : BankingColors.neutral400,
@@ -506,7 +506,7 @@ class _SupportChatScreenState extends State<SupportChatScreen> with TickerProvid
         if (mounted) {
           setState(() {
             _messages.add({
-              'text': 'Спасибо за ваше сообщение. Наш специалист свяжется с вами в ближайшее время.',
+              'text': AppLocalizations.of(context)?.specialistContact ?? 'Thank you for your message. Our specialist will contact you shortly.',
               'isBot': true,
               'timestamp': DateTime.now(),
               'type': 'text',
@@ -548,7 +548,7 @@ class _SupportChatScreenState extends State<SupportChatScreen> with TickerProvid
               ),
               ListTile(
                 leading: Icon(Icons.refresh, color: BankingColors.primary500),
-                title: Text('Начать новый чат', style: BankingTypography.bodyRegular),
+                title: Text(AppLocalizations.of(context)?.newChat ?? 'Start new chat', style: BankingTypography.bodyRegular),
                 onTap: () {
                   Navigator.pop(context);
                   _startNewChat();
@@ -556,7 +556,7 @@ class _SupportChatScreenState extends State<SupportChatScreen> with TickerProvid
               ),
               ListTile(
                 leading: Icon(Icons.history, color: BankingColors.primary500),
-                title: Text('История чатов', style: BankingTypography.bodyRegular),
+                title: Text(AppLocalizations.of(context)?.chatHistory ?? 'Chat history', style: BankingTypography.bodyRegular),
                 onTap: () {
                   Navigator.pop(context);
                   // TODO: Show chat history
@@ -573,7 +573,7 @@ class _SupportChatScreenState extends State<SupportChatScreen> with TickerProvid
     setState(() {
       _messages = [
         {
-          'text': 'Здравствуйте! Я робот-помощник банка. Чем могу помочь?',
+          'text': AppLocalizations.of(context)?.helloBot ?? 'Hello! I am the bank assistant. How can I help?',
           'isBot': true,
           'timestamp': DateTime.now(),
           'type': 'text',

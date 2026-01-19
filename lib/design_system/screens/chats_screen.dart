@@ -160,7 +160,7 @@ class _ChatsScreenState extends State<ChatsScreen> with TickerProviderStateMixin
                           ),
                         ),
                         Text(
-                          notification.timeAgo,
+                          notification.getTimeAgo(AppLocalizations.of(context)),
                           style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: Theme.of(context).brightness == Brightness.dark
                                 ? BankingColors.neutral500
@@ -249,7 +249,7 @@ class _ChatsScreenState extends State<ChatsScreen> with TickerProviderStateMixin
                     ? appState.notifications.first.message
                     : 'Нет новых уведомлений',
                 time: appState.notifications.isNotEmpty
-                    ? appState.notifications.first.timeAgo.split(' ')[0] + (appState.notifications.first.timeAgo.contains('назад') ? '' : ' мин')
+                    ? appState.notifications.first.getTimeAgo(localizations)
                     : '--:--',
                 unreadCount: appState.notifications.where((n) => !n.isRead).length,
                 onTap: () => _onChatTap('notifications'),

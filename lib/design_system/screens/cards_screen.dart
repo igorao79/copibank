@@ -171,7 +171,7 @@ class _CardsScreenState extends State<CardsScreen> with TickerProviderStateMixin
                           ),
                         ),
                         Text(
-                          notification.timeAgo,
+                          notification.getTimeAgo(AppLocalizations.of(context)),
                           style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: Theme.of(context).brightness == Brightness.dark
                                 ? BankingColors.neutral500

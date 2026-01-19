@@ -196,7 +196,7 @@ class _ApplyScreenState extends State<ApplyScreen>
                                     ),
                               ),
                               Text(
-                                notification.timeAgo,
+                                notification.getTimeAgo(AppLocalizations.of(context)),
                                 style: Theme.of(context).textTheme.bodySmall
                                     ?.copyWith(
                                       color:

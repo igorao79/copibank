@@ -166,7 +166,7 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
                             ),
                           ),
                           Text(
-                            notification.timeAgo,
+                            notification.getTimeAgo(AppLocalizations.of(context)),
                             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                               color: Theme.of(context).brightness == Brightness.dark
                                   ? BankingColors.neutral500
@@ -275,7 +275,7 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
 
                 // Profile Information Section
                 Text(
-                  'Личная информация',
+                  AppLocalizations.of(context)?.personalInformation ?? 'Personal information',
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -315,7 +315,7 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
 
                 // Settings Section
                 Text(
-                  'Настройки',
+                  AppLocalizations.of(context)?.settings ?? 'Settings',
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
