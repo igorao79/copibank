@@ -2,12 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import '../foundation/colors.dart';
 import '../foundation/tokens.dart';
 import '../components/buttons.dart';
 import '../components/inputs.dart';
 import '../utils/assets_constants.dart';
+import '../utils/app_state.dart';
 import '../../l10n/app_localizations.dart';
+import '../../main.dart';
+import 'pin_input_screen.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -60,9 +64,25 @@ class _OnboardingScreenState extends State<OnboardingScreen>
 
       print('DEBUG: Saved user data - name: $name, email: $email');
 
-      // Переходим на главный экран
+      // Переходим к PIN экрану
       if (mounted) {
-        Navigator.of(context).pushReplacementNamed('/');
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) => Builder(
+              builder: (context) {
+                final appState = context.read<AppState>();
+                return PinInputScreen(
+                  isSetupMode: !appState.hasPinCode,
+                  onSuccess: () {
+                    Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(builder: (context) => const BankingAppHome()),
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+        );
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(

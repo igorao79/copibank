@@ -196,27 +196,32 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
                   ),
                   if (appState.unreadNotificationsCount > 0)
                     Positioned(
-                      right: -2, // ← Точная позиция справа от иконки
-                      top: -2,   // ← Точная позиция сверху от иконки
+                      right: 0,
+                      top: 0,
                       child: Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: const BoxDecoration(
-                          color: Colors.red,
+                        padding: const EdgeInsets.all(2),
+                        decoration: BoxDecoration(
+                          color: BankingColors.error500,
                           shape: BoxShape.circle,
+                          border: Border.all(
+                            color: Theme.of(context).scaffoldBackgroundColor,
+                            width: 2,
+                          ),
                         ),
                         constraints: const BoxConstraints(
                           minWidth: 16,
                           minHeight: 16,
                         ),
-                        child: Center(
-                          child: Text(
-                            appState.unreadNotificationsCount.toString(),
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                            ),
+                        child: Text(
+                          appState.unreadNotificationsCount > 99
+                              ? '99+'
+                              : appState.unreadNotificationsCount.toString(),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
                           ),
+                          textAlign: TextAlign.center,
                         ),
                       ),
                     ),

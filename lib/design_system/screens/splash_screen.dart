@@ -4,7 +4,12 @@ import '../foundation/colors.dart';
 import '../utils/assets_constants.dart';
 
 class SplashScreen extends StatefulWidget {
-  const SplashScreen({super.key});
+  final VoidCallback? onAnimationComplete;
+  
+  const SplashScreen({
+    super.key,
+    this.onAnimationComplete,
+  });
 
   @override
   State<SplashScreen> createState() => _SplashScreenState();
@@ -19,7 +24,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
   void initState() {
     super.initState();
     _fadeController = AnimationController(
-      duration: const Duration(milliseconds: 2000),
+      duration: const Duration(milliseconds: 1500),
       vsync: this,
     );
 
@@ -38,11 +43,6 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
     );
 
     _fadeController.forward();
-  }
-
-  // Метод для плавного исчезновения
-  void fadeOut() {
-    _fadeController.reverse();
   }
 
   @override
@@ -80,7 +80,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                   style: TextStyle(
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
-                    color: isDark ? BankingColors.neutral0 : const Color(0xFF1A73E8), // Синий для светлой, белый для темной
+                    color: isDark ? BankingColors.neutral0 : const Color(0xFF1A73E8),
                     letterSpacing: 2,
                   ),
                 ),

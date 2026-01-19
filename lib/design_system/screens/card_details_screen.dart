@@ -111,26 +111,21 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> with TickerProvid
           ),
           Container(
             margin: const EdgeInsets.only(right: 8),
-            child: appState.unreadNotificationsCount > 0
-                ? Badge(
-                    label: Text(
-                      appState.unreadNotificationsCount.toString(),
-                      style: const TextStyle(fontSize: 9),
-                    ),
-                    smallSize: 14,
-                    child: PopupMenuButton<String>(
-                icon: Icon(
-                  isDark ? BankingIcons.notification : BankingIcons.notificationFilled,
-                  color: BankingColors.primary500,
-                ),
-                onSelected: (value) {
-                  if (value == 'view_all') {
-                    // TODO: Navigate to notifications
-                  }
-                },
-                onOpened: () {
-                  appState.markAllNotificationsAsRead();
-                },
+            child: Stack(
+              children: [
+                PopupMenuButton<String>(
+                  icon: Icon(
+                    isDark ? BankingIcons.notification : BankingIcons.notificationFilled,
+                    color: BankingColors.primary500,
+                  ),
+                  onSelected: (value) {
+                    if (value == 'view_all') {
+                      // TODO: Navigate to notifications
+                    }
+                  },
+                  onOpened: () {
+                    appState.markAllNotificationsAsRead();
+                  },
                 itemBuilder: (BuildContext context) {
                   final notifications = appState.notifications;
                   final unreadCount = notifications.where((n) => !n.isRead).length;
@@ -211,100 +206,40 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> with TickerProvid
                       ),
                   ];
                 },
-              ),
-            )
-                : PopupMenuButton<String>(
-                    icon: Icon(
-                      isDark ? BankingIcons.notification : BankingIcons.notificationFilled,
-                      color: BankingColors.primary500,
-                    ),
-                    onSelected: (value) {
-                      if (value == 'view_all') {
-                        // TODO: Navigate to notifications
-                      }
-                    },
-                    onOpened: () {
-                      appState.markAllNotificationsAsRead();
-                    },
-                    itemBuilder: (BuildContext context) {
-                      final notifications = appState.notifications;
-                      final unreadCount = notifications.where((n) => !n.isRead).length;
-
-                      return [
-                        PopupMenuItem<String>(
-                          enabled: false,
-                          child: Text(
-                            localizations.notificationsHeader,
-                            style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
+                ),
+                if (appState.unreadNotificationsCount > 0)
+                  Positioned(
+                    right: 0,
+                    top: 0,
+                    child: Container(
+                      padding: const EdgeInsets.all(2),
+                      decoration: BoxDecoration(
+                        color: BankingColors.error500,
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: Theme.of(context).scaffoldBackgroundColor,
+                          width: 2,
                         ),
-                        const PopupMenuDivider(),
-                        ...notifications.take(3).map((notification) {
-                          return PopupMenuItem<String>(
-                            enabled: false,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: Text(
-                                        notification.title,
-                                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                          fontWeight: notification.isRead ? FontWeight.normal : FontWeight.bold,
-                                        ),
-                                      ),
-                                    ),
-                                    if (!notification.isRead)
-                                      Container(
-                                        width: 8,
-                                        height: 8,
-                                        decoration: BoxDecoration(
-                                          color: BankingColors.primary500,
-                                          shape: BoxShape.circle,
-                                        ),
-                                      ),
-                                  ],
-                                ),
-                                Text(
-                                  notification.message,
-                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: Theme.of(context).brightness == Brightness.dark
-                                        ? BankingColors.neutral400
-                                        : BankingColors.neutral600,
-                                  ),
-                                ),
-                                Text(
-                                  notification.getTimeAgo(AppLocalizations.of(context)),
-                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: Theme.of(context).brightness == Brightness.dark
-                                        ? BankingColors.neutral500
-                                        : BankingColors.neutral500,
-                                    fontSize: 10,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
-                        }),
-                        if (notifications.length > 3)
-                          const PopupMenuDivider(),
-                        if (notifications.length > 3)
-                          PopupMenuItem<String>(
-                            value: 'view_all',
-                            child: Row(
-                              children: [
-                                Icon(Icons.expand_more, size: 16),
-                                const SizedBox(width: 8),
-                                Text(localizations.viewAllNotifications),
-                              ],
-                            ),
-                          ),
-                      ];
-                    },
+                      ),
+                      constraints: const BoxConstraints(
+                        minWidth: 16,
+                        minHeight: 16,
+                      ),
+                      child: Text(
+                        appState.unreadNotificationsCount > 99
+                            ? '99+'
+                            : appState.unreadNotificationsCount.toString(),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
                   ),
+              ],
+            ),
           ),
         ],
       ),
@@ -1100,6 +1035,9 @@ class _CardDepositModalState extends State<CardDepositModal> with TickerProvider
               TextField(
                 controller: _amountController,
                 keyboardType: TextInputType.numberWithOptions(decimal: true),
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
+                ],
                 decoration: InputDecoration(
                   labelText: 'Сумма пополнения',
                   prefixText: '\$ ',

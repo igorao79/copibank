@@ -282,6 +282,12 @@ class AppLocalizations {
       'setupCashback': 'Set up cashback',
       'cashbackDescription': 'Select up to 3 categories and get cashback up to 5%',
       'selectCategories': 'Select categories',
+      // Savings account
+      'chooseCard': 'Select card:',
+      'depositAccount': 'Deposit account',
+      'noDebitCardsAvailable': 'No available debit cards for savings account deposit',
+      'deleteSavingsAccount': 'Delete savings account',
+      'qrScanInstruction': 'Point the camera at a QR code to scan it',
     },
     'ru': {
       'appTitle': 'Banki2 - Банковское приложение',
@@ -493,6 +499,12 @@ class AppLocalizations {
       'setupCashback': 'Настройте кэшбэк',
       'cashbackDescription': 'Выберите до 3 категорий и получайте кэшбэк до 5%',
       'selectCategories': 'Выбрать категории',
+      // Savings account
+      'chooseCard': 'Выберите карту:',
+      'depositAccount': 'Пополнить счет',
+      'noDebitCardsAvailable': 'Нет доступных дебетовых карт для пополнения накопительного счета',
+      'deleteSavingsAccount': 'Удалить накопительный счет',
+      'qrScanInstruction': 'Наведите камеру на QR код для сканирования',
     },
   };
 
@@ -772,6 +784,11 @@ class AppLocalizations {
   // Additional getters for UI elements
   String get debitCard => _localizedValues[locale.languageCode]?['debitCard'] ?? 'Дебетовая карта';
   String get savingsAccount => _localizedValues[locale.languageCode]?['savingsAccount'] ?? 'Накопительный счет';
+  String get chooseCard => _localizedValues[locale.languageCode]?['chooseCard'] ?? 'Select card:';
+  String get depositAccount => _localizedValues[locale.languageCode]?['depositAccount'] ?? 'Deposit account';
+  String get noDebitCardsAvailable => _localizedValues[locale.languageCode]?['noDebitCardsAvailable'] ?? 'No available debit cards for savings account deposit';
+  String get deleteSavingsAccount => _localizedValues[locale.languageCode]?['deleteSavingsAccount'] ?? 'Delete savings account';
+  String get qrScanInstruction => _localizedValues[locale.languageCode]?['qrScanInstruction'] ?? 'Point the camera at a QR code to scan it';
 
   String getTransactionTitle(String key) {
     return _localizedValues[locale.languageCode]?[key] ?? key;

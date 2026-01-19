@@ -67,6 +67,22 @@ class _TransferScreenState extends State<TransferScreen> with TickerProviderStat
     _amountController.addListener(_validateAmount);
   }
 
+  void _validateAmount() {
+    final amount = double.tryParse(_amountController.text.replaceAll(',', '.'));
+    final hasError = _selectedAccount != null && amount != null && amount > _selectedAccount!.balance;
+
+    // Обновляем состояние только если ошибка изменилась
+    if (hasError && _amountError == null) {
+      setState(() {
+        _amountError = AppLocalizations.of(context)?.insufficientCardFunds ?? 'Недостаточно средств на карте';
+      });
+    } else if (!hasError && _amountError != null) {
+      setState(() {
+        _amountError = null;
+      });
+    }
+  }
+
   @override
   void dispose() {
     _fadeController.dispose();
@@ -75,20 +91,6 @@ class _TransferScreenState extends State<TransferScreen> with TickerProviderStat
     super.dispose();
   }
 
-  void _validateAmount() {
-    final amount = double.tryParse(_amountController.text.replaceAll(',', '.'));
-    if (_selectedAccount != null && amount != null && amount > _selectedAccount!.balance) {
-      setState(() {
-        _amountError = AppLocalizations.of(context)?.insufficientCardFunds ?? 'Insufficient funds on card';
-      });
-    } else {
-      setState(() {
-        _amountError = null;
-      });
-    }
-    // Обновляем состояние кнопки при изменении суммы
-    setState(() {});
-  }
 
   void _onUserSelected(TransferUser user) {
     setState(() {
@@ -100,11 +102,9 @@ class _TransferScreenState extends State<TransferScreen> with TickerProviderStat
   void _onAccountSelected(Account account) {
     setState(() {
       _selectedAccount = account;
-      // Пересчитываем валидность кнопки и очищаем ошибку суммы если она была
+      // Очищаем ошибку суммы при выборе новой карты
       _amountError = null;
     });
-    // Пересчитываем ошибку суммы для новой карты
-    _validateAmount();
   }
 
   void _onBankSelected(String bank) {
@@ -153,17 +153,16 @@ class _TransferScreenState extends State<TransferScreen> with TickerProviderStat
             ...AnimationConfiguration.toStaggeredList(
               duration: const Duration(milliseconds: 600),
               childAnimationBuilder: (widget) => SlideAnimation(
-                key: UniqueKey(),
                 verticalOffset: 50.0,
                 child: ScaleAnimation(
-                  key: UniqueKey(),
                   scale: 0.8,
-                  child: FlipAnimation(key: UniqueKey(), child: widget),
+                  child: FlipAnimation(child: widget),
                 ),
               ),
               children: _availableBanks.map((bank) {
               final isSelected = _selectedBank == bank;
               return GestureDetector(
+                key: ValueKey(bank),
                 onTap: () {
                   _onBankSelected(bank);
                   Navigator.of(context).pop();
@@ -288,8 +287,13 @@ class _TransferScreenState extends State<TransferScreen> with TickerProviderStat
       return false;
     }
 
+    // Проверяем наличие ошибки валидации
+    if (_amountError != null) {
+      return false;
+    }
+
     final amount = double.tryParse(_amountController.text.replaceAll(',', '.'));
-    if (amount == null || amount <= 0 || amount > _selectedAccount!.balance) {
+    if (amount == null || amount <= 0) {
       return false;
     }
 
@@ -322,14 +326,6 @@ class _TransferScreenState extends State<TransferScreen> with TickerProviderStat
           context: context,
           barrierDismissible: false,
           builder: (BuildContext context) {
-            // Auto-close dialog after 2 seconds
-            Future.delayed(const Duration(seconds: 2), () {
-              print('DEBUG: Closing success dialog');
-              if (Navigator.of(context).canPop()) {
-                Navigator.of(context).pop();
-              }
-            });
-
             return Dialog(
               backgroundColor: isDark ? BankingColors.neutral800 : Colors.white,
               shape: RoundedRectangleBorder(
@@ -353,6 +349,36 @@ class _TransferScreenState extends State<TransferScreen> with TickerProviderStat
                         color: isDark ? BankingColors.neutral0 : BankingColors.neutral900,
                       ),
                       textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: BankingTokens.space16),
+                    Text(
+                      localizations.transferCompleted,
+                      style: BankingTypography.bodyMedium.copyWith(
+                        color: isDark ? BankingColors.neutral300 : BankingColors.neutral700,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: BankingTokens.space24),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.of(context).pop(); // Close dialog
+                          Navigator.of(context).pop(); // Go back to dashboard
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: BankingColors.primary500,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: BankingTokens.space12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(BankingTokens.radius12),
+                          ),
+                        ),
+                        child: Text(
+                          localizations.home, // "Главная" or "Home"
+                          style: BankingTypography.button,
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -518,12 +544,12 @@ class _TransferScreenState extends State<TransferScreen> with TickerProviderStat
                         ),
                       ),
                     ),
-                    // SBP Logo в правой части
+                    // SBP Icon в правой части
                     Container(
-                      width: 60,
+                      width: 32,
                       height: 32,
                       child: SvgPicture.asset(
-                        SvgAssets.sbpLogo,
+                        SvgAssets.sbpIcon,
                         fit: BoxFit.contain,
                       ),
                     ),
@@ -624,18 +650,17 @@ class _TransferScreenState extends State<TransferScreen> with TickerProviderStat
                         ...AnimationConfiguration.toStaggeredList(
                           duration: const Duration(milliseconds: 600),
                           childAnimationBuilder: (widget) => SlideAnimation(
-                            key: UniqueKey(),
                             verticalOffset: 50.0,
                             child: ScaleAnimation(
-                              key: UniqueKey(),
                               scale: 0.8,
-                              child: FlipAnimation(key: UniqueKey(), child: widget),
+                              child: FlipAnimation(child: widget),
                             ),
                           ),
                           children: appState.accounts.where((account) => account.type == 'debit_card').map((account) {
                           final isSelected = _selectedAccount?.id == account.id;
 
                           return GestureDetector(
+                            key: ValueKey(account.id),
                             onTap: () => _onAccountSelected(account),
                             child: Container(
                               margin: const EdgeInsets.only(bottom: BankingTokens.space12),
@@ -786,6 +811,9 @@ class _TransferScreenState extends State<TransferScreen> with TickerProviderStat
                         TextField(
                           controller: _amountController,
                           keyboardType: TextInputType.numberWithOptions(decimal: true),
+                          inputFormatters: [
+                            FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
+                          ],
                           decoration: InputDecoration(
                             hintText: '0.00',
                             prefixText: '\$ ',

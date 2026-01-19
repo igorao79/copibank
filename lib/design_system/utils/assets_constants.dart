@@ -16,7 +16,7 @@ class SvgAssets {
   static const String backgroundLight = 'svg/background_light.svg';
   static const String backgroundDark = 'svg/background_dark.svg';
   static const String appBank = 'svg/app-bank.svg';
-  static const String sbpLogo = 'svg/sbp_logo.svg';
+  static const String sbpIcon = 'svg/sbp_icon.svg';
 }
 
 /// PNG asset paths

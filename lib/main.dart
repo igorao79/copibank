@@ -10,6 +10,7 @@ import 'design_system/screens/transactions_screen.dart';
 import 'design_system/screens/chats_screen.dart';
 import 'design_system/screens/splash_screen.dart';
 import 'design_system/screens/pin_input_screen.dart';
+import 'design_system/screens/onboarding_screen.dart';
 import 'design_system/utils/app_state.dart';
 
 void main() {
@@ -27,7 +28,7 @@ class _BankingAppState extends State<BankingApp> {
   final AppState _appState = AppState();
   bool _isInitialized = false;
   bool _showSplash = true;
-  double _splashOpacity = 1.0;
+  bool? _isOnboardingCompleted;
 
   @override
   void initState() {
@@ -38,6 +39,11 @@ class _BankingAppState extends State<BankingApp> {
   Future<void> _initializeApp() async {
     // СНАЧАЛА инициализируем AppState, чтобы загрузить тему
     await _appState.init();
+    
+    // Проверяем состояние onboarding
+    final prefs = await SharedPreferences.getInstance();
+    final isOnboardingCompleted = prefs.getBool('onboarding_completed') ?? false;
+    
     print('DEBUG: App initialization completed');
 
     // ПОТОМ показываем splash screen с правильной темой минимум 3 секунды
@@ -45,51 +51,16 @@ class _BankingAppState extends State<BankingApp> {
 
     // Плавно скрываем splash screen
     if (mounted) {
-      // Анимируем opacity в течение 0.5 секунды
-      const duration = Duration(milliseconds: 500);
-      const steps = 10;
-      const stepDuration = Duration(milliseconds: 50);
-
-      for (int i = 0; i < steps; i++) {
-        await Future.delayed(stepDuration);
-        if (mounted) {
-          setState(() {
-            _splashOpacity = 1.0 - (i + 1) / steps;
-          });
-        }
-      }
-
       setState(() {
         _showSplash = false;
         _isInitialized = true;
+        _isOnboardingCompleted = isOnboardingCompleted;
       });
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    // Show splash screen first
-    if (_showSplash) {
-      return MaterialApp(
-        theme: BankingTheme.light,
-        darkTheme: BankingTheme.dark,
-        themeMode: _appState.themeMode,
-        home: Opacity(
-          opacity: _splashOpacity,
-          child: const SplashScreen(),
-        ),
-        debugShowCheckedModeBanner: false,
-      );
-    }
-
-    // Go directly to BankingAppHome after splash - it will handle PIN logic
-    if (!_isInitialized) {
-      return const MaterialApp(
-        home: BankingAppHome(),
-        debugShowCheckedModeBanner: false,
-      );
-    }
-
     return MultiProvider(
       providers: [
         ChangeNotifierProvider.value(value: _appState),
@@ -112,60 +83,51 @@ class _BankingAppState extends State<BankingApp> {
               Locale('en', ''),
               Locale('ru', ''),
             ],
-            home: const BankingAppHome(),
+            home: _buildHome(),
             debugShowCheckedModeBanner: false,
           );
         },
       ),
     );
   }
+
+  Widget _buildHome() {
+    // Показываем splash screen
+    if (_showSplash) {
+      return const SplashScreen();
+    }
+
+    // Показываем onboarding если не завершен
+    if (_isInitialized && _isOnboardingCompleted == false) {
+      return const OnboardingScreen();
+    }
+
+    // Показываем PIN screen или main app
+    if (_isInitialized && _isOnboardingCompleted == true) {
+      return PinInputScreen(
+        isSetupMode: !_appState.hasPinCode,
+        onSuccess: () {
+          // После успешного ввода PIN переходим к основному приложению
+          setState(() {
+            // Можно добавить флаг для перехода к main app
+          });
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => const BankingAppHome()),
+          );
+        },
+      );
+    }
+
+    // Fallback
+    return const SizedBox.shrink();
+  }
 }
 
-class BankingAppHome extends StatefulWidget {
+class BankingAppHome extends StatelessWidget {
   const BankingAppHome({super.key});
 
   @override
-  State<BankingAppHome> createState() => _BankingAppHomeState();
-}
-
-class _BankingAppHomeState extends State<BankingAppHome> {
-  bool _isReady = false;
-  Widget? _targetScreen;
-
-  @override
-  void initState() {
-    super.initState();
-    _prepareApp();
-  }
-
-  Future<void> _prepareApp() async {
-    final prefs = await SharedPreferences.getInstance();
-    final isOnboardingCompleted = prefs.getBool('onboarding_completed') ?? false;
-
-    if (!isOnboardingCompleted) {
-      // Готовим onboarding
-      setState(() {
-        _targetScreen = const OnboardingScreen();
-        _isReady = true;
-      });
-    } else {
-      // Готовим PIN screen
-      final appState = context.read<AppState>();
-      setState(() {
-        _targetScreen = PinInputScreen(
-          isSetupMode: !appState.hasPinCode,
-          onSuccess: () {
-            setState(() {
-              _targetScreen = _buildMainApp();
-            });
-          },
-        );
-        _isReady = true;
-      });
-    }
-  }
-
-  Widget _buildMainApp() {
+  Widget build(BuildContext context) {
     return Consumer<AppState>(
       builder: (context, appState, child) {
         Widget currentScreen;
@@ -188,15 +150,5 @@ class _BankingAppHomeState extends State<BankingAppHome> {
         return currentScreen;
       },
     );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (!_isReady || _targetScreen == null) {
-      // Показываем только пока готовим
-      return const SizedBox.shrink();
-    }
-
-    return _targetScreen!;
   }
 }

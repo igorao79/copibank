@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
+import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 import '../components/cards.dart';
-import 'package:flutter/material.dart' show Badge;
 import '../components/buttons.dart';
 import '../components/fintech.dart';
 import '../components/svg_background.dart';
@@ -17,6 +18,7 @@ import 'profile_screen.dart';
 import 'card_details_screen.dart';
 import 'cashback_selection_screen.dart';
 import 'transfer_screen.dart';
+import 'qr_scanner_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -133,115 +135,46 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
           ),
           Container(
             margin: const EdgeInsets.only(right: 8),
-            child: Badge(
-            label: appState.unreadNotificationsCount > 0
-                ? Text(
-                    appState.unreadNotificationsCount.toString(),
-                    style: const TextStyle(fontSize: 9),
-                  )
-                : null,
-            smallSize: 14,
-              child: PopupMenuButton<String>(
-              icon: Icon(
-                isDark ? BankingIcons.notification : BankingIcons.notificationFilled,
-                color: BankingColors.primary500,
-              ),
-              onSelected: (value) {
-                if (value == 'view_all') {
-                  _onViewAllNotifications();
-                }
-              },
-              onOpened: () {
-                appState.markAllNotificationsAsRead();
-              },
-            itemBuilder: (BuildContext context) {
-              final notifications = appState.notifications;
-              final unreadCount = notifications.where((n) => !n.isRead).length;
-
-              return [
-                // Header with unread count
-                PopupMenuItem<String>(
-                  enabled: false,
-                  child: Text(
-                    unreadCount > 0
-                        ? '${localizations.notificationsHeader} (${unreadCount} ${localizations.unreadNotifications})'
-                        : localizations.notificationsHeader,
-                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
+            child: Stack(
+              children: [
+                _buildNotificationsMenu(),
+                if (appState.unreadNotificationsCount > 0)
+                  Positioned(
+                    right: 0,
+                    top: 0,
+                    child: Container(
+                      padding: const EdgeInsets.all(2),
+                      decoration: BoxDecoration(
+                        color: BankingColors.error500,
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: Theme.of(context).scaffoldBackgroundColor,
+                          width: 2,
+                        ),
+                      ),
+                      constraints: const BoxConstraints(
+                        minWidth: 16,
+                        minHeight: 16,
+                      ),
+                      child: Text(
+                        appState.unreadNotificationsCount > 99
+                            ? '99+'
+                            : appState.unreadNotificationsCount.toString(),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
                     ),
                   ),
-                ),
-                const PopupMenuDivider(),
-                // Notifications list
-                ...notifications.take(3).map((notification) {
-                  return PopupMenuItem<String>(
-                    enabled: false,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                notification.title,
-                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                  fontWeight: notification.isRead ? FontWeight.normal : FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                            if (!notification.isRead)
-                              Container(
-                                width: 8,
-                                height: 8,
-                                decoration: BoxDecoration(
-                                  color: BankingColors.primary500,
-                                  shape: BoxShape.circle,
-                                ),
-                              ),
-                          ],
-                        ),
-                        Text(
-                          notification.message,
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Theme.of(context).brightness == Brightness.dark
-                                ? BankingColors.neutral400
-                                : BankingColors.neutral600,
-                          ),
-                        ),
-                        Text(
-                          notification.getTimeAgo(AppLocalizations.of(context)),
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Theme.of(context).brightness == Brightness.dark
-                                ? BankingColors.neutral500
-                                : BankingColors.neutral500,
-                            fontSize: 10,
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                }),
-                if (notifications.length > 3)
-                  const PopupMenuDivider(),
-                if (notifications.length > 3)
-                  PopupMenuItem<String>(
-                    value: 'view_all',
-                    child: Row(
-                      children: [
-                        Icon(Icons.expand_more, size: 16),
-                        const SizedBox(width: 8),
-                        Text(localizations.viewAllNotifications),
-                      ],
-                    ),
-                  ),
-              ];
-            },
+              ],
             ),
           ),
-        ),
         ],
-        ),
-        body: FadeTransition(
+      ),
+      body: FadeTransition(
         opacity: _fadeAnimation,
         child: FadeTransition(
           opacity: _contentAnimation,
@@ -345,6 +278,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
   Widget _buildSavingsSection(AppState appState) {
     final savings = appState.savingsAccount!;
     final monthlyIncome = savings.getMonthlyIncome(1);
+    final localizations = AppLocalizations.of(context)!;
 
     return Container(
       padding: const EdgeInsets.all(BankingTokens.space16),
@@ -384,7 +318,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Накопительный счет',
+                  localizations.savingsAccount,
                   style: BankingTypography.bodyLarge.copyWith(
                     fontWeight: FontWeight.w600,
                     color: BankingColors.neutral900,
@@ -415,15 +349,87 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
               color: BankingColors.success600,
               size: 28,
             ),
-            tooltip: 'Пополнить счет',
+            tooltip: localizations.depositAccount,
           ),
         ],
       ),
     );
   }
 
+  void _showSuccessDialog(double amount) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        Future.delayed(const Duration(seconds: 4), () {
+          if (mounted) {
+            Navigator.of(context).pop();
+          }
+        });
+
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          child: Container(
+            padding: const EdgeInsets.all(BankingTokens.space24),
+            decoration: BoxDecoration(
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? BankingColors.neutral800
+                  : BankingColors.neutral0,
+              borderRadius: BorderRadius.circular(BankingTokens.radius16),
+              boxShadow: BankingTokens.getShadow(2),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(
+                  height: 120,
+                  width: 120,
+                  child: Lottie.asset(
+                    'assets/lottie/success.json',
+                    fit: BoxFit.contain,
+                  ),
+                ),
+                const SizedBox(height: BankingTokens.space16),
+                Text(
+                  '${AppLocalizations.of(context)?.accountDeposited ?? 'Счет пополнен на'} \$${amount.toStringAsFixed(2)}',
+                  style: BankingTypography.bodyLarge.copyWith(
+                    color: BankingColors.success600,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   void _showSavingsDepositDialog(AppState appState) {
+    final localizations = AppLocalizations.of(context)!;
     final TextEditingController amountController = TextEditingController();
+    Account? selectedAccount;
+
+    // Фильтруем карты - только дебетовые с положительным балансом
+    final availableAccounts = appState.accounts
+        .where((account) => account.type == 'debit_card' && account.balance > 0)
+        .toList();
+
+    // Если нет доступных дебетовых карт, показываем сообщение об ошибке
+    if (availableAccounts.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(localizations.noDebitCardsAvailable),
+          backgroundColor: BankingColors.error500,
+        ),
+      );
+      return;
+    }
+
+    // По умолчанию выбираем первую доступную карту
+    selectedAccount = availableAccounts.first;
 
     showDialog(
       context: context,
@@ -434,9 +440,50 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
+                // Выбор карты (если несколько доступных)
+                if (availableAccounts.length > 1)
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        localizations.chooseCard,
+                        style: BankingTypography.bodySmall.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: BankingTokens.space8),
+                      DropdownButtonFormField<Account>(
+                        value: selectedAccount,
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(),
+                          contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        ),
+                        items: availableAccounts.map((account) {
+                          return DropdownMenuItem<Account>(
+                            value: account,
+                            child: Text(
+                              '**** ${account.cardNumber?.substring(account.cardNumber!.length - 4) ?? '****'} - ${account.formattedBalance}',
+                              style: BankingTypography.bodySmall,
+                            ),
+                          );
+                        }).toList(),
+                        onChanged: (account) {
+                          setState(() {
+                            selectedAccount = account;
+                          });
+                        },
+                      ),
+                      const SizedBox(height: BankingTokens.space16),
+                    ],
+                  ),
+
+                // Поле ввода суммы
                 TextField(
                   controller: amountController,
                   keyboardType: TextInputType.numberWithOptions(decimal: true),
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
+                  ],
                   decoration: const InputDecoration(
                     labelText: 'Сумма',
                     prefixText: '\$ ',
@@ -445,7 +492,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                 ),
                 const SizedBox(height: BankingTokens.space16),
                 Text(
-                  'Доступно: \$${appState.balance.toStringAsFixed(2)}',
+                  'Доступно: \$${selectedAccount?.balance.toStringAsFixed(2) ?? '0.00'}',
                   style: BankingTypography.caption.copyWith(
                     color: BankingColors.neutral600,
                   ),
@@ -453,23 +500,34 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
               ],
             ),
             actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: Text(AppLocalizations.of(context)?.cancel ?? 'Отмена'),
+              // Центрируем кнопку отмены
+              Center(
+                child: TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: Text(AppLocalizations.of(context)?.cancel ?? 'Отмена'),
+                ),
               ),
+              const SizedBox(height: BankingTokens.space16), // Отступ между кнопками
               ElevatedButton(
                 onPressed: () async {
+                  final validation = _validateAmount(amountController.text, selectedAccount);
+                  if (validation != null) {
+                    // Показываем ошибку валидации
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(validation),
+                        backgroundColor: BankingColors.error500,
+                      ),
+                    );
+                    return;
+                  }
+
                   final amount = double.tryParse(amountController.text.replaceAll(',', '.'));
-                  if (amount != null && amount > 0) {
-                    final success = await appState.depositToSavings(amount);
+                  if (amount != null && amount > 0 && selectedAccount != null) {
+                    final success = await appState.depositToSavingsFromAccount(amount, selectedAccount!);
                     if (success) {
                       Navigator.of(context).pop();
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('${AppLocalizations.of(context)?.accountDeposited ?? 'Счет пополнен на'} \$${amount.toStringAsFixed(2)}'),
-                          backgroundColor: BankingColors.success500,
-                        ),
-                      );
+                      _showSuccessDialog(amount);
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
@@ -482,11 +540,74 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                 },
                 child: Text(AppLocalizations.of(context)?.deposit ?? 'Пополнить'),
               ),
+              const SizedBox(height: BankingTokens.space16), // Отступ перед кнопкой удаления
+              Center(
+                child: TextButton(
+                  onPressed: () async {
+                    // Показываем диалог подтверждения
+                    final confirmed = await showDialog<bool>(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: Text(localizations.deleteSavingsAccount),
+                          content: const Text('Вы уверены, что хотите удалить накопительный счет? Все средства будут потеряны.'),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(false),
+                              child: Text(localizations.cancel),
+                            ),
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(true),
+                              style: TextButton.styleFrom(
+                                foregroundColor: BankingColors.error500,
+                              ),
+                              child: Text(localizations.deleteSavingsAccount),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+
+                    if (confirmed == true) {
+                      final success = await appState.deleteSavingsAccount();
+                      if (success) {
+                        Navigator.of(context).pop(); // Закрываем диалог пополнения
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: const Text('Накопительный счет удален'),
+                            backgroundColor: BankingColors.error500,
+                          ),
+                        );
+                      }
+                    }
+                  },
+                  style: TextButton.styleFrom(
+                    foregroundColor: BankingColors.error500,
+                  ),
+                  child: Text(localizations.deleteSavingsAccount),
+                ),
+              ),
             ],
           ),
         );
       },
     );
+  }
+
+  // Валидация суммы
+  String? _validateAmount(String value, Account? selectedAccount) {
+    if (value.isEmpty) return null;
+
+    final amount = double.tryParse(value.replaceAll(',', '.'));
+    if (amount == null) return 'Введите корректную сумму';
+
+    if (amount <= 0) return 'Сумма должна быть больше 0';
+
+    if (selectedAccount != null && amount > selectedAccount.balance) {
+      return 'Недостаточно средств на выбранной карте';
+    }
+
+    return null;
   }
 
   Widget _buildQuickActions(AppState appState, AppLocalizations localizations) {
@@ -734,8 +855,18 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
         print('Открыть экран пополнения');
         break;
       case 'scan':
-        // TODO: Open QR scanner
-        print('Открыть сканер QR');
+        // Open QR scanner
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => const QrScannerScreen(),
+          ),
+        ).then((scannedCode) {
+          if (scannedCode != null && scannedCode is String) {
+            // Обработка отсканированного QR кода
+            print('Отсканирован QR код: $scannedCode');
+            // Здесь можно добавить логику обработки QR кода
+          }
+        });
         break;
     }
   }
@@ -756,6 +887,107 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
       case ThemeMode.dark:
         return localizations.darkTheme;
     }
+  }
+
+  Widget _buildNotificationsMenu() {
+    final appState = context.watch<AppState>();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final localizations = AppLocalizations.of(context)!;
+
+    return PopupMenuButton<String>(
+      icon: Icon(
+        isDark ? BankingIcons.notification : BankingIcons.notificationFilled,
+        color: BankingColors.primary500,
+      ),
+      onSelected: (value) {
+        if (value == 'view_all') {
+          _onViewAllNotifications();
+        }
+      },
+      onOpened: () {
+        appState.markAllNotificationsAsRead();
+      },
+      itemBuilder: (BuildContext context) {
+        final notifications = appState.notifications;
+        final unreadCount = notifications.where((n) => !n.isRead).length;
+
+        return [
+          PopupMenuItem<String>(
+            enabled: false,
+            child: Text(
+              unreadCount > 0
+                  ? '${localizations.notificationsHeader} (${unreadCount} ${localizations.unreadNotifications})'
+                  : localizations.notificationsHeader,
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          const PopupMenuDivider(),
+          ...notifications.take(3).map((notification) {
+            return PopupMenuItem<String>(
+              enabled: false,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          notification.title,
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            fontWeight: notification.isRead ? FontWeight.normal : FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      if (!notification.isRead)
+                        Container(
+                          width: 8,
+                          height: 8,
+                          decoration: BoxDecoration(
+                            color: BankingColors.primary500,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                    ],
+                  ),
+                  Text(
+                    notification.message,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).brightness == Brightness.dark
+                          ? BankingColors.neutral400
+                          : BankingColors.neutral600,
+                    ),
+                  ),
+                  Text(
+                    notification.getTimeAgo(AppLocalizations.of(context)),
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).brightness == Brightness.dark
+                          ? BankingColors.neutral500
+                          : BankingColors.neutral500,
+                      fontSize: 10,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }),
+          if (notifications.length > 3)
+            const PopupMenuDivider(),
+          if (notifications.length > 3)
+            PopupMenuItem<String>(
+              value: 'view_all',
+              child: Row(
+                children: [
+                  Icon(Icons.expand_more, size: 16),
+                  const SizedBox(width: 8),
+                  Text(localizations.viewAllNotifications),
+                ],
+              ),
+            ),
+        ];
+      },
+    );
   }
 
   void _onViewAllNotifications() {
@@ -941,7 +1173,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          account.name == 'credit_card' ? localizations.creditCard : localizations.debitCard,
+                          account.type == 'credit_card' ? localizations.creditCard : localizations.debitCard,
                           style: Theme.of(context).textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.w600,
                           ),

@@ -809,6 +809,98 @@ class AppState extends ChangeNotifier {
     return true;
   }
 
+  Future<bool> depositToSavingsFromAccount(double amount, Account sourceAccount) async {
+    if (_savingsAccount == null || amount <= 0) return false;
+
+    // Check if the source account has enough balance
+    if (sourceAccount.balance < amount) return false;
+
+    // Update source account
+    final sourceIndex = _accounts.indexOf(sourceAccount);
+    final updatedSourceAccount = Account(
+      id: sourceAccount.id,
+      name: sourceAccount.name,
+      type: sourceAccount.type,
+      balance: sourceAccount.balance - amount,
+      currency: sourceAccount.currency,
+      color: sourceAccount.color,
+      isPrimary: sourceAccount.isPrimary,
+      cardNumber: sourceAccount.cardNumber,
+      expireDate: sourceAccount.expireDate,
+      cvc: sourceAccount.cvc,
+      hasSticker: sourceAccount.hasSticker,
+    );
+    _accounts[sourceIndex] = updatedSourceAccount;
+
+    // Update savings account
+    final updatedSavingsAccount = SavingsAccount(
+      id: _savingsAccount!.id,
+      balance: _savingsAccount!.balance + amount,
+      interestRate: _savingsAccount!.interestRate,
+      createdDate: _savingsAccount!.createdDate,
+    );
+    _savingsAccount = updatedSavingsAccount;
+
+    // Save to SharedPreferences
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setDouble('savings_account_balance', _savingsAccount!.balance);
+    await prefs.setDouble('card_${sourceAccount.id}_balance', updatedSourceAccount.balance);
+
+    // Add transaction
+    final transactionId = 'savings_deposit_${DateTime.now().millisecondsSinceEpoch}';
+    final transaction = Transaction(
+      id: transactionId,
+      title: 'Savings account deposit', // Will be localized in UI
+      amount: -amount,
+      date: DateTime.now(),
+      category: 'Savings',
+      icon: Icons.savings,
+    );
+    addTransaction(transaction);
+
+    // Add notification - content will be localized in UI
+    final notification = NotificationItem(
+      id: 'savings_deposit_$transactionId',
+      title: 'Savings account topped up',
+      message: '\$${amount.toStringAsFixed(2)} credited to savings account',
+      timestamp: DateTime.now(),
+      isRead: false,
+      type: NotificationType.transaction,
+    );
+    _notifications.insert(0, notification);
+
+    notifyListeners();
+    return true;
+  }
+
+  Future<bool> deleteSavingsAccount() async {
+    if (_savingsAccount == null) return false;
+
+    // Clear savings account
+    _savingsAccount = null;
+
+    // Remove from SharedPreferences
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('savings_account_id');
+    await prefs.remove('savings_account_balance');
+    await prefs.remove('savings_account_rate');
+    await prefs.remove('savings_account_created');
+
+    // Add notification - content will be localized in UI
+    final notification = NotificationItem(
+      id: 'savings_deleted_${DateTime.now().millisecondsSinceEpoch}',
+      title: 'Savings account deleted',
+      message: 'Your savings account has been closed',
+      timestamp: DateTime.now(),
+      isRead: false,
+      type: NotificationType.transaction,
+    );
+    _notifications.insert(0, notification);
+
+    notifyListeners();
+    return true;
+  }
+
   Future<bool> depositToSavings(double amount) async {
     if (_savingsAccount == null || amount <= 0) return false;
 

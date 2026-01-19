@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../foundation/colors.dart';
 import '../foundation/typography.dart';
@@ -377,6 +378,9 @@ class _BankingAmountInputState extends State<BankingAmountInput> {
                       controller: _controller,
                       enabled: widget.enabled,
                       keyboardType: TextInputType.numberWithOptions(decimal: true),
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
+                      ],
                       textAlign: TextAlign.center,
                       style: BankingTypography.amountLarge.copyWith(
                         color: isDark ? BankingColors.neutral0 : BankingColors.neutral900,
