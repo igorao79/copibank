@@ -37,9 +37,9 @@ class _TransferScreenState extends State<TransferScreen> with TickerProviderStat
   // Список банков для выбора
   final List<String> _availableBanks = [
     'Copibank',
-    'Сбербанк',
-    'Альфа Банк',
-    'ВТБ',
+    'Sberbank',
+    'Alfa Bank',
+    'VTB',
   ];
 
   @override
@@ -116,11 +116,11 @@ class _TransferScreenState extends State<TransferScreen> with TickerProviderStat
     switch (bank) {
       case 'Copibank':
         return WebpAssets.logoBank;
-      case 'Альфа Банк':
+      case 'Alfa Bank':
         return BankAssets.alfa;
-      case 'Сбербанк':
+      case 'Sberbank':
         return BankAssets.sber;
-      case 'ВТБ':
+      case 'VTB':
         return BankAssets.vtb;
       default:
         return WebpAssets.logoBank; // fallback

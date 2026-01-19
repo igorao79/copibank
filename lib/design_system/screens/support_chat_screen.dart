@@ -33,12 +33,30 @@ class _SupportChatScreenState extends State<SupportChatScreen> with TickerProvid
   ];
 
   List<Map<String, String>> _quickQuestions = [
-    {'question': 'How to top up account?', 'answer': 'You can top up your account through:\n• ATM\n• Transfer from another card\n• Via mobile app\n• At bank branch'}, // Will be localized
-    {'question': 'Как заблокировать карту?', 'answer': 'Заблокировать карту можно:\n• В мобильном приложении (Карты → Выбрать карту → Заблокировать)\n• По телефону горячей линии\n• В отделении банка'},
-    {'question': 'Как изменить ПИН-код?', 'answer': 'Изменить ПИН-код можно:\n• В банкомате\n• Через мобильное приложение\n• В отделении банка с паспортом'},
-    {'question': 'Почему платеж не прошел?', 'answer': 'Возможные причины:\n• Недостаточно средств\n• Превышен лимит\n• Технические проблемы\n• Неправильные реквизиты\n\nПроверьте статус платежа в истории операций'},
-    {'question': 'Как подключить уведомления?', 'answer': 'Включить уведомления:\n• Откройте приложение\n• Перейдите в Настройки\n• Выберите "Уведомления"\n• Разрешите push-уведомления'},
-    {'question': 'Безопасность аккаунта', 'answer': 'Рекомендации по безопасности:\n• Используйте сложный пароль\n• Не сообщайте данные третьим лицам\n• Регулярно меняйте пароль\n• Включайте двухфакторную аутентификацию'},
+    {
+      'question': AppLocalizations.of(context)?.faqHowToTopUp ?? 'How to top up account?',
+      'answer': AppLocalizations.of(context)?.faqHowToTopUpAnswer ?? 'You can top up your account through:\n• ATM\n• Transfer from another card\n• Via mobile app\n• At bank branch'
+    },
+    {
+      'question': AppLocalizations.of(context)?.faqHowToBlockCard ?? 'How to block card?',
+      'answer': AppLocalizations.of(context)?.faqHowToBlockCardAnswer ?? 'Block card can be done:\n• In mobile app (Cards → Select card → Block)\n• By hotline phone\n• At bank branch'
+    },
+    {
+      'question': AppLocalizations.of(context)?.faqHowToChangePin ?? 'How to change PIN code?',
+      'answer': AppLocalizations.of(context)?.faqHowToChangePinAnswer ?? 'Change PIN code can be done:\n• At ATM\n• Via mobile app\n• At bank branch with passport'
+    },
+    {
+      'question': AppLocalizations.of(context)?.faqWhyPaymentFailed ?? 'Why payment didn\'t go through?',
+      'answer': AppLocalizations.of(context)?.faqWhyPaymentFailedAnswer ?? 'Possible reasons:\n• Insufficient funds\n• Limit exceeded\n• Technical problems\n• Incorrect details\n\nCheck payment status in transaction history'
+    },
+    {
+      'question': AppLocalizations.of(context)?.faqHowToEnableNotifications ?? 'How to enable notifications?',
+      'answer': AppLocalizations.of(context)?.faqHowToEnableNotificationsAnswer ?? 'Enable notifications:\n• Open app\n• Go to Settings\n• Select "Notifications"\n• Allow push notifications'
+    },
+    {
+      'question': AppLocalizations.of(context)?.faqAccountSecurity ?? 'Account security',
+      'answer': AppLocalizations.of(context)?.faqAccountSecurityAnswer ?? 'Security recommendations:\n• Use strong password\n• Don\'t share data with third parties\n• Change password regularly\n• Enable two-factor authentication'
+    },
   ];
 
   @override

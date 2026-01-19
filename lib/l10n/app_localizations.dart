@@ -221,6 +221,18 @@ class AppLocalizations {
       'cardInformation': 'Card information',
       'cardNumber': 'Card number',
       'cardNumberCopied': 'Card number copied!',
+      'faqHowToTopUp': 'How to top up account?',
+      'faqHowToTopUpAnswer': 'You can top up your account through:\n• ATM\n• Transfer from another card\n• Via mobile app\n• At bank branch',
+      'faqHowToBlockCard': 'How to block card?',
+      'faqHowToBlockCardAnswer': 'Block card can be done:\n• In mobile app (Cards → Select card → Block)\n• By hotline phone\n• At bank branch',
+      'faqHowToChangePin': 'How to change PIN code?',
+      'faqHowToChangePinAnswer': 'Change PIN code can be done:\n• At ATM\n• Via mobile app\n• At bank branch with passport',
+      'faqWhyPaymentFailed': 'Why payment didn\'t go through?',
+      'faqWhyPaymentFailedAnswer': 'Possible reasons:\n• Insufficient funds\n• Limit exceeded\n• Technical problems\n• Incorrect details\n\nCheck payment status in transaction history',
+      'faqHowToEnableNotifications': 'How to enable notifications?',
+      'faqHowToEnableNotificationsAnswer': 'Enable notifications:\n• Open app\n• Go to Settings\n• Select "Notifications"\n• Allow push notifications',
+      'faqAccountSecurity': 'Account security',
+      'faqAccountSecurityAnswer': 'Security recommendations:\n• Use strong password\n• Don\'t share data with third parties\n• Change password regularly\n• Enable two-factor authentication',
     },
     'ru': {
       'appTitle': 'Banki2 - Банковское приложение',
@@ -369,6 +381,18 @@ class AppLocalizations {
       'tooManyAttempts': 'Слишком много неудачных попыток',
       'tryAgainIn': 'Повторите через',
       'seconds': 'сек.',
+      'faqHowToTopUp': 'Как пополнить счет?',
+      'faqHowToTopUpAnswer': 'Вы можете пополнить счет через:\n• Банкомат\n• Перевод с другой карты\n• Через мобильное приложение\n• В отделении банка',
+      'faqHowToBlockCard': 'Как заблокировать карту?',
+      'faqHowToBlockCardAnswer': 'Заблокировать карту можно:\n• В мобильном приложении (Карты → Выбрать карту → Заблокировать)\n• По телефону горячей линии\n• В отделении банка',
+      'faqHowToChangePin': 'Как изменить ПИН-код?',
+      'faqHowToChangePinAnswer': 'Изменить ПИН-код можно:\n• В банкомате\n• Через мобильное приложение\n• В отделении банка с паспортом',
+      'faqWhyPaymentFailed': 'Почему платеж не прошел?',
+      'faqWhyPaymentFailedAnswer': 'Возможные причины:\n• Недостаточно средств\n• Превышен лимит\n• Технические проблемы\n• Неправильные реквизиты\n\nПроверьте статус платежа в истории операций',
+      'faqHowToEnableNotifications': 'Как подключить уведомления?',
+      'faqHowToEnableNotificationsAnswer': 'Включить уведомления:\n• Откройте приложение\n• Перейдите в Настройки\n• Выберите "Уведомления"\n• Разрешите push-уведомления',
+      'faqAccountSecurity': 'Безопасность аккаунта',
+      'faqAccountSecurityAnswer': 'Рекомендации по безопасности:\n• Используйте сложный пароль\n• Не сообщайте данные третьим лицам\n• Регулярно меняйте пароль\n• Включайте двухфакторную аутентификацию',
     },
   };
 
@@ -605,6 +629,20 @@ class AppLocalizations {
   String get cardInformation => _localizedValues[locale.languageCode]?['cardInformation'] ?? 'Card information';
   String get cardNumber => _localizedValues[locale.languageCode]?['cardNumber'] ?? 'Card number';
   String get cardNumberCopied => _localizedValues[locale.languageCode]?['cardNumberCopied'] ?? 'Card number copied!';
+
+  // FAQ getters
+  String get faqHowToTopUp => _localizedValues[locale.languageCode]?['faqHowToTopUp'] ?? 'How to top up account?';
+  String get faqHowToTopUpAnswer => _localizedValues[locale.languageCode]?['faqHowToTopUpAnswer'] ?? 'You can top up your account through:\n• ATM\n• Transfer from another card\n• Via mobile app\n• At bank branch';
+  String get faqHowToBlockCard => _localizedValues[locale.languageCode]?['faqHowToBlockCard'] ?? 'How to block card?';
+  String get faqHowToBlockCardAnswer => _localizedValues[locale.languageCode]?['faqHowToBlockCardAnswer'] ?? 'Block card can be done:\n• In mobile app (Cards → Select card → Block)\n• By hotline phone\n• At bank branch';
+  String get faqHowToChangePin => _localizedValues[locale.languageCode]?['faqHowToChangePin'] ?? 'How to change PIN code?';
+  String get faqHowToChangePinAnswer => _localizedValues[locale.languageCode]?['faqHowToChangePinAnswer'] ?? 'Change PIN code can be done:\n• At ATM\n• Via mobile app\n• At bank branch with passport';
+  String get faqWhyPaymentFailed => _localizedValues[locale.languageCode]?['faqWhyPaymentFailed'] ?? 'Why payment didn\'t go through?';
+  String get faqWhyPaymentFailedAnswer => _localizedValues[locale.languageCode]?['faqWhyPaymentFailedAnswer'] ?? 'Possible reasons:\n• Insufficient funds\n• Limit exceeded\n• Technical problems\n• Incorrect details\n\nCheck payment status in transaction history';
+  String get faqHowToEnableNotifications => _localizedValues[locale.languageCode]?['faqHowToEnableNotifications'] ?? 'How to enable notifications?';
+  String get faqHowToEnableNotificationsAnswer => _localizedValues[locale.languageCode]?['faqHowToEnableNotificationsAnswer'] ?? 'Enable notifications:\n• Open app\n• Go to Settings\n• Select "Notifications"\n• Allow push notifications';
+  String get faqAccountSecurity => _localizedValues[locale.languageCode]?['faqAccountSecurity'] ?? 'Account security';
+  String get faqAccountSecurityAnswer => _localizedValues[locale.languageCode]?['faqAccountSecurityAnswer'] ?? 'Security recommendations:\n• Use strong password\n• Don\'t share data with third parties\n• Change password regularly\n• Enable two-factor authentication';
 
   // Additional getters for UI elements
   String get debitCard => _localizedValues[locale.languageCode]?['debitCard'] ?? 'Дебетовая карта';
