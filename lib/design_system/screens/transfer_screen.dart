@@ -641,7 +641,7 @@ class _TransferScreenState extends State<TransferScreen> with TickerProviderStat
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          account.name,
+                                          _getAccountDisplayName(account),
                                           style: BankingTypography.bodyRegular.copyWith(
                                             fontWeight: FontWeight.w600,
                                             color: BankingColors.neutral900,
@@ -847,5 +847,15 @@ class _TransferScreenState extends State<TransferScreen> with TickerProviderStat
         ),
       ),
     );
+  }
+
+  String _getAccountDisplayName(Account account) {
+    // Показываем последние 4 цифры номера карты
+    final cardNumber = account.cardNumber;
+    if (cardNumber != null && cardNumber.length >= 4) {
+      final lastFour = cardNumber.replaceAll(' ', '').substring(cardNumber.replaceAll(' ', '').length - 4);
+      return '•••• $lastFour';
+    }
+    return account.name; // Fallback to account name
   }
 }

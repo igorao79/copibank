@@ -351,7 +351,7 @@ class _ApplyScreenState extends State<ApplyScreen>
                   ),
                 ),
 
-                if (appState.accounts.isEmpty) ...[
+                if (appState.accounts.where((account) => account.type == 'debit_card' && !account.hasSticker).isEmpty) ...[
                   const SizedBox(height: BankingTokens.space12),
                   Container(
                     padding: const EdgeInsets.all(BankingTokens.space16),
@@ -609,7 +609,7 @@ class _ApplyScreenState extends State<ApplyScreen>
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => PaymentStickerApplicationModal(
-        accounts: appState.accounts,
+        accounts: appState.accounts.where((a) => a.type == 'debit_card' && !a.hasSticker).toList(),
         onAccept: () => _onPaymentStickerAccepted(context, appState),
       ),
     );
@@ -685,6 +685,9 @@ class _ApplyScreenState extends State<ApplyScreen>
     await prefs.setString('card_${account.id}_expire', account.expireDate ?? '');
     await prefs.setString('card_${account.id}_cvc', account.cvc ?? '');
     await prefs.setDouble('card_${account.id}_balance', account.balance);
+    await prefs.setString('card_${account.id}_type', account.type);
+    await prefs.setBool('card_${account.id}_has_sticker', account.hasSticker);
+    await prefs.setInt('card_${account.id}_color', account.color.value);
     await prefs.setStringList('user_cards', existingCards);
 
     print('DEBUG: ApplyScreen - Card saved to SharedPreferences: ${account.id}');
@@ -707,7 +710,7 @@ class _ApplyScreenState extends State<ApplyScreen>
       type: 'credit_card',
       balance: 10000.00,
       currency: 'USD',
-      color: BankingColors.secondary500,
+      color: const Color(0xFF1565C0),
       isPrimary: false,
       cardNumber: cardNumber,
       expireDate: expireDate,
@@ -727,7 +730,7 @@ class _ApplyScreenState extends State<ApplyScreen>
   void _onPaymentStickerAccepted(BuildContext context, AppState appState) {
     final localizations = AppLocalizations.of(context)!;
     final availableCards = appState.accounts
-        .where((account) => !account.hasSticker)
+        .where((account) => !account.hasSticker && account.type == 'debit_card')
         .toList();
 
     if (availableCards.isNotEmpty) {

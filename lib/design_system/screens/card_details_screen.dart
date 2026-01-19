@@ -100,15 +100,14 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> with TickerProvid
         actions: [
           Container(
             margin: const EdgeInsets.only(right: 8),
-            child: Badge(
-              label: appState.unreadNotificationsCount > 0
-                  ? Text(
+            child: appState.unreadNotificationsCount > 0
+                ? Badge(
+                    label: Text(
                       appState.unreadNotificationsCount.toString(),
                       style: const TextStyle(fontSize: 9),
-                    )
-                  : null,
-              smallSize: 14,
-              child: PopupMenuButton<String>(
+                    ),
+                    smallSize: 14,
+                    child: PopupMenuButton<String>(
                 icon: Icon(
                   isDark ? BankingIcons.notification : BankingIcons.notificationFilled,
                   color: BankingColors.primary500,
@@ -202,7 +201,99 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> with TickerProvid
                   ];
                 },
               ),
-            ),
+            )
+                : PopupMenuButton<String>(
+                    icon: Icon(
+                      isDark ? BankingIcons.notification : BankingIcons.notificationFilled,
+                      color: BankingColors.primary500,
+                    ),
+                    onSelected: (value) {
+                      if (value == 'view_all') {
+                        // TODO: Navigate to notifications
+                      }
+                    },
+                    onOpened: () {
+                      appState.markAllNotificationsAsRead();
+                    },
+                    itemBuilder: (BuildContext context) {
+                      final notifications = appState.notifications;
+                      final unreadCount = notifications.where((n) => !n.isRead).length;
+
+                      return [
+                        PopupMenuItem<String>(
+                          enabled: false,
+                          child: Text(
+                            localizations.notificationsHeader,
+                            style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        const PopupMenuDivider(),
+                        ...notifications.take(3).map((notification) {
+                          return PopupMenuItem<String>(
+                            enabled: false,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        notification.title,
+                                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                          fontWeight: notification.isRead ? FontWeight.normal : FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                    if (!notification.isRead)
+                                      Container(
+                                        width: 8,
+                                        height: 8,
+                                        decoration: BoxDecoration(
+                                          color: BankingColors.primary500,
+                                          shape: BoxShape.circle,
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                                Text(
+                                  notification.message,
+                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: Theme.of(context).brightness == Brightness.dark
+                                        ? BankingColors.neutral400
+                                        : BankingColors.neutral600,
+                                  ),
+                                ),
+                                Text(
+                                  notification.timeAgo,
+                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: Theme.of(context).brightness == Brightness.dark
+                                        ? BankingColors.neutral500
+                                        : BankingColors.neutral500,
+                                    fontSize: 10,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        }),
+                        if (notifications.length > 3)
+                          const PopupMenuDivider(),
+                        if (notifications.length > 3)
+                          PopupMenuItem<String>(
+                            value: 'view_all',
+                            child: Row(
+                              children: [
+                                Icon(Icons.expand_more, size: 16),
+                                const SizedBox(width: 8),
+                                Text(localizations.viewAllNotifications),
+                              ],
+                            ),
+                          ),
+                      ];
+                    },
+                  ),
           ),
         ],
       ),
@@ -324,29 +415,31 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> with TickerProvid
               const SizedBox(height: BankingTokens.space24),
 
               // Action Buttons
-              Column(
-                children: [
-                  // Пополнить button
-                  SizedBox(
-                    width: double.infinity,
-                    child: BankingButtons.secondary(
-                      text: 'Пополнить',
-                      onPressed: () => _onDepositPressed(),
-                      icon: Icons.add_circle,
+              if (widget.account.type != 'credit_card') ...[
+                Column(
+                  children: [
+                    // Пополнить button
+                    SizedBox(
+                      width: double.infinity,
+                      child: BankingButtons.secondary(
+                        text: 'Пополнить',
+                        onPressed: () => _onDepositPressed(),
+                        icon: Icons.add_circle,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: BankingTokens.space16),
-                  // Transfer button
-                  SizedBox(
-                    width: double.infinity,
-                    child: BankingButtons.primary(
-                      text: 'Перевод',
-                      onPressed: () => _onTransferPressed(),
-                      icon: Icons.send,
+                    const SizedBox(height: BankingTokens.space16),
+                    // Transfer button
+                    SizedBox(
+                      width: double.infinity,
+                      child: BankingButtons.primary(
+                        text: 'Перевод',
+                        onPressed: () => _onTransferPressed(),
+                        icon: Icons.send,
+                      ),
                     ),
-                  ),
-                ],
-              ),
+                  ],
+                ),
+              ],
 
               const SizedBox(height: BankingTokens.space32),
 
@@ -412,7 +505,7 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> with TickerProvid
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'DEBIT',
+                widget.account.type == 'credit_card' ? 'CREDIT' : 'DEBIT',
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
@@ -577,7 +670,7 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> with TickerProvid
           Align(
             alignment: Alignment.centerRight,
             child: Container(
-              width: 80,
+              constraints: const BoxConstraints(minWidth: 80, maxWidth: 120),
               height: 40,
               decoration: BoxDecoration(
                 color: Colors.white,
@@ -831,6 +924,10 @@ class _CardDepositModalState extends State<CardDepositModal> with TickerProvider
   }
 
   bool _canDeposit(AppState appState) {
+    // Кредитные карты нельзя пополнять
+    if (widget.account.type == 'credit_card') {
+      return false;
+    }
     final savingsBalance = appState.savingsAccount?.balance ?? 0.0;
     return _enteredAmount > 0 && _enteredAmount <= savingsBalance;
   }
@@ -1002,10 +1099,11 @@ class _CardDepositModalState extends State<CardDepositModal> with TickerProvider
               ),
               const SizedBox(height: BankingTokens.space32),
 
-              // Кнопка пополнить
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
+              // Кнопка пополнить (только для дебетовых карт)
+              if (widget.account.type != 'credit_card') ...[
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
                   onPressed: _canDeposit(appState) ? () {
                     widget.onDeposit(_enteredAmount);
                   } : null,
@@ -1026,6 +1124,7 @@ class _CardDepositModalState extends State<CardDepositModal> with TickerProvider
                   ),
                 ),
               ),
+              ],
               const SizedBox(height: BankingTokens.space16),
 
               // Кнопка отмена (центрированная)

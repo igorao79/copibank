@@ -136,30 +136,34 @@ class AppState extends ChangeNotifier {
     final expireDate = prefs.getString('card_${cardId}_expire');
     final cvc = prefs.getString('card_${cardId}_cvc');
     final balance = prefs.getDouble('card_${cardId}_balance');
+    final cardType = prefs.getString('card_${cardId}_type') ?? (cardId.startsWith('credit_') ? 'credit_card' : 'debit_card');
+    final hasSticker = prefs.getBool('card_${cardId}_has_sticker') ?? prefs.getBool('sticker_$cardId') ?? false;
+    final colorValue = prefs.getInt('card_${cardId}_color');
 
     print('DEBUG: Loading card $cardId:');
     print('  number: $cardNumber');
     print('  expire: $expireDate');
     print('  cvc: $cvc');
     print('  balance: $balance');
+    print('  type: $cardType');
+    print('  hasSticker: $hasSticker');
+    print('  colorValue: $colorValue');
 
     // Проверяем что ВСЕ данные загружены
     if (cardNumber != null && cardNumber.isNotEmpty &&
         expireDate != null && cvc != null && balance != null) {
 
-      // Проверяем, есть ли стикер
-      final hasSticker = prefs.getBool('sticker_$cardId') ?? false;
-
       // Форматируем номер карты для отображения
       final formattedNumber = _formatCardNumber(cardNumber);
 
+      final defaultColor = cardType == 'credit_card' ? const Color(0xFF1565C0) : const Color(0xFF2196F3);
       final account = Account(
         id: cardId,
-        name: 'Дебетовая карта',
-        type: 'debit_card',
+        name: cardType == 'credit_card' ? 'Кредитная карта' : 'Дебетовая карта',
+        type: cardType,
         balance: balance, // ← Реальный баланс из SharedPreferences
         currency: 'USD',
-        color: const Color(0xFF2196F3),
+        color: colorValue != null ? Color(colorValue) : defaultColor,
         isPrimary: _accounts.isEmpty,
         cardNumber: formattedNumber, // ← Реальный номер из генератора
         expireDate: expireDate, // ← Реальная дата из генератора
@@ -184,9 +188,11 @@ class AppState extends ChangeNotifier {
   }
 
   // Theme management
-  ThemeMode _themeMode = ThemeMode.system;
+  ThemeMode _themeMode = ThemeMode.light;
   ThemeMode? _lastSavedThemeMode; // Кэш для избежания лишних сохранений
   ThemeMode get themeMode => _themeMode;
+
+  bool get isDark => _themeMode == ThemeMode.dark;
 
   // PIN code management
   String? _pinCode;
@@ -257,16 +263,14 @@ class AppState extends ChangeNotifier {
   bool get hasPinCode => _pinCode != null && _pinCode!.isNotEmpty;
 
   void toggleTheme() {
-    // Определяем новую тему
+    // Определяем новую тему: light -> dark -> light
     switch (_themeMode) {
-      case ThemeMode.system:
-        _themeMode = ThemeMode.light;
-        break;
       case ThemeMode.light:
         _themeMode = ThemeMode.dark;
         break;
       case ThemeMode.dark:
-        _themeMode = ThemeMode.system;
+      default:
+        _themeMode = ThemeMode.light;
         break;
     }
 
@@ -311,8 +315,8 @@ class AppState extends ChangeNotifier {
     // Add notification about new card
     final notification = NotificationItem(
       id: 'card_${account.id}_${DateTime.now().millisecondsSinceEpoch}',
-      title: 'Карта оформлена!',
-      message: 'Ваша новая дебетовая карта готова к использованию',
+      title: 'Card issued!',
+      message: 'Your new debit card is ready to use',
       timestamp: DateTime.now(),
       isRead: false,
       type: NotificationType.transaction,
@@ -334,6 +338,10 @@ class AppState extends ChangeNotifier {
     await prefs.remove('card_${accountId}_expire');
     await prefs.remove('card_${accountId}_cvc');
     await prefs.remove('card_${accountId}_balance');
+    await prefs.remove('card_${accountId}_type');
+    await prefs.remove('card_${accountId}_has_sticker');
+    await prefs.remove('card_${accountId}_color');
+    await prefs.remove('sticker_${accountId}'); // Старый ключ для обратной совместимости
 
     notifyListeners();
   }
@@ -383,14 +391,15 @@ class AppState extends ChangeNotifier {
       date: DateTime.now(),
       category: 'Transfer',
       icon: Icons.send,
+      accountId: fromAccount.id,
     );
     addTransaction(transaction);
 
     // Add notification
     final notification = NotificationItem(
       id: 'transfer_${transactionId}',
-      title: 'Перевод выполнен',
-      message: 'Перевод ${amount.toStringAsFixed(2)}\$ пользователю ${toUser.name} выполнен успешно',
+      title: 'Transfer completed',
+      message: 'Transfer of \$${amount.toStringAsFixed(2)} to ${toUser.name} completed successfully',
       timestamp: DateTime.now(),
       isRead: false,
       type: NotificationType.transaction,
@@ -448,8 +457,8 @@ class AppState extends ChangeNotifier {
       // Add notification
       final notification = NotificationItem(
         id: 'receive_${transactionId}',
-        title: 'Получен перевод',
-        message: 'Вы получили ${randomAmount.toStringAsFixed(2)}\$ от ${randomUser.name}',
+        title: 'Transfer received',
+        message: 'You received \$${randomAmount.toStringAsFixed(2)} from ${randomUser.name}',
         timestamp: DateTime.now(),
         isRead: false,
         type: NotificationType.transaction,
@@ -501,6 +510,22 @@ class AppState extends ChangeNotifier {
       date: DateTime.now().subtract(const Duration(days: 3)),
       category: 'Income',
       icon: Icons.work,
+    ),
+    Transaction(
+      id: '6',
+      title: 'Перевод от Михаила',
+      amount: 500.00,
+      date: DateTime.now().subtract(const Duration(days: 4)),
+      category: 'Transfer',
+      icon: Icons.send,
+    ),
+    Transaction(
+      id: '7',
+      title: 'Покупка в магазине',
+      amount: -25.50,
+      date: DateTime.now().subtract(const Duration(days: 5)),
+      category: 'Shopping',
+      icon: Icons.shopping_bag,
     ),
   ];
 
@@ -642,7 +667,7 @@ class AppState extends ChangeNotifier {
 
   bool get canOpenSavingsAccount => _accounts.isNotEmpty && _savingsAccount == null;
 
-  bool get canOrderSticker => _accounts.any((account) => !account.hasSticker);
+  bool get canOrderSticker => _accounts.any((account) => account.type == 'debit_card' && !account.hasSticker);
 
   Future<bool> openSavingsAccount() async {
     if (!canOpenSavingsAccount) return false;
@@ -740,8 +765,8 @@ class AppState extends ChangeNotifier {
     // Add notification
     final notification = NotificationItem(
       id: 'savings_deposit_$transactionId',
-      title: 'Счет пополнен',
-      message: 'Зачислено ${amount.toStringAsFixed(2)}\$ на накопительный счет',
+      title: 'Savings account topped up',
+      message: '\$${amount.toStringAsFixed(2)} credited to savings account',
       timestamp: DateTime.now(),
       isRead: false,
       type: NotificationType.transaction,
@@ -803,8 +828,8 @@ class AppState extends ChangeNotifier {
     // Add notification
     final notification = NotificationItem(
       id: 'deposit_$transactionId',
-      title: 'Карта пополнена',
-      message: 'Зачислено \$${amount.toStringAsFixed(2)} с накопительного счета',
+      title: 'Card topped up',
+      message: '\$${amount.toStringAsFixed(2)} credited from savings account',
       timestamp: DateTime.now(),
       isRead: false,
       type: NotificationType.transaction,
@@ -835,7 +860,7 @@ class AppState extends ChangeNotifier {
       _accounts[accountIndex] = updatedAccount;
 
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool('sticker_${accountId}', true);
+      await prefs.setBool('card_${accountId}_has_sticker', true);
 
       notifyListeners();
     }
@@ -860,7 +885,7 @@ class AppState extends ChangeNotifier {
       _accounts[accountIndex] = updatedAccount;
 
       final prefs = await SharedPreferences.getInstance();
-      await prefs.remove('sticker_${accountId}');
+      await prefs.setBool('card_${accountId}_has_sticker', false);
 
       notifyListeners();
     }
@@ -914,6 +939,7 @@ class Transaction {
   final DateTime date;
   final String category;
   final IconData icon;
+  final String? accountId; // ID карты, с которой совершена транзакция (опционально для тестовых данных)
 
   const Transaction({
     required this.id,
@@ -922,6 +948,7 @@ class Transaction {
     required this.date,
     required this.category,
     required this.icon,
+    this.accountId,
   });
 
   bool get isPositive => amount >= 0;

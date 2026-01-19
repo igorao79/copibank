@@ -207,7 +207,7 @@ class AppLocalizations {
       'transactionOpened': 'Открыта транзакция',
       'openFullChart': 'Открыть полный график расходов',
       'openAllTransactions': 'Открыть все транзакции',
-      'noCardsForSticker': 'Нет доступных карт для привязки стикера. Сначала оформите карту.',
+      'noCardsForSticker': 'Нет доступных дебетовых карт для привязки стикера. Сначала оформите дебетовую карту.',
       'applyCard': 'Оформить карту',
       'applySticker': 'Оформить стикер',
       'openAccount': 'Открыть счет',

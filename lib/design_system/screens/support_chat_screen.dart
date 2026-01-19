@@ -21,6 +21,7 @@ class _SupportChatScreenState extends State<SupportChatScreen> with TickerProvid
   final ScrollController _scrollController = ScrollController();
   late AnimationController _fadeController;
   late Animation<double> _fadeAnimation;
+  bool _isWaitingForBotResponse = false;
 
   List<Map<String, dynamic>> _messages = [
     {
@@ -494,23 +495,29 @@ class _SupportChatScreenState extends State<SupportChatScreen> with TickerProvid
       });
 
       _messageController.clear();
-
-      // Bot response
-      Future.delayed(const Duration(milliseconds: 1500), () {
-        setState(() {
-          _messages.add({
-            'text': 'Спасибо за ваше сообщение. Наш специалист свяжется с вами в ближайшее время.',
-            'isBot': true,
-            'timestamp': DateTime.now(),
-            'type': 'text',
-            'showQuestions': false,
-          });
-          _scrollToBottom();
-        });
-      });
     });
 
     _scrollToBottom();
+
+    // Bot response - только если не ждем предыдущий ответ
+    if (!_isWaitingForBotResponse) {
+      _isWaitingForBotResponse = true;
+      Future.delayed(const Duration(milliseconds: 1500), () {
+        if (mounted) {
+          setState(() {
+            _messages.add({
+              'text': 'Спасибо за ваше сообщение. Наш специалист свяжется с вами в ближайшее время.',
+              'isBot': true,
+              'timestamp': DateTime.now(),
+              'type': 'text',
+              'showQuestions': false,
+            });
+            _isWaitingForBotResponse = false;
+            _scrollToBottom();
+          });
+        }
+      });
+    }
   }
 
   void _showChatMenu() {

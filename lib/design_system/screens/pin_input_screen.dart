@@ -25,14 +25,11 @@ class _PinInputScreenState extends State<PinInputScreen> {
   String _confirmPin = '';
   bool _isConfirming = false;
   String? _errorMessage;
-  int _failedAttempts = 0;
-  bool _isLocked = false;
-  int _lockoutTime = 0;
+  bool _hasError = false;
 
   @override
   void initState() {
     super.initState();
-    _startLockoutTimer();
   }
 
   @override
@@ -42,30 +39,15 @@ class _PinInputScreenState extends State<PinInputScreen> {
   }
 
   void _onPinChanged(String value) {
-    if (!_isLocked) {
-      setState(() {
-        _enteredPin = value;
+    setState(() {
+      _enteredPin = value;
+      if (_hasError) {
+        _hasError = false;
         _errorMessage = null;
-      });
-    }
+      }
+    });
   }
 
-  void _startLockoutTimer() {
-    if (_lockoutTime > 0) {
-      Future.delayed(const Duration(seconds: 1), () {
-        if (mounted) {
-          setState(() {
-            _lockoutTime--;
-          });
-          _startLockoutTimer();
-        }
-      });
-    } else {
-      setState(() {
-        _isLocked = false;
-      });
-    }
-  }
 
   void _onPinCompleted(String value) async {
     final appState = context.read<AppState>();
@@ -102,13 +84,10 @@ class _PinInputScreenState extends State<PinInputScreen> {
       }
     } else {
       // Режим входа - проверяем PIN-код
-      if (_isLocked) {
-        return; // Блокировка активна
-      }
-
       if (appState.verifyPinCode(value)) {
         setState(() {
           _errorMessage = null; // Очищаем сообщение об ошибке при успешном вводе
+          _hasError = false;
         });
         if (mounted) {
           if (widget.onSuccess != null) {
@@ -118,24 +97,12 @@ class _PinInputScreenState extends State<PinInputScreen> {
           }
         }
       } else {
-        _failedAttempts++;
-        if (_failedAttempts >= 3) {
-          // Блокировка на 30 секунд после 3 неудачных попыток
-          setState(() {
-            _isLocked = true;
-            _lockoutTime = 30;
-            _errorMessage = '${AppLocalizations.of(context)?.tooManyAttempts ?? 'Слишком много неудачных попыток'}. ${AppLocalizations.of(context)?.tryAgainIn ?? 'Повторите через'} 30 ${AppLocalizations.of(context)?.seconds ?? 'сек.'}.';
-            _enteredPin = '';
-            _pinController.clear();
-          });
-          _startLockoutTimer();
-        } else {
-          setState(() {
-            _errorMessage = '${AppLocalizations.of(context)?.wrongPin ?? 'Неверный PIN-код'}. ${AppLocalizations.of(context)?.attemptsLeft ?? 'Осталось попыток'}: ${3 - _failedAttempts}';
-            _enteredPin = '';
-            _pinController.clear();
-          });
-        }
+        setState(() {
+          _errorMessage = AppLocalizations.of(context)?.wrongPin ?? 'Неверный PIN-код';
+          _enteredPin = '';
+          _pinController.clear();
+          _hasError = true;
+        });
       }
     }
   }
@@ -222,7 +189,7 @@ class _PinInputScreenState extends State<PinInputScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    const isDark = false; // Светлая тема по умолчанию
     return Scaffold(
       backgroundColor: isDark ? BankingColors.neutral900 : BankingColors.neutral0,
       body: SafeArea(
@@ -269,51 +236,38 @@ class _PinInputScreenState extends State<PinInputScreen> {
               const SizedBox(height: 48),
 
               // PIN код поля
-              AbsorbPointer(
-                absorbing: _isLocked,
-                child: PinCodeTextField(
-                  appContext: context,
-                  length: 4,
-                  controller: _pinController,
-                  obscureText: true,
-                  obscuringCharacter: '•',
-                  animationType: AnimationType.fade,
-                  pinTheme: PinTheme(
-                    shape: PinCodeFieldShape.box,
-                    borderRadius: BorderRadius.circular(12),
-                    fieldHeight: 60,
-                    fieldWidth: 50,
-                    activeFillColor: _isLocked
-                        ? (isDark ? BankingColors.neutral600 : BankingColors.neutral300)
-                        : (isDark ? BankingColors.neutral800 : BankingColors.neutral0),
-                    inactiveFillColor: _isLocked
-                        ? (isDark ? BankingColors.neutral600 : BankingColors.neutral300)
-                        : (isDark ? BankingColors.neutral700 : BankingColors.neutral50),
-                    selectedFillColor: _isLocked
-                        ? (isDark ? BankingColors.neutral600 : BankingColors.neutral300)
-                        : (isDark ? BankingColors.neutral800 : BankingColors.neutral0),
-                    activeColor: _isLocked ? BankingColors.neutral400 : BankingColors.primary500,
-                    inactiveColor: _isLocked
-                        ? BankingColors.neutral500
-                        : (isDark ? BankingColors.neutral600 : BankingColors.neutral300),
-                    selectedColor: _isLocked ? BankingColors.neutral400 : BankingColors.primary500,
-                    borderWidth: 2,
-                  ),
-                  cursorColor: _isLocked ? BankingColors.neutral400 : Theme.of(context).primaryColor,
-                  animationDuration: const Duration(milliseconds: 300),
-                  enableActiveFill: true,
-                  onChanged: _onPinChanged,
-                  onCompleted: _onPinCompleted,
+              PinCodeTextField(
+                appContext: context,
+                length: 4,
+                controller: _pinController,
+                obscureText: true,
+                obscuringCharacter: '•',
+                animationType: AnimationType.fade,
+                pinTheme: PinTheme(
+                  shape: PinCodeFieldShape.box,
+                  borderRadius: BorderRadius.circular(12),
+                  fieldHeight: 60,
+                  fieldWidth: 50,
+                  activeFillColor: isDark ? BankingColors.neutral800 : BankingColors.neutral0,
+                  inactiveFillColor: isDark ? BankingColors.neutral700 : BankingColors.neutral50,
+                  selectedFillColor: isDark ? BankingColors.neutral800 : BankingColors.neutral0,
+                  activeColor: _hasError ? Colors.red : BankingColors.primary500,
+                  inactiveColor: _hasError ? Colors.red : (isDark ? BankingColors.neutral600 : BankingColors.neutral300),
+                  selectedColor: _hasError ? Colors.red : BankingColors.primary500,
+                  borderWidth: 2,
                 ),
+                cursorColor: _hasError ? Colors.red : Theme.of(context).primaryColor,
+                animationDuration: const Duration(milliseconds: 300),
+                enableActiveFill: true,
+                onChanged: _onPinChanged,
+                onCompleted: _onPinCompleted,
               ),
 
               // Сообщение об ошибке
               if (_errorMessage != null) ...[
                 const SizedBox(height: 24),
                 Text(
-                  _isLocked && _lockoutTime > 0
-                      ? '$_errorMessage\n${AppLocalizations.of(context)?.tryAgainIn ?? 'Осталось'}: $_lockoutTime ${AppLocalizations.of(context)?.seconds ?? 'сек.'}.'
-                      : _errorMessage!,
+                  _errorMessage!,
                   style: const TextStyle(
                     color: Colors.red,
                     fontSize: 16,
