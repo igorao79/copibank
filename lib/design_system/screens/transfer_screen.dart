@@ -29,19 +29,14 @@ class _TransferScreenState extends State<TransferScreen> with TickerProviderStat
 
   TransferUser? _selectedUser;
   Account? _selectedAccount;
-  String? _selectedBank;
+  String? _selectedBankId;
   final TextEditingController _amountController = TextEditingController();
   final TextEditingController _commentController = TextEditingController();
   bool _isProcessing = false;
   String? _amountError;
 
   // Список банков для выбора
-  final List<String> _availableBanks = [
-    'Copibank',
-    'Sberbank',
-    'Alfa Bank',
-    'VTB',
-  ];
+  late final List<Map<String, String>> _availableBanks;
 
   @override
   void initState() {
@@ -55,16 +50,32 @@ class _TransferScreenState extends State<TransferScreen> with TickerProviderStat
     );
     _fadeController.forward();
 
+    // Add listener for amount validation
+    _amountController.addListener(_validateAmount);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    // Initialize banks with localization
+    final localizations = AppLocalizations.of(context)!;
+    _availableBanks = [
+      {'id': 'copibank', 'name': localizations.copibank},
+      {'id': 'sberbank', 'name': localizations.sberbank},
+      {'id': 'alfaBank', 'name': localizations.alfaBank},
+      {'id': 'vtb', 'name': localizations.vtb},
+    ];
+
     // Pre-select account if provided
     if (widget.selectedAccount != null) {
       _selectedAccount = widget.selectedAccount;
     }
 
     // Set default bank
-    _selectedBank = _availableBanks[0];
-
-    // Add listener for amount validation
-    _amountController.addListener(_validateAmount);
+    if (_selectedBankId == null) {
+      _selectedBankId = _availableBanks[0]['id'];
+    }
   }
 
   void _validateAmount() {
@@ -107,39 +118,48 @@ class _TransferScreenState extends State<TransferScreen> with TickerProviderStat
     });
   }
 
-  void _onBankSelected(String bank) {
+  void _onBankSelected(String bankId) {
     setState(() {
-      _selectedBank = bank;
+      _selectedBankId = bankId;
     });
   }
 
-  String _getBankLogo(String bank) {
-    switch (bank) {
-      case 'Copibank':
+  String _getBankLogo(String bankId) {
+    switch (bankId) {
+      case 'copibank':
         return WebpAssets.logoBank;
-      case 'Alfa Bank':
+      case 'alfaBank':
         return BankAssets.alfa;
-      case 'Sberbank':
+      case 'sberbank':
         return BankAssets.sber;
-      case 'VTB':
+      case 'vtb':
         return BankAssets.vtb;
       default:
         return WebpAssets.logoBank; // fallback
     }
   }
 
+  String _getBankName(String bankId) {
+    final bank = _availableBanks.firstWhere(
+      (b) => b['id'] == bankId,
+      orElse: () => {'id': 'copibank', 'name': 'Copibank'},
+    );
+    return bank['name']!;
+  }
+
   void _showBankSelectionDialog() {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       backgroundColor: isDark ? BankingColors.neutral800 : Colors.white,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(BankingTokens.radius16)),
       ),
       builder: (context) => Container(
+        height: MediaQuery.of(context).size.height * 0.8, // 80% of screen height
         padding: const EdgeInsets.all(BankingTokens.space24),
         child: Column(
-          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
@@ -150,69 +170,65 @@ class _TransferScreenState extends State<TransferScreen> with TickerProviderStat
               ),
             ),
             const SizedBox(height: BankingTokens.space24),
-            ...AnimationConfiguration.toStaggeredList(
-              duration: const Duration(milliseconds: 600),
-              childAnimationBuilder: (widget) => SlideAnimation(
-                verticalOffset: 50.0,
-                child: ScaleAnimation(
-                  scale: 0.8,
-                  child: FlipAnimation(child: widget),
-                ),
-              ),
-              children: _availableBanks.map((bank) {
-              final isSelected = _selectedBank == bank;
-              return GestureDetector(
-                key: ValueKey(bank),
-                onTap: () {
-                  _onBankSelected(bank);
-                  Navigator.of(context).pop();
-                },
-                child: Container(
-                  padding: const EdgeInsets.all(BankingTokens.space16),
-                  margin: const EdgeInsets.only(bottom: BankingTokens.space8),
-                  decoration: BoxDecoration(
-                    color: isSelected
-                        ? (isDark ? BankingColors.primary800 : BankingColors.primary50)
-                        : (isDark ? BankingColors.neutral700 : BankingColors.neutral50),
-                    border: Border.all(
-                      color: isSelected ? BankingColors.primary500 : (isDark ? BankingColors.neutral600 : BankingColors.neutral300),
-                      width: isSelected ? 2 : 1,
-                    ),
-                    borderRadius: BorderRadius.circular(BankingTokens.radius8),
-                  ),
-                  child: Row(
-                    children: [
-                      // Bank logo
-                      Container(
-                        width: 32,
-                        height: 32,
-                        child: Image.asset(
-                          _getBankLogo(bank),
-                          fit: BoxFit.contain,
+            Expanded(
+              child: ListView(
+                children: _availableBanks.map((bank) {
+                  final bankId = bank['id']!;
+                  final bankName = bank['name']!;
+                  final isSelected = _selectedBankId == bankId;
+                  return GestureDetector(
+                    key: ValueKey(bankId),
+                    onTap: () {
+                      _onBankSelected(bankId);
+                      Navigator.of(context).pop();
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(BankingTokens.space16),
+                      margin: const EdgeInsets.only(bottom: BankingTokens.space8),
+                      decoration: BoxDecoration(
+                        color: isSelected
+                            ? (isDark ? BankingColors.primary800 : BankingColors.primary50)
+                            : (isDark ? BankingColors.neutral700 : BankingColors.neutral50),
+                        border: Border.all(
+                          color: isSelected ? BankingColors.primary500 : (isDark ? BankingColors.neutral600 : BankingColors.neutral300),
+                          width: isSelected ? 2 : 1,
                         ),
+                        borderRadius: BorderRadius.circular(BankingTokens.radius8),
                       ),
-                      const SizedBox(width: BankingTokens.space12),
-                      Expanded(
-                        child: Text(
-                          bank,
-                          style: BankingTypography.bodyRegular.copyWith(
-                            fontWeight: FontWeight.w600,
-                            color: isDark ? BankingColors.neutral0 : BankingColors.neutral900,
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 32,
+                            height: 32,
+                            child: Image.asset(
+                              _getBankLogo(bankId),
+                              fit: BoxFit.contain,
+                            ),
                           ),
-                        ),
+                          const SizedBox(width: BankingTokens.space12),
+                          Expanded(
+                            child: Text(
+                              bankName,
+                              style: BankingTypography.bodyRegular.copyWith(
+                                fontWeight: FontWeight.w600,
+                                color: isDark ? BankingColors.neutral0 : BankingColors.neutral900,
+                              ),
+                            ),
+                          ),
+                          if (isSelected)
+                            Icon(
+                              Icons.check_circle,
+                              color: BankingColors.primary500,
+                              size: 24,
+                            ),
+                        ],
                       ),
-                      if (isSelected)
-                        Icon(
-                          Icons.check_circle,
-                          color: BankingColors.primary500,
-                          size: 24,
-                        ),
-                    ],
-                  ),
-                ),
-              );
-            }).toList(),
+                    ),
+                  );
+                }).toList(),
+              ),
             ),
+            const SizedBox(height: BankingTokens.space16),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
@@ -233,8 +249,8 @@ class _TransferScreenState extends State<TransferScreen> with TickerProviderStat
             ),
           ],
         ),
-      ),
-    );
+        ),
+      );
   }
 
   bool _validateTransfer() {
@@ -775,14 +791,14 @@ class _TransferScreenState extends State<TransferScreen> with TickerProviderStat
                                   width: 32,
                                   height: 32,
                                   child: Image.asset(
-                                    _getBankLogo(_selectedBank!),
+                                    _getBankLogo(_selectedBankId!),
                                     fit: BoxFit.contain,
                                   ),
                                 ),
                                 const SizedBox(width: BankingTokens.space12),
                                   Expanded(
                                     child: Text(
-                                      _selectedBank!,
+                                      _getBankName(_selectedBankId!),
                                       style: BankingTypography.bodyRegular.copyWith(
                                         fontWeight: FontWeight.w600,
                                         color: isDark ? BankingColors.neutral0 : BankingColors.neutral900,

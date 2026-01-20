@@ -106,6 +106,7 @@ class AppLocalizations {
       'linkSent': 'Link sent!',
       'send': 'Send',
       'dataSaveError': 'Data save error',
+      'name': 'Name',
       'changeName': 'Change name',
       'nameChangedSuccessfully': 'Name changed successfully',
       'save': 'Save',
@@ -162,6 +163,7 @@ class AppLocalizations {
       'transactionsCount': 'transactions',
       'type': 'Type:',
       'allCards': 'All cards',
+      'allCardsRu': 'Все карты',
       'toggleTheme': 'Switch theme',
       'crossAxisCount': '2 columns',
       'childAspectRatio': 'Aspect ratio for oval buttons',
@@ -207,6 +209,8 @@ class AppLocalizations {
       'receivedTransferFrom': 'Received transfer from',
       'transferFromMikhail': 'Transfer from Mikhail',
       'storePurchase': 'Store purchase',
+      'transferFromUser': 'Transfer from {name}',
+      'storePurchaseGeneric': 'Store purchase',
       'annaIvanova': 'Anna Ivanova',
       'mikhailPetrov': 'Mikhail Petrov',
       'elenaSidorova': 'Elena Sidorova',
@@ -261,7 +265,7 @@ class AppLocalizations {
 
       // Card and account descriptions
       'debitCardDescription': 'Free maintenance • Up to 5% cashback • International payments',
-      'creditCardDescription': 'Up to 120 days grace period • Credit limit up to 500,000 ₽ • Interest-free period',
+      'creditCardDescription': 'Up to 120 days grace period • Credit limit up to \$500,000 • Interest-free period',
       'debitType': 'Debit',
       'creditType': 'Credit',
       'cardType': 'Card type',
@@ -306,6 +310,16 @@ class AppLocalizations {
       'noDebitCardsAvailable': 'No available debit cards for savings account deposit',
       'deleteSavingsAccount': 'Delete savings account',
       'qrScanInstruction': 'Point the camera at a QR code to scan it',
+      'allTransactions': 'All transactions',
+      'transactionsWithCount': 'Transactions ({count})',
+      'noTransactionsFound': 'No transactions found',
+      'totalThisMonth': 'Total this month',
+      'searchTransactions': 'Search transactions...',
+      'filters': 'Filters',
+      'all': 'All',
+      'cardLabel': 'Card:',
+      'dateLabel': 'Date:',
+      'selectPeriod': 'Select period',
     },
     'ru': {
       'appTitle': 'Banki2 - Банковское приложение',
@@ -405,6 +419,7 @@ class AppLocalizations {
       'linkSent': 'Ссылка отправлена!',
       'send': 'Отправить',
       'dataSaveError': 'Ошибка сохранения данных',
+      'name': 'Имя',
       'changeName': 'Изменить имя',
       'nameChangedSuccessfully': 'Имя успешно изменено',
       'save': 'Сохранить',
@@ -433,7 +448,6 @@ class AppLocalizations {
       'savingsAccount': 'Накопительный счет',
       'myCards': 'Мои карты',
       'myCashback': 'Мой кэшбэк',
-      'bankRecipient': 'Банк получателя',
       'transferAmount': 'Сумма перевода',
       'commentOptional': 'Комментарий (необязательно)',
       'transferMoney': 'Перевод денег',
@@ -457,6 +471,7 @@ class AppLocalizations {
       'tooManyAttempts': 'Слишком много неудачных попыток',
       'tryAgainIn': 'Повторите через',
       'seconds': 'сек.',
+      'averageTransaction': 'Средняя транзакция',
       'faqHowToTopUp': 'Как пополнить счет?',
       'faqHowToTopUpAnswer': 'Вы можете пополнить счет через:\n• Банкомат\n• Перевод с другой карты\n• Через мобильное приложение\n• В отделении банка',
       'faqHowToBlockCard': 'Как заблокировать карту?',
@@ -483,7 +498,7 @@ class AppLocalizations {
 
       // Card and account descriptions
       'debitCardDescription': 'Бесплатное обслуживание • Кэшбэк до 5% • Международные платежи',
-      'creditCardDescription': 'Льготный период до 120 дней • Кредитный лимит до 500 000 ₽ • Беспроцентный период',
+      'creditCardDescription': 'Льготный период до 120 дней • Кредитный лимит до \$500 000 • Беспроцентный период',
       'debitType': 'Дебетовая',
       'creditType': 'Кредитная',
       'cardType': 'Тип карты',
@@ -545,6 +560,49 @@ class AppLocalizations {
       'noDebitCardsAvailable': 'Нет доступных дебетовых карт для пополнения накопительного счета',
       'deleteSavingsAccount': 'Удалить накопительный счет',
       'qrScanInstruction': 'Наведите камеру на QR код для сканирования',
+      'allTransactions': 'Все транзакции',
+      'transactionsWithCount': 'Транзакции ({count})',
+      'noTransactionsFound': 'Транзакции не найдены',
+      'totalThisMonth': 'Итого за этот месяц',
+      'searchTransactions': 'Поиск транзакций...',
+      'filters': 'Фильтры',
+      'all': 'Все',
+      'allCards': 'Все карты',
+      'cardLabel': 'Карта:',
+      'dateLabel': 'Дата:',
+      'selectPeriod': 'Выбрать период',
+      'transferFromMikhail': 'Перевод от Михаила',
+      'storePurchase': 'Покупка в магазине',
+      'receivedTransferFrom': 'Получен перевод от {name}',
+      'transferFromUser': 'Перевод от {name}',
+      'storePurchaseGeneric': 'Покупка в магазине',
+      'foodAndRestaurants': 'Еда и рестораны',
+      'travel': 'Путешествия',
+      'fuel': 'Топливо',
+      'supermarkets': 'Супермаркеты',
+      'personalInformation': 'Личная информация',
+      'maximumAmount': 'Максимальная сумма',
+      'balance': 'Баланс:',
+      'cardNumber': 'Номер карты',
+      'cardInformation': 'Информация о карте',
+      'copibank': 'Copibank',
+      'sberbank': 'Сбербанк',
+      'alfaBank': 'Альфа-Банк',
+      'vtb': 'ВТБ',
+      'foodRestaurantsDescription': 'Кэшбэк в ресторанах, кафе и доставке еды',
+      'shoppingDescription': 'Кэшбэк на одежду, электронику и товары',
+      'travelDescription': 'Кэшбэк на авиабилеты, отели и транспорт',
+      'fuelDescription': 'Кэшбэк на заправках и топливо',
+      'entertainmentDescription': 'Кэшбэк в кино, концертах и развлечениях',
+      'supermarketsDescription': 'Кэшбэк на продукты и товары супермаркетов',
+      'annaIvanova': 'Анна Иванова',
+      'mikhailPetrov': 'Михаил Петров',
+      'elenaSidorova': 'Елена Сидорова',
+      'dmitryKozlov': 'Дмитрий Козлов',
+      'olgaNovikova': 'Ольга Новикова',
+      'alexeyMorozov': 'Алексей Морозов',
+      'mariaVolkova': 'Мария Волкова',
+      'sergeySokolov': 'Сергей Соколов',
     },
   };
 
@@ -641,6 +699,7 @@ class AppLocalizations {
   String get linkSent => _localizedValues[locale.languageCode]?['linkSent'] ?? 'Link sent!';
   String get send => _localizedValues[locale.languageCode]?['send'] ?? 'Send';
   String get dataSaveError => _localizedValues[locale.languageCode]?['dataSaveError'] ?? 'Data save error';
+  String get name => _localizedValues[locale.languageCode]?['name'] ?? 'Name';
   String get changeName => _localizedValues[locale.languageCode]?['changeName'] ?? 'Change name';
   String get nameChangedSuccessfully => _localizedValues[locale.languageCode]?['nameChangedSuccessfully'] ?? 'Name changed successfully';
   String get save => _localizedValues[locale.languageCode]?['save'] ?? 'Save';
@@ -731,9 +790,17 @@ class AppLocalizations {
   String get pinChanged => _localizedValues[locale.languageCode]?['pinChanged'] ?? 'PIN code changed';
   String get pinChangedMessage => _localizedValues[locale.languageCode]?['pinChangedMessage'] ?? 'Your PIN code has been successfully changed';
   String get transferTo => _localizedValues[locale.languageCode]?['transferTo'] ?? 'Transfer to';
-  String get receivedTransferFrom => _localizedValues[locale.languageCode]?['receivedTransferFrom'] ?? 'Received transfer from';
   String get transferFromMikhail => _localizedValues[locale.languageCode]?['transferFromMikhail'] ?? 'Transfer from Mikhail';
   String get storePurchase => _localizedValues[locale.languageCode]?['storePurchase'] ?? 'Store purchase';
+  String transferFromUser(String name) {
+    final template = _localizedValues[locale.languageCode]?['transferFromUser'] ?? 'Transfer from {name}';
+    return template.replaceAll('{name}', name);
+  }
+  String receivedTransferFrom(String name) {
+    final template = _localizedValues[locale.languageCode]?['receivedTransferFrom'] ?? 'Received transfer from {name}';
+    return template.replaceAll('{name}', name);
+  }
+  String get storePurchaseGeneric => _localizedValues[locale.languageCode]?['storePurchaseGeneric'] ?? 'Store purchase';
   String get annaIvanova => _localizedValues[locale.languageCode]?['annaIvanova'] ?? 'Anna Ivanova';
   String get mikhailPetrov => _localizedValues[locale.languageCode]?['mikhailPetrov'] ?? 'Mikhail Petrov';
   String get elenaSidorova => _localizedValues[locale.languageCode]?['elenaSidorova'] ?? 'Elena Sidorova';
@@ -761,6 +828,10 @@ class AppLocalizations {
   String get balance => _localizedValues[locale.languageCode]?['balance'] ?? 'Balance:';
   String get cardInformation => _localizedValues[locale.languageCode]?['cardInformation'] ?? 'Card information';
   String get cardNumber => _localizedValues[locale.languageCode]?['cardNumber'] ?? 'Card number';
+  String get copibank => _localizedValues[locale.languageCode]?['copibank'] ?? 'Copibank';
+  String get sberbank => _localizedValues[locale.languageCode]?['sberbank'] ?? 'Sberbank';
+  String get alfaBank => _localizedValues[locale.languageCode]?['alfaBank'] ?? 'Alfa Bank';
+  String get vtb => _localizedValues[locale.languageCode]?['vtb'] ?? 'VTB';
   String get cardNumberCopied => _localizedValues[locale.languageCode]?['cardNumberCopied'] ?? 'Card number copied!';
 
   // FAQ getters
@@ -790,7 +861,7 @@ class AppLocalizations {
 
   // Card and account descriptions
   String get debitCardDescription => _localizedValues[locale.languageCode]?['debitCardDescription'] ?? 'Free maintenance • Up to 5% cashback • International payments';
-  String get creditCardDescription => _localizedValues[locale.languageCode]?['creditCardDescription'] ?? 'Up to 120 days grace period • Credit limit up to 500,000 ₽ • Interest-free period';
+  String get creditCardDescription => _localizedValues[locale.languageCode]?['creditCardDescription'] ?? 'Up to 120 days grace period • Credit limit up to \$500,000 • Interest-free period';
   String get debitType => _localizedValues[locale.languageCode]?['debitType'] ?? 'Debit';
   String get creditType => _localizedValues[locale.languageCode]?['creditType'] ?? 'Credit';
   String get cardType => _localizedValues[locale.languageCode]?['cardType'] ?? 'Card type';
@@ -847,6 +918,21 @@ class AppLocalizations {
   String get noDebitCardsAvailable => _localizedValues[locale.languageCode]?['noDebitCardsAvailable'] ?? 'No available debit cards for savings account deposit';
   String get deleteSavingsAccount => _localizedValues[locale.languageCode]?['deleteSavingsAccount'] ?? 'Delete savings account';
   String get qrScanInstruction => _localizedValues[locale.languageCode]?['qrScanInstruction'] ?? 'Point the camera at a QR code to scan it';
+
+  // Transaction screen translations
+  String get allTransactions => _localizedValues[locale.languageCode]?['allTransactions'] ?? 'All transactions';
+  String transactionsWithCount(int count) {
+    final template = _localizedValues[locale.languageCode]?['transactionsWithCount'] ?? 'Transactions ({count})';
+    return template.replaceAll('{count}', count.toString());
+  }
+  String get noTransactionsFound => _localizedValues[locale.languageCode]?['noTransactionsFound'] ?? 'No transactions found';
+  String get totalThisMonth => _localizedValues[locale.languageCode]?['totalThisMonth'] ?? 'Total this month';
+  String get searchTransactions => _localizedValues[locale.languageCode]?['searchTransactions'] ?? 'Search transactions...';
+  String get filters => _localizedValues[locale.languageCode]?['filters'] ?? 'Filters';
+  String get all => _localizedValues[locale.languageCode]?['all'] ?? 'All';
+  String get cardLabel => _localizedValues[locale.languageCode]?['cardLabel'] ?? 'Card:';
+  String get dateLabel => _localizedValues[locale.languageCode]?['dateLabel'] ?? 'Date:';
+  String get selectPeriod => _localizedValues[locale.languageCode]?['selectPeriod'] ?? 'Select period';
 
   String getTransactionTitle(String key) {
     return _localizedValues[locale.languageCode]?[key] ?? key;

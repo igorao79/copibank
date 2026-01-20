@@ -245,197 +245,203 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> with TickerProvid
         ],
       ),
       body: FadeTransition(
-            opacity: _fadeAnimation,
-            child: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              padding: const EdgeInsets.all(BankingTokens.screenHorizontalPadding),
-              child: Column(
-                children: [
-              const SizedBox(height: BankingTokens.space32),
+        opacity: _fadeAnimation,
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(BankingTokens.screenHorizontalPadding),
+            child: Column(
+              children: [
+                const SizedBox(height: BankingTokens.space16),
 
-              // Card Display with Flip Animation
-              AnimatedBuilder(
-                animation: _flipAnimation,
-                builder: (context, child) {
-                  final angle = _flipAnimation.value * 3.14159;
-                  final isFlipped = angle > 3.14159 / 2;
+                // Card Display with Flip Animation
+                AnimatedBuilder(
+                  animation: _flipAnimation,
+                  builder: (context, child) {
+                    final angle = _flipAnimation.value * 3.14159;
+                    final isFlipped = angle > 3.14159 / 2;
 
-                  return Stack(
-                    children: [
-                      Transform(
-                        transform: Matrix4.rotationY(angle),
-                        alignment: Alignment.center,
-                        child: Container(
-                          height: 200,
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [
-                                widget.account.color,
-                                widget.account.color.withOpacity(0.8),
-                              ],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
-                            borderRadius: BorderRadius.circular(BankingTokens.radius16),
-                            boxShadow: [
-                              BoxShadow(
-                                color: widget.account.color.withOpacity(0.3),
-                                blurRadius: 20,
-                                offset: const Offset(0, 10),
+                    return Stack(
+                      children: [
+                        Transform(
+                          transform: Matrix4.rotationY(angle),
+                          alignment: Alignment.center,
+                          child: Container(
+                            height: 200,
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  widget.account.color,
+                                  widget.account.color.withOpacity(0.8),
+                                ],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
                               ),
-                            ],
+                              borderRadius: BorderRadius.circular(BankingTokens.radius16),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: widget.account.color.withOpacity(0.3),
+                                  blurRadius: 20,
+                                  offset: const Offset(0, 10),
+                                ),
+                              ],
+                            ),
+                            child: isFlipped
+                                ? Transform(
+                                    transform: Matrix4.rotationY(3.14159), // Rotate back to readable
+                                    alignment: Alignment.center,
+                                    child: _buildCardBack(), // Back side of card
+                                  )
+                                : _buildCardFront(), // Front side of card
                           ),
-                          child: isFlipped
-                              ? Transform(
-                                  transform: Matrix4.rotationY(3.14159), // Rotate back to readable
-                                  alignment: Alignment.center,
-                                  child: _buildCardBack(), // Back side of card
-                                )
-                              : _buildCardFront(), // Front side of card
+                        ),
+                        // Flip button in top right corner
+                        Positioned(
+                          top: BankingTokens.space12,
+                          right: BankingTokens.space12,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.9),
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.2),
+                                  blurRadius: 4,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: IconButton(
+                              icon: Icon(
+                                _isCardFlipped ? Icons.flip_to_front : Icons.flip_to_back,
+                                color: Colors.black87,
+                                size: 20,
+                              ),
+                              onPressed: _toggleCardFlip,
+                              padding: const EdgeInsets.all(8),
+                              constraints: const BoxConstraints(),
+                              highlightColor: Colors.transparent,
+                              splashColor: Colors.transparent,
+                              hoverColor: Colors.transparent,
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                ),
+
+                const SizedBox(height: BankingTokens.space24),
+
+                // Balance Info
+                Container(
+                  padding: const EdgeInsets.all(BankingTokens.space16),
+                  decoration: BoxDecoration(
+                    color: isDark ? BankingColors.neutral800 : BankingColors.neutral100,
+                    borderRadius: BorderRadius.circular(BankingTokens.radius12),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        AppLocalizations.of(context)?.balance ?? 'Balance:',
+                        style: BankingTypography.bodyLarge.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: isDark ? BankingColors.neutral100 : BankingColors.neutral900,
                         ),
                       ),
-                      // Flip button in top right corner
-                      Positioned(
-                        top: BankingTokens.space12,
-                        right: BankingTokens.space12,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.9),
-                            shape: BoxShape.circle,
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.2),
-                                blurRadius: 4,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          child: IconButton(
-                            icon: Icon(
-                              _isCardFlipped ? Icons.flip_to_front : Icons.flip_to_back,
-                              color: Colors.black87,
-                              size: 20,
-                            ),
-                            onPressed: _toggleCardFlip,
-                            padding: const EdgeInsets.all(8),
-                            constraints: const BoxConstraints(),
-                            highlightColor: Colors.transparent,
-                            splashColor: Colors.transparent,
-                            hoverColor: Colors.transparent,
-                          ),
+                      Text(
+                        '\$${widget.account.balance.toStringAsFixed(2)}',
+                        style: BankingTypography.bodyLarge.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: BankingColors.primary500,
                         ),
                       ),
                     ],
-                  );
-                },
-              ),
-
-              const SizedBox(height: BankingTokens.space48),
-
-              // Balance Info
-              Container(
-                padding: const EdgeInsets.all(BankingTokens.space16),
-                decoration: BoxDecoration(
-                  color: isDark ? BankingColors.neutral800 : BankingColors.neutral100,
-                  borderRadius: BorderRadius.circular(BankingTokens.radius12),
+                  ),
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
+                const SizedBox(height: BankingTokens.space16),
+
+                // Action Buttons
+                Column(
                   children: [
-                    Text(
-                      AppLocalizations.of(context)?.balance ?? 'Balance:',
-                      style: BankingTypography.bodyLarge.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: isDark ? BankingColors.neutral100 : BankingColors.neutral900,
+                    // Пополнить button (только для дебетовых карт)
+                    if (widget.account.type != 'credit_card') ...[
+                      SizedBox(
+                        width: double.infinity,
+                        child: BankingButtons.secondary(
+                          text: 'Пополнить',
+                          onPressed: () => _onDepositPressed(),
+                          icon: Icons.add_circle,
+                        ),
                       ),
-                    ),
-                    Text(
-                      '\$${widget.account.balance.toStringAsFixed(2)}',
-                      style: BankingTypography.bodyLarge.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: BankingColors.primary500,
+                      const SizedBox(height: BankingTokens.space12),
+                    ],
+                    // Transfer button (только для дебетовых карт)
+                    if (widget.account.type != 'credit_card') ...[
+                      SizedBox(
+                        width: double.infinity,
+                        child: BankingButtons.primary(
+                          text: 'Перевод',
+                          onPressed: () => _onTransferPressed(),
+                          icon: Icons.send,
+                        ),
+                      ),
+                      const SizedBox(height: BankingTokens.space12),
+                    ],
+                    // Заблокировать карту button (для всех карт)
+                    SizedBox(
+                      width: double.infinity,
+                      child: BankingButtons.tertiary(
+                        text: 'Заблокировать карту',
+                        onPressed: () => _onBlockCardPressed(),
+                        icon: Icons.lock,
                       ),
                     ),
                   ],
                 ),
-              ),
 
-              const SizedBox(height: BankingTokens.space24),
+                const SizedBox(height: BankingTokens.space16),
 
-              // Action Buttons
-              Column(
-                children: [
-                  // Пополнить button (только для дебетовых карт)
-                  if (widget.account.type != 'credit_card') ...[
-                    SizedBox(
-                      width: double.infinity,
-                      child: BankingButtons.secondary(
-                        text: 'Пополнить',
-                        onPressed: () => _onDepositPressed(),
-                        icon: Icons.add_circle,
+                // Card Details - Expanded для правильного распределения пространства
+                Expanded(
+                  child: SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    child: Container(
+                      padding: const EdgeInsets.all(BankingTokens.space16),
+                      decoration: BoxDecoration(
+                        color: isDark ? BankingColors.neutral800 : BankingColors.neutral50,
+                        borderRadius: BorderRadius.circular(BankingTokens.radius12),
                       ),
-                    ),
-                    const SizedBox(height: BankingTokens.space16),
-                  ],
-                  // Transfer button (только для дебетовых карт)
-                  if (widget.account.type != 'credit_card') ...[
-                    SizedBox(
-                      width: double.infinity,
-                      child: BankingButtons.primary(
-                        text: 'Перевод',
-                        onPressed: () => _onTransferPressed(),
-                        icon: Icons.send,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            AppLocalizations.of(context)?.cardInformation ?? 'Информация о карте',
+                            style: BankingTypography.bodyLarge.copyWith(
+                              fontWeight: FontWeight.w600,
+                              color: isDark ? BankingColors.neutral100 : BankingColors.neutral900,
+                            ),
+                          ),
+                          const SizedBox(height: BankingTokens.space16),
+
+                          _buildInfoRow(AppLocalizations.of(context)?.cardNumber ?? 'Номер карты', _formatCardNumber(widget.account.cardNumber ?? '**** **** **** ****')),
+                          _buildInfoRow('Срок действия', widget.account.expireDate ?? 'MM/YY'),
+                          _buildCVCRow(),
+                          _buildInfoRow(localizations.cardType, widget.account.type == 'debit_card' ? localizations.debitType : localizations.creditType),
+                          if (widget.account.hasSticker)
+                            _buildInfoRow('Стикер', 'Привязан'),
+                        ],
                       ),
-                    ),
-                    const SizedBox(height: BankingTokens.space16),
-                  ],
-                  // Заблокировать карту button (для всех карт)
-                  SizedBox(
-                    width: double.infinity,
-                    child: BankingButtons.tertiary(
-                      text: 'Заблокировать карту',
-                      onPressed: () => _onBlockCardPressed(),
-                      icon: Icons.lock,
                     ),
                   ),
-                ],
-              ),
-
-              const SizedBox(height: BankingTokens.space32),
-
-              // Card Details
-              Container(
-                padding: const EdgeInsets.all(BankingTokens.space16),
-                decoration: BoxDecoration(
-                  color: isDark ? BankingColors.neutral800 : BankingColors.neutral50,
-                  borderRadius: BorderRadius.circular(BankingTokens.radius12),
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      AppLocalizations.of(context)?.cardInformation ?? 'Информация о карте',
-                      style: BankingTypography.bodyLarge.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: isDark ? BankingColors.neutral100 : BankingColors.neutral900,
-                      ),
-                    ),
-                    const SizedBox(height: BankingTokens.space16),
-
-                    _buildInfoRow(AppLocalizations.of(context)?.cardNumber ?? 'Номер карты', _formatCardNumber(widget.account.cardNumber ?? '**** **** **** ****')),
-                    _buildInfoRow('Срок действия', widget.account.expireDate ?? 'MM/YY'),
-                    _buildCVCRow(),
-                    _buildInfoRow(localizations.cardType, widget.account.type == 'debit_card' ? localizations.debitType : localizations.creditType),
-                    if (widget.account.hasSticker)
-                      _buildInfoRow('Стикер', 'Привязан'),
-                  ],
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
-    ),
+      ),
     );
   }
 
@@ -497,6 +503,7 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> with TickerProvid
                 onPressed: () {
                   final cardNumber = widget.account.cardNumber ?? '****************';
                   Clipboard.setData(ClipboardData(text: cardNumber)).then((_) {
+                    if (!mounted) return;
                     showDialog(
                       context: context,
                       barrierDismissible: true,
@@ -791,15 +798,19 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> with TickerProvid
   }
 
   Future<void> _depositToCard(double amount) async {
+    if (!mounted) return;
     final appState = context.read<AppState>();
     final localizations = AppLocalizations.of(context);
     final success = await appState.depositFromSavingsToCard(widget.account, amount, localizations);
 
+    if (!mounted) return;
     if (success) {
       // Show success animation
       await _showSuccessAnimation();
+      if (!mounted) return;
       Navigator.of(context).pop(); // Close modal
     } else {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(AppLocalizations.of(context)?.insufficientFunds ?? 'Недостаточно средств на накопительном счете'),
@@ -810,6 +821,7 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> with TickerProvid
   }
 
   Future<void> _showSuccessAnimation() async {
+    if (!mounted) return;
     await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -850,17 +862,17 @@ class _CardDetailsScreenState extends State<CardDetailsScreen> with TickerProvid
   }
 
   Future<void> _blockCard() async {
+    if (!mounted) return;
     final appState = context.read<AppState>();
     await appState.blockCard(widget.account.id);
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Карта заблокирована и удалена'),
-          backgroundColor: BankingColors.success500,
-        ),
-      );
-      Navigator.of(context).pop(); // Go back to previous screen
-    }
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text('Карта заблокирована и удалена'),
+        backgroundColor: BankingColors.success500,
+      ),
+    );
+    Navigator.of(context).pop(); // Go back to previous screen
   }
 
   void _navigateToProfile() {

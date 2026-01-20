@@ -40,196 +40,205 @@ class _CashbackSelectionScreenState extends State<CashbackSelectionScreen> {
           ),
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(BankingTokens.space24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              AppLocalizations.of(context)?.selectUpTo3Categories ?? 'Select up to 3 categories where you want to receive cashback',
-              style: BankingTypography.bodyRegular.copyWith(
-                color: isDark ? BankingColors.neutral400 : BankingColors.neutral600,
-              ),
-            ),
-            const SizedBox(height: BankingTokens.space8),
-            Text(
-              AppLocalizations.of(context)!.selectedCount(_selectedCategoryIds.length),
-              style: BankingTypography.bodySmall.copyWith(
-                color: BankingColors.primary500,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(height: BankingTokens.space32),
-            Expanded(
-              child: GridView.builder(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: BankingTokens.space16,
-                  mainAxisSpacing: BankingTokens.space16,
-                  childAspectRatio: 1.2,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(BankingTokens.space24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                AppLocalizations.of(context)?.selectUpTo3Categories ?? 'Select up to 3 categories where you want to receive cashback',
+                style: BankingTypography.bodyRegular.copyWith(
+                  color: isDark ? BankingColors.neutral400 : BankingColors.neutral600,
                 ),
-                itemCount: appState.getLocalizedCashbackCategories(context).length,
-                itemBuilder: (context, index) {
-                  final category = appState.getLocalizedCashbackCategories(context)[index];
-                  final isSelected = _selectedCategoryIds.contains(category.id);
-                  final isDisabled = _selectedCategoryIds.length >= 3 && !isSelected;
+              ),
+              const SizedBox(height: BankingTokens.space8),
+              Text(
+                AppLocalizations.of(context)!.selectedCount(_selectedCategoryIds.length),
+                style: BankingTypography.bodySmall.copyWith(
+                  color: BankingColors.primary500,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: BankingTokens.space32),
+              Expanded(
+                child: GridView.builder(
+                  physics: const BouncingScrollPhysics(),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: BankingTokens.space16,
+                    mainAxisSpacing: BankingTokens.space16,
+                    childAspectRatio: 1.2,
+                  ),
+                  itemCount: appState.getLocalizedCashbackCategories(context).length,
+                  itemBuilder: (context, index) {
+                    final category = appState.getLocalizedCashbackCategories(context)[index];
+                    final isSelected = _selectedCategoryIds.contains(category.id);
+                    final isDisabled = _selectedCategoryIds.length >= 3 && !isSelected;
 
-                  return GestureDetector(
-                    onTap: isDisabled ? null : () {
-                      setState(() {
-                        if (isSelected) {
-                          _selectedCategoryIds.remove(category.id);
-                        } else {
-                          _selectedCategoryIds.add(category.id);
-                        }
-                      });
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.all(BankingTokens.space16),
-                      decoration: BoxDecoration(
-                        color: isSelected
-                            ? category.color.withOpacity(0.1)
-                            : isDark ? BankingColors.neutral800 : Colors.white,
-                        border: Border.all(
+                    return GestureDetector(
+                      onTap: isDisabled ? null : () {
+                        setState(() {
+                          if (isSelected) {
+                            _selectedCategoryIds.remove(category.id);
+                          } else {
+                            _selectedCategoryIds.add(category.id);
+                          }
+                        });
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(BankingTokens.space16),
+                        decoration: BoxDecoration(
                           color: isSelected
-                              ? category.color
-                              : isDisabled
-                                  ? BankingColors.neutral300
-                                  : BankingColors.neutral400,
-                          width: isSelected ? 2 : 1,
+                              ? category.color.withValues(alpha: 0.1 * 255)
+                              : isDark ? BankingColors.neutral800 : Colors.white,
+                          border: Border.all(
+                            color: isSelected
+                                ? category.color
+                                : isDisabled
+                                    ? BankingColors.neutral300
+                                    : BankingColors.neutral400,
+                            width: isSelected ? 2 : 1,
+                          ),
+                          borderRadius: BorderRadius.circular(BankingTokens.radius12),
+                          boxShadow: isSelected
+                              ? [
+                                  BoxShadow(
+                                    color: category.color.withValues(alpha: 0.2 * 255),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ]
+                              : null,
                         ),
-                        borderRadius: BorderRadius.circular(BankingTokens.radius12),
-                        boxShadow: isSelected
-                            ? [
-                                BoxShadow(
-                                  color: category.color.withOpacity(0.2),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 4),
-                                ),
-                              ]
-                            : null,
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            category.icon,
-                            size: 32,
-                            color: isDisabled
-                                ? BankingColors.neutral400
-                                : category.color,
-                          ),
-                          const SizedBox(height: BankingTokens.space8),
-                          Text(
-                            category.name,
-                            style: BankingTypography.bodySmall.copyWith(
-                              fontWeight: FontWeight.w600,
-                              color: isDisabled
-                                  ? BankingColors.neutral400
-                                  : isDark ? BankingColors.neutral100 : BankingColors.neutral700,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: BankingTokens.space4),
-                          Text(
-                            '${category.percentage}%',
-                            style: BankingTypography.caption.copyWith(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              category.icon,
+                              size: 32,
                               color: isDisabled
                                   ? BankingColors.neutral400
                                   : category.color,
-                              fontWeight: FontWeight.w700,
                             ),
+                            const SizedBox(height: BankingTokens.space8),
+                            Text(
+                              category.name,
+                              style: BankingTypography.bodySmall.copyWith(
+                                fontWeight: FontWeight.w600,
+                                color: isDisabled
+                                    ? BankingColors.neutral400
+                                    : isDark ? BankingColors.neutral100 : BankingColors.neutral700,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: BankingTokens.space4),
+                            Text(
+                              '${category.percentage}%',
+                              style: BankingTypography.caption.copyWith(
+                                color: isDisabled
+                                    ? BankingColors.neutral400
+                                    : category.color,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(height: BankingTokens.space24),
+              SizedBox(
+                width: double.infinity,
+                height: 56,
+                child: Stack(
+                  children: [
+                    // Background progress bar
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 500),
+                      curve: Curves.easeInOut,
+                      height: 56,
+                      decoration: BoxDecoration(
+                        color: isDark ? BankingColors.neutral700 : BankingColors.neutral200,
+                        borderRadius: BorderRadius.circular(BankingTokens.radius12),
+                      ),
+                      child: FractionallySizedBox(
+                        alignment: Alignment.centerLeft,
+                        widthFactor: _selectedCategoryIds.length / 3.0,
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 500),
+                          curve: Curves.easeInOut,
+                          decoration: BoxDecoration(
+                            color: BankingColors.primary500.withValues(alpha: 0.3 * 255),
+                            borderRadius: BorderRadius.circular(BankingTokens.radius12),
                           ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-            const SizedBox(height: BankingTokens.space24),
-            SizedBox(
-              width: double.infinity,
-              height: 56,
-              child: Stack(
-                children: [
-                  // Background progress bar
-                  AnimatedContainer(
-                    duration: const Duration(milliseconds: 500),
-                    curve: Curves.easeInOut,
-                    height: 56,
-                    decoration: BoxDecoration(
-                      color: isDark ? BankingColors.neutral700 : BankingColors.neutral200,
-                      borderRadius: BorderRadius.circular(BankingTokens.radius12),
-                    ),
-                    child: FractionallySizedBox(
-                      alignment: Alignment.centerLeft,
-                      widthFactor: _selectedCategoryIds.length / 3.0,
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 500),
-                        curve: Curves.easeInOut,
-                        decoration: BoxDecoration(
-                          color: BankingColors.primary500.withOpacity(0.3),
-                          borderRadius: BorderRadius.circular(BankingTokens.radius12),
                         ),
                       ),
                     ),
-                  ),
-                  // Button
-                  SizedBox(
-                    width: double.infinity,
-                    height: 56,
-                    child: ElevatedButton(
-                      onPressed: _selectedCategoryIds.length != 3
-                          ? null
-                          : () async {
-                              try {
-                                final localizations = AppLocalizations.of(context);
-                                await appState.selectCashbackCategories(_selectedCategoryIds.toList(), localizations);
-                                _showSuccessDialog();
-                              } catch (e) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text('${AppLocalizations.of(context)?.error ?? 'Ошибка'}: $e')),
-                                );
-                              }
-                            },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: _selectedCategoryIds.length == 3
-                            ? BankingColors.primary500
-                            : (isDark ? BankingColors.neutral600 : BankingColors.neutral400),
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: BankingTokens.space16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(BankingTokens.radius12),
+                    // Button
+                    SizedBox(
+                      width: double.infinity,
+                      height: 56,
+                      child: ElevatedButton(
+                        onPressed: _selectedCategoryIds.length != 3
+                            ? null
+                            : () async {
+                                try {
+                                  final localizations = AppLocalizations.of(context);
+                                  await appState.selectCashbackCategories(_selectedCategoryIds.toList(), localizations);
+                                  if (mounted) {
+                                    _showSuccessDialog();
+                                  }
+                                } catch (e) {
+                                  if (mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(content: Text('${AppLocalizations.of(context)?.error ?? 'Ошибка'}: $e')),
+                                    );
+                                  }
+                                }
+                              },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: _selectedCategoryIds.length == 3
+                              ? BankingColors.primary500
+                              : (isDark ? BankingColors.neutral600 : BankingColors.neutral400),
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: BankingTokens.space16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(BankingTokens.radius12),
+                          ),
+                          elevation: 0,
                         ),
-                        elevation: 0,
-                      ),
-                      child: Text(
-                        _selectedCategoryIds.length == 3
-                            ? AppLocalizations.of(context)!.confirmSelection
-                            : AppLocalizations.of(context)!.selectMoreCategories(_selectedCategoryIds.length),
-                        style: BankingTypography.button,
-                        textAlign: TextAlign.center,
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
+                        child: Text(
+                          _selectedCategoryIds.length == 3
+                              ? AppLocalizations.of(context)!.confirmSelection
+                              : AppLocalizations.of(context)!.selectMoreCategories(_selectedCategoryIds.length),
+                          style: BankingTypography.button,
+                          textAlign: TextAlign.center,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
   void _showSuccessDialog() {
+    if (!mounted) return;
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
         Future.delayed(const Duration(seconds: 2), () {
+          if (!mounted) return;
           // Close the success dialog first
           Navigator.of(context).pop();
           // Then close the cashback selection screen

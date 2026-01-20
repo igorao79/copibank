@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 import '../foundation/colors.dart';
 import '../foundation/typography.dart';
 import '../foundation/tokens.dart';
@@ -21,6 +22,12 @@ class _TransactionsScreenState extends State<TransactionsScreen> with TickerProv
   late AnimationController _fadeController;
   late Animation<double> _fadeAnimation;
 
+  // Search and filter state
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+  String _transactionTypeFilter = 'all'; // 'all', 'income', 'expense'
+  String? _selectedAccountId; // null means all accounts
+  DateTimeRange? _dateRange;
 
   @override
   void initState() {
@@ -33,15 +40,23 @@ class _TransactionsScreenState extends State<TransactionsScreen> with TickerProv
       CurvedAnimation(parent: _fadeController, curve: Curves.easeInOut),
     );
     _fadeController.forward();
+
+    // Listen to search changes
+    _searchController.addListener(_onSearchChanged);
   }
 
   @override
   void dispose() {
+    _searchController.dispose();
     _fadeController.dispose();
     super.dispose();
   }
 
-
+  void _onSearchChanged() {
+    setState(() {
+      _searchQuery = _searchController.text.toLowerCase();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -85,115 +100,46 @@ class _TransactionsScreenState extends State<TransactionsScreen> with TickerProv
           ),
           Container(
             margin: const EdgeInsets.only(right: 8),
-            child: Badge(
-            label: appState.unreadNotificationsCount > 0
-                ? Text(
-                    appState.unreadNotificationsCount.toString(),
-                    style: const TextStyle(fontSize: 9),
-                  )
-                : null,
-            smallSize: 14,
-              child: PopupMenuButton<String>(
-              icon: Icon(
-                isDark ? BankingIcons.notification : BankingIcons.notificationFilled,
-                color: BankingColors.primary500,
-              ),
-              onSelected: (value) {
-                if (value == 'view_all') {
-                  _onViewAllNotifications();
-                }
-              },
-              onOpened: () {
-                appState.markAllNotificationsAsRead();
-              },
-            itemBuilder: (BuildContext context) {
-              final notifications = appState.notifications;
-              final unreadCount = notifications.where((n) => !n.isRead).length;
-
-              return [
-                // Header with unread count
-                PopupMenuItem<String>(
-                  enabled: false,
-                  child: Text(
-                    unreadCount > 0
-                        ? '${localizations.notificationsHeader} (${unreadCount} ${localizations.unreadNotifications})'
-                        : localizations.notificationsHeader,
-                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
+            child: Stack(
+              children: [
+                _buildNotificationsMenu(),
+                if (appState.unreadNotificationsCount > 0)
+                  Positioned(
+                    right: 0,
+                    top: 0,
+                    child: Container(
+                      padding: const EdgeInsets.all(2),
+                      decoration: BoxDecoration(
+                        color: BankingColors.error500,
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: Theme.of(context).scaffoldBackgroundColor,
+                          width: 2,
+                        ),
+                      ),
+                      constraints: const BoxConstraints(
+                        minWidth: 16,
+                        minHeight: 16,
+                      ),
+                      child: Text(
+                        appState.unreadNotificationsCount > 99
+                            ? '99+'
+                            : appState.unreadNotificationsCount.toString(),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
                     ),
                   ),
-                ),
-                const PopupMenuDivider(),
-                // Notifications list
-                ...notifications.take(3).map((notification) {
-                  return PopupMenuItem<String>(
-                    enabled: false,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                notification.title,
-                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                  fontWeight: notification.isRead ? FontWeight.normal : FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                            if (!notification.isRead)
-                              Container(
-                                width: 8,
-                                height: 8,
-                                decoration: BoxDecoration(
-                                  color: BankingColors.primary500,
-                                  shape: BoxShape.circle,
-                                ),
-                              ),
-                          ],
-                        ),
-                        Text(
-                          notification.message,
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Theme.of(context).brightness == Brightness.dark
-                                ? BankingColors.neutral400
-                                : BankingColors.neutral600,
-                          ),
-                        ),
-                        Text(
-                          notification.getTimeAgo(localizations),
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Theme.of(context).brightness == Brightness.dark
-                                ? BankingColors.neutral500
-                                : BankingColors.neutral500,
-                            fontSize: 10,
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                }),
-                if (notifications.length > 3)
-                  const PopupMenuDivider(),
-                if (notifications.length > 3)
-                  PopupMenuItem<String>(
-                    value: 'view_all',
-                    child: Row(
-                      children: [
-                        Icon(Icons.expand_more, size: 16),
-                        const SizedBox(width: 8),
-                        Text(localizations.viewAllNotifications),
-                      ],
-                    ),
-                  ),
-              ];
-            },
+              ],
             ),
           ),
-        ),
         ],
-        ),
-        body: FadeTransition(
+      ),
+      body: FadeTransition(
         opacity: _fadeAnimation,
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(BankingTokens.screenHorizontalPadding),
@@ -202,31 +148,50 @@ class _TransactionsScreenState extends State<TransactionsScreen> with TickerProv
             children: [
               // Search and Filter Section
               Text(
-                'Все транзакции',
+                localizations.allTransactions,
                 style: Theme.of(context).textTheme.headlineSmall,
               ),
               const SizedBox(height: BankingTokens.space16),
 
-              const SizedBox(height: BankingTokens.space32),
-
-              // Analytics Section
-              _buildAnalyticsSection(appState, localizations),
-
-              const SizedBox(height: BankingTokens.space32),
-
-              // Transactions List
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Транзакции (${appState.transactions.length})',
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                ],
-              ),
+              // Search bar
+              _buildSearchBar(localizations),
               const SizedBox(height: BankingTokens.space16),
 
-              ...appState.transactions.map((transaction) {
+              // Filters
+              _buildFilters(appState, localizations),
+              const SizedBox(height: BankingTokens.space24),
+
+              // Transactions List
+              Builder(
+                builder: (context) {
+                  final filteredTransactions = _getFilteredTransactions(appState.transactions, appState.accounts);
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            localizations.transactionsWithCount(filteredTransactions.length),
+                            style: Theme.of(context).textTheme.titleLarge,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: BankingTokens.space16),
+                      if (filteredTransactions.isEmpty)
+                        Center(
+                          child: Padding(
+                            padding: const EdgeInsets.all(BankingTokens.space32),
+                            child: Text(
+                              localizations.noTransactionsFound,
+                              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                color: BankingColors.neutral500,
+                              ),
+                            ),
+                          ),
+                        )
+                      else
+                        ...filteredTransactions.map((transaction) {
                 return Padding(
                   padding: const EdgeInsets.only(bottom: BankingTokens.space12),
                   child: BankingCards.transaction(
@@ -241,6 +206,15 @@ class _TransactionsScreenState extends State<TransactionsScreen> with TickerProv
                   ),
                 );
               }),
+                    ],
+                  );
+                },
+              ),
+
+              const SizedBox(height: BankingTokens.space32),
+
+              // Analytics Section
+              _buildAnalyticsSection(appState, localizations),
 
               const SizedBox(height: BankingTokens.space32),
 
@@ -258,7 +232,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> with TickerProv
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Итого за месяц',
+                          localizations.totalThisMonth,
                           style: BankingTypography.bodyRegular.semiBold,
                         ),
                         Text(
@@ -274,7 +248,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> with TickerProv
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Средняя транзакция',
+                          localizations.averageTransaction,
                           style: BankingTypography.bodyRegular,
                         ),
                         Text(
@@ -368,7 +342,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> with TickerProv
                 child: _buildAnalyticsCard(
                   title: localizations.count,
                   amount: transactionCount.toDouble(),
-                  subtitle: 'транзакций',
+                  subtitle: localizations.transactionsCount,
                   color: BankingColors.primary500,
                   icon: Icons.receipt,
                   isCount: true,
@@ -407,7 +381,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> with TickerProv
                       ),
                     ),
                     Text(
-                      '${entry.value.toStringAsFixed(0)} ₽ (${percentage.toStringAsFixed(1)}%)',
+                      '\$${entry.value.toStringAsFixed(0)} (${percentage.toStringAsFixed(1)}%)',
                       style: Theme.of(context).textTheme.bodySmall!.copyWith(fontWeight: FontWeight.w600),
                     ),
                   ],
@@ -466,7 +440,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> with TickerProv
           Text(
             isCount
                 ? amount.toInt().toString()
-                : '${amount.toStringAsFixed(0)} ₽',
+                : '\$${amount.toStringAsFixed(0)}',
             style: BankingTypography.amountMedium.copyWith(
               color: Theme.of(context).brightness == Brightness.dark
                   ? BankingColors.neutral0
@@ -566,10 +540,247 @@ class _TransactionsScreenState extends State<TransactionsScreen> with TickerProv
     appState.setSelectedTabIndex(correctedIndex);
   }
 
+  Widget _buildSearchBar(AppLocalizations localizations) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: isDark ? BankingColors.neutral800 : BankingColors.neutral0,
+        borderRadius: BorderRadius.circular(BankingTokens.radius16),
+        border: Border.all(
+          color: isDark ? BankingColors.neutral700 : BankingColors.neutral200,
+          width: 1,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: isDark
+                ? Colors.black.withOpacity(0.2)
+                : Colors.black.withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: TextField(
+        controller: _searchController,
+        decoration: InputDecoration(
+          hintText: localizations.searchTransactions,
+          hintStyle: TextStyle(
+            color: isDark ? BankingColors.neutral500 : BankingColors.neutral400,
+            fontSize: 16,
+          ),
+          border: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: BankingTokens.space16,
+            vertical: BankingTokens.space12,
+          ),
+          prefixIcon: Icon(
+            Icons.search,
+            color: BankingColors.primary500,
+            size: 20,
+          ),
+          suffixIcon: _searchQuery.isNotEmpty
+              ? IconButton(
+                  icon: Icon(
+                    Icons.clear,
+                    color: BankingColors.neutral500,
+                    size: 20,
+                  ),
+                  onPressed: () {
+                    _searchController.clear();
+                    setState(() {
+                      _searchQuery = '';
+                    });
+                  },
+                )
+              : null,
+        ),
+        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+          color: isDark ? BankingColors.neutral100 : BankingColors.neutral900,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFilters(AppState appState, AppLocalizations localizations) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Container(
+      padding: const EdgeInsets.all(BankingTokens.space16),
+      decoration: BoxDecoration(
+        color: isDark ? BankingColors.neutral800 : BankingColors.neutral0,
+        borderRadius: BorderRadius.circular(BankingTokens.radius12),
+        boxShadow: BankingTokens.getShadow(1),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+            Text(
+              localizations.filters,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          const SizedBox(height: BankingTokens.space16),
+
+          // Transaction type filter
+          Row(
+            children: [
+                Text(
+                  localizations.type,
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+              const SizedBox(width: BankingTokens.space12),
+              Expanded(
+                child: SegmentedButton<String>(
+                  segments: [
+                    ButtonSegment<String>(
+                      value: 'all',
+                      label: Text(localizations.all),
+                    ),
+                    ButtonSegment<String>(
+                      value: 'income',
+                      label: Text(localizations.income),
+                    ),
+                    ButtonSegment<String>(
+                      value: 'expense',
+                      label: Text(localizations.expenses),
+                    ),
+                  ],
+                  selected: {_transactionTypeFilter},
+                  showSelectedIcon: false,
+                  onSelectionChanged: (Set<String> selection) {
+                    setState(() {
+                      _transactionTypeFilter = selection.first;
+                    });
+                  },
+                  style: ButtonStyle(
+                    backgroundColor: WidgetStateProperty.resolveWith((states) {
+                      if (states.contains(WidgetState.selected)) {
+                        return BankingColors.primary500.withOpacity(0.1);
+                      }
+                      return Colors.transparent;
+                    }),
+                    foregroundColor: WidgetStateProperty.resolveWith((states) {
+                      if (states.contains(WidgetState.selected)) {
+                        return BankingColors.primary500;
+                      }
+                      return isDark ? BankingColors.neutral400 : BankingColors.neutral600;
+                    }),
+                    side: WidgetStateProperty.resolveWith((states) {
+                      if (states.contains(WidgetState.selected)) {
+                        return BorderSide(color: BankingColors.primary500, width: 1);
+                      }
+                      return BorderSide(color: isDark ? BankingColors.neutral600 : BankingColors.neutral300, width: 1);
+                    }),
+                    // iconColor: WidgetStateProperty.all(Colors.transparent),
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: BankingTokens.space16),
+
+          // Account filter
+          if (appState.accounts.isNotEmpty) ...[
+            Row(
+              children: [
+                Text(
+                  localizations.cardLabel,
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+                const SizedBox(width: BankingTokens.space12),
+                Expanded(
+                  child: DropdownButton<String?>(
+                    value: _selectedAccountId,
+                    hint: Text(localizations.allCards),
+                    isExpanded: true,
+                    items: [
+                      DropdownMenuItem<String?>(
+                        value: null,
+                        child: Text(localizations.allCards),
+                      ),
+                      ...appState.accounts.map((account) {
+                        return DropdownMenuItem<String?>(
+                          value: account.id,
+                          child: Text(
+                            account.cardNumber != null
+                                ? '•••• ${account.cardNumber!.substring(account.cardNumber!.length - 4)}'
+                                : account.name,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        );
+                      }),
+                    ],
+                    onChanged: (String? value) {
+                      setState(() {
+                        _selectedAccountId = value;
+                      });
+                    },
+                    underline: Container(
+                      height: 1,
+                      color: BankingColors.primary500,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: BankingTokens.space16),
+          ],
+
+          // Date filter
+          Row(
+            children: [
+              Text(
+                localizations.dateLabel,
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+              const SizedBox(width: BankingTokens.space12),
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: () async {
+                    final DateTimeRange? picked = await showDateRangePicker(
+                      context: context,
+                      firstDate: DateTime(2020),
+                      lastDate: DateTime.now(),
+                      initialDateRange: _dateRange,
+                    );
+                    if (picked != null) {
+                      setState(() {
+                        _dateRange = picked;
+                      });
+                    }
+                  },
+                  child: Text(
+                    _dateRange != null
+                        ? '${DateFormat('dd.MM', 'ru').format(_dateRange!.start)} - ${DateFormat('dd.MM', 'ru').format(_dateRange!.end)}'
+                        : localizations.selectPeriod,
+                  ),
+                ),
+              ),
+              if (_dateRange != null)
+                IconButton(
+                  icon: const Icon(Icons.clear),
+                  onPressed: () {
+                    setState(() {
+                      _dateRange = null;
+                    });
+                  },
+                ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
   void _onTransactionTap(Transaction transaction) {
+    final localizations = AppLocalizations.of(context)!;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('${AppLocalizations.of(context)?.transactionOpened ?? 'Открыта транзакция'} "${_getLocalizedTransactionTitle(transaction.title, AppLocalizations.of(context)!)}"'),
+        content: Text('${localizations.transactionOpened} "${_getLocalizedTransactionTitle(transaction.title, localizations)}"'),
         duration: const Duration(seconds: 1),
       ),
     );
@@ -577,19 +788,30 @@ class _TransactionsScreenState extends State<TransactionsScreen> with TickerProv
   }
 
   String _getLocalizedTransactionTitle(String titleKey, AppLocalizations localizations) {
+    // Handle template-based transactions
+    if (titleKey.startsWith('receivedTransferFrom_')) {
+      final name = titleKey.replaceFirst('receivedTransferFrom_', '');
+      return localizations.receivedTransferFrom(name);
+    }
+    if (titleKey.startsWith('transferFrom_')) {
+      final name = titleKey.replaceFirst('transferFrom_', '');
+      return localizations.transferFromUser(name);
+    }
+
     switch (titleKey) {
-      case 'Amazon Purchase':
+      case 'amazonPurchase':
         return localizations.amazonPurchase;
-      case 'Salary Deposit':
+      case 'salaryDeposit':
         return localizations.salaryDeposit;
-      case 'Coffee Shop':
+      case 'coffeeShop':
         return localizations.coffeeShop;
-      case 'Electricity Bill':
+      case 'electricityBill':
         return localizations.electricityBill;
-      case 'Freelance Payment':
+      case 'freelancePayment':
         return localizations.freelancePayment;
       default:
-        return titleKey;
+        // Try to get from localizations by key, fallback to original key
+        return localizations.getTransactionTitle(titleKey);
     }
   }
 
@@ -605,10 +827,146 @@ class _TransactionsScreenState extends State<TransactionsScreen> with TickerProv
     } else if (difference.inDays < 7) {
       return '${difference.inDays} ${localizations.daysAgo}';
     } else {
-      return '${date.month}/${date.day}';
+      return DateFormat.yMd('ru').format(date);
     }
   }
 
+  List<Transaction> _getFilteredTransactions(List<Transaction> transactions, List<Account> accounts) {
+    return transactions.where((transaction) {
+      // Search filter
+      if (_searchQuery.isNotEmpty) {
+        final title = transaction.title.toLowerCase();
+        final category = transaction.category.toLowerCase();
+        if (!title.contains(_searchQuery) && !category.contains(_searchQuery)) {
+          return false;
+        }
+      }
+
+      // Transaction type filter
+      if (_transactionTypeFilter == 'income' && transaction.amount < 0) {
+        return false;
+      }
+      if (_transactionTypeFilter == 'expense' && transaction.amount > 0) {
+        return false;
+      }
+
+      // Account filter
+      if (_selectedAccountId != null && transaction.accountId != _selectedAccountId) {
+        return false;
+      }
+
+      // Date range filter
+      if (_dateRange != null) {
+        if (transaction.date.isBefore(_dateRange!.start) || transaction.date.isAfter(_dateRange!.end)) {
+          return false;
+        }
+      }
+
+      return true;
+    }).toList();
+  }
+
+
+  Widget _buildNotificationsMenu() {
+    final appState = context.watch<AppState>();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final localizations = AppLocalizations.of(context)!;
+
+    return PopupMenuButton<String>(
+      icon: Icon(
+        isDark ? BankingIcons.notification : BankingIcons.notificationFilled,
+        color: BankingColors.primary500,
+      ),
+      onSelected: (value) {
+        if (value == 'view_all') {
+          _onViewAllNotifications();
+        }
+      },
+      onOpened: () {
+        appState.markAllNotificationsAsRead();
+      },
+      itemBuilder: (BuildContext context) {
+        final notifications = appState.notifications;
+        final unreadCount = notifications.where((n) => !n.isRead).length;
+
+        return [
+          PopupMenuItem<String>(
+            enabled: false,
+            child: Text(
+              unreadCount > 0
+                  ? '${localizations.notificationsHeader} (${unreadCount} ${localizations.unreadNotifications})'
+                  : localizations.notificationsHeader,
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          const PopupMenuDivider(),
+          ...notifications.take(3).map((notification) {
+            return PopupMenuItem<String>(
+              enabled: false,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          notification.title,
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            fontWeight: notification.isRead ? FontWeight.normal : FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      if (!notification.isRead)
+                        Container(
+                          width: 8,
+                          height: 8,
+                          decoration: BoxDecoration(
+                            color: BankingColors.primary500,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                    ],
+                  ),
+                  Text(
+                    notification.message,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).brightness == Brightness.dark
+                          ? BankingColors.neutral400
+                          : BankingColors.neutral600,
+                    ),
+                  ),
+                  Text(
+                    notification.getTimeAgo(localizations),
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).brightness == Brightness.dark
+                          ? BankingColors.neutral500
+                          : BankingColors.neutral500,
+                      fontSize: 10,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }),
+          if (notifications.length > 3)
+            const PopupMenuDivider(),
+          if (notifications.length > 3)
+            PopupMenuItem<String>(
+              value: 'view_all',
+              child: Row(
+                children: [
+                  Icon(Icons.expand_more, size: 16),
+                  const SizedBox(width: 8),
+                  Text(localizations.viewAllNotifications),
+                ],
+              ),
+            ),
+        ];
+      },
+    );
+  }
 
   void _onViewAllNotifications() {
     // TODO: Navigate to full notifications screen

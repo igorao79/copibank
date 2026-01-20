@@ -1,6 +1,5 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:lottie/lottie.dart';
@@ -1139,7 +1138,7 @@ class _DebitCardApplicationModalState extends State<DebitCardApplicationModal>
                         'Дебетовая карта для повседневных расчетов.\n\n'
                         '• Бесплатное обслуживание\n'
                         '• Кэшбэк до 5% на категории\n'
-                        '• Бесплатное снятие до 100k ₽/мес\n'
+                        '• Бесплатное снятие до \$10k/мес\n'
                         '• Международные платежи\n'
                         '• Контактная и NFC оплата\n\n'
                         'Доставка: 3-5 рабочих дней.',
@@ -1302,10 +1301,10 @@ class _CreditCardApplicationModalState extends State<CreditCardApplicationModal>
                     child: SingleChildScrollView(
                       child: Text(
                         'Кредитная карта с выгодными условиями.\n\n'
-                        '• Лимит до 500 000 ₽\n'
+                        '• Лимит до \$50 000\n'
                         '• Льготный период до 120 дней\n'
                         '• Ставка от 15% годовых\n'
-                        '• Обслуживание 590 ₽/год\n'
+                        '• Обслуживание \$59/год\n'
                         '• Кэшбэк на покупки\n\n'
                         'Доставка: 3-7 дней после одобрения.',
                         textAlign: TextAlign.center,
@@ -1525,7 +1524,7 @@ class _PaymentStickerApplicationModalState
                           ),
                           const SizedBox(height: BankingTokens.space16),
                           Text(
-                            'Стоимость: 0 ₽\nДоставка: Бесплатно\nСрок изготовления: 3-5 рабочих дней',
+                            'Стоимость: \$0\nДоставка: Бесплатно\nСрок изготовления: 3-5 рабочих дней',
                             style: BankingTypography.bodySmall.copyWith(
                               color: isDark
                                   ? BankingColors.neutral400
@@ -1824,7 +1823,7 @@ class _SavingsAccountApplicationModalState
                         '• Процентная ставка: 5% годовых\n'
                         '• Начисление процентов: ежемесячно\n'
                         '• Снятие средств: в любое время\n'
-                        '• Минимальный взнос: от 100₽\n'
+                        '• Минимальный взнос: от \$10\n'
                         '• Без комиссий за обслуживание\n\n'
                         'Вы сможете пополнять счет и следить за ростом ваших сбережений.',
                         textAlign: TextAlign.left,

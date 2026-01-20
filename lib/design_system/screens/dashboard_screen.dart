@@ -1347,7 +1347,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
         Wrap(
           spacing: BankingTokens.space12,
           runSpacing: BankingTokens.space12,
-          children: appState.selectedCashbackCategories.map((category) {
+          children: appState.getSelectedCashbackCategories(context).map((category) {
             return Container(
               padding: const EdgeInsets.symmetric(
                 horizontal: BankingTokens.space12,

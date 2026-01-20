@@ -68,21 +68,24 @@ class _BankingAppState extends State<BankingApp> {
       ],
       child: Consumer<AppState>(
         builder: (context, appState, child) {
+          final currentLocale = Locale(appState.userLanguage);
+          print('🔥 MAIN.DART: appState.userLanguage = ${appState.userLanguage}');
+          print('🔥 MAIN.DART: Setting MaterialApp locale to: ${currentLocale.languageCode}');
           return MaterialApp(
-            title: AppLocalizations(Locale(appState.userLanguage)).appTitle,
+            title: AppLocalizations(currentLocale).appTitle,
             theme: BankingTheme.light,
             darkTheme: BankingTheme.dark,
             themeMode: appState.themeMode,
-            locale: Locale(appState.userLanguage),
-            localizationsDelegates: [
+            locale: currentLocale,
+            localizationsDelegates: const [
               AppLocalizationsDelegate(),
               GlobalMaterialLocalizations.delegate,
               GlobalWidgetsLocalizations.delegate,
               GlobalCupertinoLocalizations.delegate,
             ],
             supportedLocales: const [
-              Locale('en', ''),
-              Locale('ru', ''),
+              Locale('ru'),
+              Locale('en'),
             ],
             home: _buildHome(),
             debugShowCheckedModeBanner: false,

@@ -155,9 +155,12 @@ class AppState extends ChangeNotifier {
   }
 
   List<CashbackCategory> get allCashbackCategories => _allCashbackCategories.isNotEmpty ? _allCashbackCategories : [];
-  List<CashbackCategory> get selectedCashbackCategories => _allCashbackCategories
-      .where((category) => _selectedCashbackCategoryIds.contains(category.id))
-      .toList();
+  List<CashbackCategory> getSelectedCashbackCategories(BuildContext context) {
+    final localizedCategories = getLocalizedCashbackCategories(context);
+    return localizedCategories
+        .where((category) => _selectedCashbackCategoryIds.contains(category.id))
+        .toList();
+  }
   List<String> get selectedCashbackCategoryIds => _selectedCashbackCategoryIds;
   bool get hasSelectedCashbackCategories => _hasSelectedCashbackCategories;
 
@@ -576,7 +579,7 @@ class AppState extends ChangeNotifier {
       final transactionId = 'receive_${DateTime.now().millisecondsSinceEpoch}';
       final transaction = Transaction(
         id: transactionId,
-        title: 'Received transfer from ${randomUser.name}', // Will be localized in UI
+        title: 'receivedTransferFrom_${randomUser.name}', // Will be localized in UI
         amount: randomAmount.toDouble(),
         date: DateTime.now(),
         category: 'Income',
@@ -605,7 +608,7 @@ class AppState extends ChangeNotifier {
   final List<Transaction> _transactions = [
     Transaction(
       id: '1',
-      title: 'Amazon Purchase',
+      title: 'amazonPurchase',
       amount: -89.99,
       date: DateTime.now().subtract(const Duration(hours: 2)),
       category: 'Shopping',
@@ -613,7 +616,7 @@ class AppState extends ChangeNotifier {
     ),
     Transaction(
       id: '2',
-      title: 'Salary Deposit',
+      title: 'salaryDeposit',
       amount: 3500.00,
       date: DateTime.now().subtract(const Duration(days: 1)),
       category: 'Income',
@@ -621,7 +624,7 @@ class AppState extends ChangeNotifier {
     ),
     Transaction(
       id: '3',
-      title: 'Coffee Shop',
+      title: 'coffeeShop',
       amount: -4.50,
       date: DateTime.now().subtract(const Duration(days: 1, hours: 3)),
       category: 'Food',
@@ -629,7 +632,7 @@ class AppState extends ChangeNotifier {
     ),
     Transaction(
       id: '4',
-      title: 'Electricity Bill',
+      title: 'electricityBill',
       amount: -120.00,
       date: DateTime.now().subtract(const Duration(days: 2)),
       category: 'Utilities',
@@ -637,7 +640,7 @@ class AppState extends ChangeNotifier {
     ),
     Transaction(
       id: '5',
-      title: 'Freelance Payment',
+      title: 'freelancePayment',
       amount: 750.00,
       date: DateTime.now().subtract(const Duration(days: 3)),
       category: 'Income',
@@ -645,7 +648,7 @@ class AppState extends ChangeNotifier {
     ),
     Transaction(
       id: '6',
-      title: 'Transfer from Mikhail', // Will be localized in UI
+      title: 'transferFromMikhail', // Will be localized in UI
       amount: 500.00,
       date: DateTime.now().subtract(const Duration(days: 4)),
       category: 'Transfer',
@@ -653,7 +656,7 @@ class AppState extends ChangeNotifier {
     ),
     Transaction(
       id: '7',
-      title: 'Store purchase', // Will be localized in UI
+      title: 'storePurchaseGeneric', // Will be localized in UI
       amount: -25.50,
       date: DateTime.now().subtract(const Duration(days: 5)),
       category: 'Shopping',

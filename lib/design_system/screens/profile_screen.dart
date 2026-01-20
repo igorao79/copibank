@@ -291,7 +291,7 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
                 // Name Field
                 _buildProfileField(
                   context: context,
-                  label: 'Имя',
+                  label: AppLocalizations.of(context)?.name ?? 'Имя',
                   value: appState.userName,
                   icon: Icons.person,
                   onEdit: () => _showEditNameDialog(context, appState),
